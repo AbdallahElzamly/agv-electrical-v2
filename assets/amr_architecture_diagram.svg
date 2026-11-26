@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" width="100%">
+  <rect width="960" height="520" rx="12" fill="#f8fafb" stroke="#cfd8de" stroke-width="2"/>
+  <text x="480" y="36" text-anchor="middle" font-family="Segoe UI, Tahoma, sans-serif" font-size="20" font-weight="700" fill="#0d6b93">AMR Robot Electrical &amp; Pinout Architecture (Rev C)</text>
+  <text x="480" y="58" text-anchor="middle" font-family="Segoe UI, Tahoma, sans-serif" font-size="13" fill="#5d6b78">2S 18650 Battery · Dual Buck Regulators (BK1 &amp; BK2) · ESP32 30-Pin · Dual HC-SR04 Safety · 3x IR TCRT5000 · Chipsy Lift Servo</text>
+
+  <!-- Power Chain Box -->
+  <rect x="30" y="85" width="230" height="125" rx="8" fill="#fdeaea" stroke="#d32f2f" stroke-width="2"/>
+  <text x="145" y="112" text-anchor="middle" font-family="Segoe UI, sans-serif" font-weight="700" font-size="15" fill="#b71c1c">1. Power &amp; Protection (2S)</text>
+  <text x="145" y="135" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#1d2731">2 × 18650 (7.4V Nominal)</text>
+  <text x="145" y="155" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#1d2731">BMS 2S 8A + XT30 + T6.3A Fuse</text>
+  <text x="145" y="175" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#1d2731">USB-C 8.4V Charger @ Node N1</text>
+  <text x="145" y="195" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#b71c1c">Star Distribution: X1(+) / X2(GND)</text>
+
+  <!-- Dual Buck Box -->
+  <rect x="30" y="230" width="230" height="120" rx="8" fill="#fff3e0" stroke="#ef6c00" stroke-width="2"/>
+  <text x="145" y="256" text-anchor="middle" font-family="Segoe UI, sans-serif" font-weight="700" font-size="15" fill="#e65100">2. Isolated 5.0V Rails</text>
+  <text x="145" y="280" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#1d2731">BK1 (5.0V): ESP32 + 2×US + Logic</text>
+  <text x="145" y="302" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#7b1fa2" font-weight="700">BK2 (5.0V): Servo ONLY + 1000µF</text>
+  <text x="145" y="326" text-anchor="middle" font-family="Consolas, monospace" font-size="11.5" fill="#2e7d32">VBAT Sense: 100k/33k -&gt; GPIO39</text>
+
+  <!-- 3x IR Sensors Box -->
+  <rect x="30" y="370" width="230" height="120" rx="8" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+  <text x="145" y="396" text-anchor="middle" font-family="Segoe UI, sans-serif" font-weight="700" font-size="15" fill="#1b5e20">3. Line Tracking (3× IR)</text>
+  <text x="145" y="420" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#1d2731">Powered by ESP32 3.3V Pin</text>
+  <text x="145" y="442" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#1d2731">IR_L -&gt; GPIO 34 | IR_C -&gt; GPIO 35</text>
+  <text x="145" y="464" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#1d2731">IR_R -&gt; GPIO 19 (3-Black = Stop)</text>
+
+  <!-- Center ESP32 Controller -->
+  <rect x="350" y="95" width="250" height="395" rx="12" fill="#e3f2fd" stroke="#0d6b93" stroke-width="3"/>
+  <text x="475" y="128" text-anchor="middle" font-family="Segoe UI, sans-serif" font-weight="700" font-size="18" fill="#0d6b93">ESP32 DevKit V1</text>
+  <text x="475" y="150" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#37474f">30-Pin · WiFi OFF · 3.3V Logic</text>
+
+  <rect x="370" y="172" width="210" height="32" rx="5" fill="#0d6b93"/>
+  <text x="475" y="193" text-anchor="middle" font-family="Consolas, monospace" font-size="12.5" font-weight="700" fill="#fff">M1 Left: GPIO 25, 26, 27</text>
+
+  <rect x="370" y="216" width="210" height="32" rx="5" fill="#0d6b93"/>
+  <text x="475" y="237" text-anchor="middle" font-family="Consolas, monospace" font-size="12.5" font-weight="700" fill="#fff">M2 Right: GPIO 33, 32, 14</text>
+
+  <rect x="370" y="260" width="210" height="32" rx="5" fill="#7b1fa2"/>
+  <text x="475" y="281" text-anchor="middle" font-family="Consolas, monospace" font-size="12.5" font-weight="700" fill="#fff">Servo Lift: GPIO 18 (50Hz)</text>
+
+  <rect x="370" y="304" width="210" height="32" rx="5" fill="#0277bd"/>
+  <text x="475" y="325" text-anchor="middle" font-family="Consolas, monospace" font-size="12.5" font-weight="700" fill="#fff">US Right: Trig 23 / Echo 22</text>
+
+  <rect x="370" y="348" width="210" height="32" rx="5" fill="#0277bd"/>
+  <text x="475" y="369" text-anchor="middle" font-family="Consolas, monospace" font-size="12.5" font-weight="700" fill="#fff">US Left:  Trig 21 / Echo 17</text>
+
+  <rect x="370" y="392" width="210" height="32" rx="5" fill="#2e7d32"/>
+  <text x="475" y="413" text-anchor="middle" font-family="Consolas, monospace" font-size="12.5" font-weight="700" fill="#fff">IR Line: GPIO 34, 35, 19</text>
+
+  <rect x="370" y="436" width="210" height="32" rx="5" fill="#e65100"/>
+  <text x="475" y="457" text-anchor="middle" font-family="Consolas, monospace" font-size="12.5" font-weight="700" fill="#fff">VBAT ADC: GPIO 39 (VN)</text>
+
+  <!-- Right Actuators & Safety -->
+  <rect x="690" y="85" width="240" height="125" rx="8" fill="#ffebee" stroke="#c62828" stroke-width="2"/>
+  <text x="810" y="112" text-anchor="middle" font-family="Segoe UI, sans-serif" font-weight="700" font-size="15" fill="#b71c1c">4. Rear Differential Drive</text>
+  <text x="810" y="136" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#1d2731">TB6612FNG (or L298N) + 1000µF</text>
+  <text x="810" y="158" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#1d2731">2 × Rear TT Gear Motors (65mm)</text>
+  <text x="810" y="180" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#1d2731">+ 1 × Front Metal Caster Wheel</text>
+
+  <rect x="690" y="230" width="240" height="110" rx="8" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2"/>
+  <text x="810" y="256" text-anchor="middle" font-family="Segoe UI, sans-serif" font-weight="700" font-size="15" fill="#6a1b9a">5. Chipsy Lifting Mechanism</text>
+  <text x="810" y="280" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#1d2731">MG90S Metal / MG996R (180°)</text>
+  <text x="810" y="302" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#1d2731">0° = Down (Pick/Drop)</text>
+  <text x="810" y="322" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#1d2731">90° = Up (Carrying Load)</text>
+
+  <rect x="690" y="360" width="240" height="130" rx="8" fill="#e1f5fe" stroke="#0277bd" stroke-width="2"/>
+  <text x="810" y="386" text-anchor="middle" font-family="Segoe UI, sans-serif" font-weight="700" font-size="15" fill="#01579b">6. Dual Ultrasonic Safety</text>
+  <text x="810" y="410" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#1d2731">Right HC-SR04 (GPIO 23/22)</text>
+  <text x="810" y="432" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#1d2731">Left  HC-SR04 (GPIO 21/17)</text>
+  <text x="810" y="456" text-anchor="middle" font-family="Consolas, monospace" font-size="11.5" fill="#c62828" font-weight="700">Both ECHO pins via 1kΩ/2kΩ Divider!</text>
+  <text x="810" y="476" text-anchor="middle" font-family="Consolas, monospace" font-size="11.5" fill="#1b5e20">Auto-Stop if Obstacle &lt;= 20 cm</text>
+
+  <!-- Connecting Lines -->
+  <line x1="260" y1="150" x2="350" y2="150" stroke="#d32f2f" stroke-width="2.5"/>
+  <line x1="260" y1="280" x2="350" y2="280" stroke="#ef6c00" stroke-width="2.5"/>
+  <line x1="260" y1="420" x2="350" y2="410" stroke="#2e7d32" stroke-width="2.5"/>
+  <line x1="600" y1="200" x2="690" y2="150" stroke="#c62828" stroke-width="2.5"/>
+  <line x1="600" y1="276" x2="690" y2="280" stroke="#7b1fa2" stroke-width="2.5"/>
+  <line x1="600" y1="345" x2="690" y2="420" stroke="#0277bd" stroke-width="2.5"/>
+</svg>

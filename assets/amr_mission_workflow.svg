@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" width="100%">
+  <rect width="900" height="320" rx="12" fill="#ffffff" stroke="#cfd8de" stroke-width="2"/>
+  <text x="450" y="34" text-anchor="middle" font-family="Segoe UI, Tahoma, sans-serif" font-size="18" font-weight="700" fill="#1d2731">سير عمل مهمة روبوت AMR (Autonomous Chipsy Delivery Mission Flow)</text>
+
+  <!-- Step 1 -->
+  <rect x="30" y="70" width="185" height="105" rx="8" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+  <text x="122" y="96" text-anchor="middle" font-family="Segoe UI, sans-serif" font-weight="700" font-size="14" fill="#0d47a1">1. وضع الاستعداد (IDLE)</text>
+  <text x="122" y="120" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="12" fill="#37474f">فحص جهد البطارية (&gt;6.6V)</text>
+  <text x="122" y="140" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="12" fill="#37474f">الذراع عند 0° (أسفل)</text>
+  <text x="122" y="160" text-anchor="middle" font-family="Consolas, monospace" font-size="11.5" fill="#0d47a1">اضغط BOOT للانطلاق</text>
+
+  <!-- Step 2 -->
+  <rect x="250" y="70" width="185" height="105" rx="8" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2"/>
+  <text x="342" y="96" text-anchor="middle" font-family="Segoe UI, sans-serif" font-weight="700" font-size="14" fill="#6a1b9a">2. رفع كيس الشيبسي</text>
+  <text x="342" y="120" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="12" fill="#37474f">المواتير واقفة تماماً</text>
+  <text x="342" y="140" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="12" fill="#37474f">رفع ناعم 0° -&gt; 90°</text>
+  <text x="342" y="160" text-anchor="middle" font-family="Consolas, monospace" font-size="11.5" fill="#6a1b9a">تغذية معزولة من BK2</text>
+
+  <!-- Step 3 -->
+  <rect x="470" y="70" width="185" height="105" rx="8" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+  <text x="562" y="96" text-anchor="middle" font-family="Segoe UI, sans-serif" font-weight="700" font-size="14" fill="#1b5e20">3. تتبع الخط والأمان</text>
+  <text x="562" y="120" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="12" fill="#37474f">3 حساسات IR (L, C, R)</text>
+  <text x="562" y="140" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="12" fill="#37474f">مراقبة ألتراسونيك يمين وشمال</text>
+  <text x="562" y="160" text-anchor="middle" font-family="Consolas, monospace" font-size="11.5" fill="#1b5e20">تعديل السرعة مع جهد البطارية</text>
+
+  <!-- Step 4 -->
+  <rect x="690" y="70" width="185" height="105" rx="8" fill="#fff3e0" stroke="#ef6c00" stroke-width="2"/>
+  <text x="782" y="96" text-anchor="middle" font-family="Segoe UI, sans-serif" font-weight="700" font-size="14" fill="#e65100">4. محطة التسليم (111)</text>
+  <text x="782" y="120" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="12" fill="#37474f">رصد الخط العرضي الأسود</text>
+  <text x="782" y="140" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="12" fill="#37474f">وقوف تام + إنزال 90° -&gt; 0°</text>
+  <text x="782" y="160" text-anchor="middle" font-family="Consolas, monospace" font-size="11.5" fill="#e65100">اكتمال المهمة بنجاح!</text>
+
+  <!-- Safety Branch -->
+  <rect x="360" y="215" width="400" height="80" rx="8" fill="#fdeaea" stroke="#c62828" stroke-width="2"/>
+  <text x="560" y="242" text-anchor="middle" font-family="Segoe UI, sans-serif" font-weight="700" font-size="14" fill="#b71c1c">فرع الطوارئ والأمان (Dual Ultrasonic Safety Interlock)</text>
+  <text x="560" y="264" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="12.5" fill="#1d2731">لو حساس اليمين (GPIO 23/22) أو الشمال (GPIO 21/17) قرا مسافة &lt;= 20 سم</text>
+  <text x="560" y="283" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="12" fill="#b71c1c">يقف الروبوت فوراً وينتظر حتى يبتعد العائق (&gt;= 25 سم) ثم يكمل مساره تلقائياً</text>
+
+  <!-- Arrows -->
+  <line x1="215" y1="122" x2="250" y2="122" stroke="#1d2731" stroke-width="2.5"/>
+  <line x1="435" y1="122" x2="470" y2="122" stroke="#1d2731" stroke-width="2.5"/>
+  <line x1="655" y1="122" x2="690" y2="122" stroke="#1d2731" stroke-width="2.5"/>
+  <line x1="562" y1="175" x2="562" y2="215" stroke="#c62828" stroke-width="2.5" stroke-dasharray="5 3"/>
+</svg>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مخطط التوصيل والمحاكاة الكهربية الشاملة — روبوت AMR (E‑01 Rev C)</title>
+<style>
+:root{
+  --bg:#eef2f0; --card:#ffffff; --ink:#1d2731; --muted:#5d6b78; --line:#cfd8de;
+  --accent:#0d6b93; --accent-soft:#e1eff6;
+  --ok:#2e7d32; --ok-soft:#e6f4e7; --warn:#a86a00; --warn-soft:#fff3dc; --bad:#c62828; --bad-soft:#fdeaea;
+  --font:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;
+  --mono:'IBM Plex Mono',Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.65;font-size:15px}
+header{background:var(--card);border-bottom:1px solid var(--line);padding:16px 20px;position:sticky;top:0;z-index:10}
+.wrap{max-width:1220px;margin:0 auto}
+.toprow{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
+h1{font-size:21px;margin:0}
+h2{font-size:18px;margin:0 0 10px;color:var(--accent)}
+.badge{padding:5px 14px;border-radius:999px;font-weight:700;font-size:13.5px;border:1px solid}
+.badge.ok{background:var(--ok-soft);color:var(--ok);border-color:#b9dcbb}
+.badge.warn{background:var(--warn-soft);color:var(--warn);border-color:#f0d39a}
+.badge.bad{background:var(--bad-soft);color:var(--bad);border-color:#f2b9b9}
+main{padding:20px 16px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px;margin-bottom:18px}
+.simgrid{display:grid;grid-template-columns:320px 1fr;gap:16px}
+@media(max-width:900px){.simgrid{grid-template-columns:1fr}}
+.ctrl{background:#f8fafb;border:1px solid var(--line);border-radius:6px;padding:14px;display:grid;gap:10px;align-content:start}
+.ctrl label{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;gap:8px}
+.ctrl input[type=range]{width:100%}
+.chk{justify-content:flex-start!important;cursor:pointer}
+.readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-bottom:12px}
+.ro{border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:#fff}
+.ro .k{font-size:12px;color:var(--muted)}
+.ro .v{font-family:var(--mono);font-size:18px;font-weight:700;direction:ltr;text-align:right}
+.ro.bad{background:var(--bad-soft);border-color:#f2b9b9;color:var(--bad)}
+.ro.warn{background:var(--warn-soft);border-color:#f0d39a;color:var(--warn)}
+.ro.ok{background:var(--ok-soft);border-color:#b9dcbb;color:var(--ok)}
+.alerts{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+.alerts li{padding:8px 12px;border-radius:6px;font-size:13.5px;border:1px solid}
+.alerts .crit{background:var(--bad-soft);border-color:#f2b9b9;color:#7f1d1d;font-weight:600}
+.alerts .warn{background:var(--warn-soft);border-color:#f0d39a;color:#6b4500}
+.alerts .ok{background:var(--ok-soft);border-color:#b9dcbb;color:#1b5e20}
+.svgbox{border:1px solid var(--line);border-radius:6px;background:#fff;overflow:auto;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{border-bottom:1px solid var(--line);padding:8px;text-align:right}
+th{background:#f4f7f8;color:var(--muted)}
+.mono{font-family:var(--mono);direction:ltr;unicode-bidi:isolate}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap toprow">
+    <div>
+      <h1>مخطط التوصيل الكامل والمحاكاة الكهربية — روبوت AMR (E‑01 Rev C)</h1>
+      <div style="font-size:13px;color:var(--muted)">شامل التعديلات الهندسية: 2 حساس ألتراسونيك (يمين وشمال) + 3 حساسات خط + سيرفو الشيبسي + مقارنة L298N مقابل TB6612FNG</div>
+    </div>
+    <span id="statusBadge" class="badge ok">الدائرة آمنة 100% — جاهزة للتوصيل</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card">
+    <h2>1. المحاكاة الكهربية التفاعلية (اختبر الدائرة قبل التوصيل العملي عشان متتحرقش!)</h2>
+    <div class="simgrid">
+      <div class="ctrl">
+        <label>جهد البطارية (2S): <span id="vbatVal" class="mono">7.40V</span></label>
+        <input type="range" id="vbat" min="5.8" max="8.4" step="0.1" value="7.4">
+
+        <label>نوع درايفر المواتير:
+          <select id="driverType">
+            <option value="tb6612">TB6612FNG (الأوفر والأكفأ - فقد 0.3V)</option>
+            <option value="l298n">L298N التقليدي (فقد 2.0V)</option>
+          </select>
+        </label>
+
+        <label>نوع سيرفو الشيبسي:
+          <select id="servoType">
+            <option value="mg90s">MG90S Metal (الأوفر 90ج - أقصى سحب 0.8A)</option>
+            <option value="mg996r">MG996R (الكبير - أقصى سحب 2.5A)</option>
+          </select>
+        </label>
+
+        <label>حالة تشغيل الروبوت:
+          <select id="runMode">
+            <option value="follow">ماشي بيتتبع الخط (عادي)</option>
+            <option value="lift">واقف بيرفع كيس الشيبسي</option>
+            <option value="stall">أسوأ حالة (زنقة مواتير + سيرفو)</option>
+          </select>
+        </label>
+
+        <hr style="border:0;border-top:1px solid var(--line);width:100%">
+        <strong style="font-size:13px;color:var(--bad)">اختبار أخطاء التوصيل الشائعة (لحماية البوردة):</strong>
+        <label class="chk"><input type="checkbox" id="errEchoR"> توصيل Echo اليمين (5V) بدون مقسم 1k/2k</label>
+        <label class="chk"><input type="checkbox" id="errEchoL"> توصيل Echo الشمال (5V) بدون مقسم 1k/2k</label>
+        <label class="chk"><input type="checkbox" id="errServoRail"> توصيل باور السيرفو مع الـ ESP32 على BK1</label>
+        <label class="chk"><input type="checkbox" id="errBuckUnset"> نسيان ضبط المنظم BK1 قبل التوصيل (7.4V)</label>
+        <label class="chk"><input type="checkbox" id="errUsbBat"> توصيل USB اللابتوب والبطارية شغالة معاً</label>
+        <label class="chk"><input type="checkbox" id="errJumper5V"> نسيان جمبر 5V-EN راكب في L298N</label>
+      </div>
+
+      <div>
+        <div class="svgbox">
+          <svg id="schSvg" viewBox="0 0 920 470" width="100%" direction="ltr"></svg>
+        </div>
+        <div class="readouts" id="readouts"></div>
+        <ul class="alerts" id="alerts"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. جدول توصيل الأطراف الكامل والمعتمد (Pinout — ESP32 30-Pin Rev C)</h2>
+    <div style="overflow-x:auto">
+      <table>
+        <tr><th>الوظيفة / المكون</th><th>طرف المكون</th><th>طرف ESP32</th><th>التغذية (الباور)</th><th>حماية الدائرة (إجباري قبل التشغيل)</th></tr>
+        <tr><td><b>موتور شمال (M1)</b></td><td class="mono">ENA / IN1 / IN2</td><td class="mono">GPIO 25 / 26 / 27</td><td class="mono">VBAT (7.4V)</td><td>مقاومة <span class="mono">10kΩ</span> من <span class="mono">GPIO25</span> للأرضي + مكثف <span class="mono">100nF</span> على الموتور</td></tr>
+        <tr><td><b>موتور يمين (M2)</b></td><td class="mono">ENB / IN3 / IN4</td><td class="mono">GPIO 33 / 32 / 14</td><td class="mono">VBAT (7.4V)</td><td>مقاومة <span class="mono">10kΩ</span> من <span class="mono">GPIO33</span> للأرضي لمنع نبضة الإقلاع على <span class="mono">GPIO14</span></td></tr>
+        <tr><td><b>سيرفو رفع الشيبسي</b></td><td class="mono">PWM Signal</td><td class="mono">GPIO 18</td><td class="mono">5.0V (BK2 منفصل!)</td><td>مقاومة <span class="mono">1kΩ</span> توالي على الإشارة + مكثف <span class="mono">1000µF</span> على فيشة باور السيرفو</td></tr>
+        <tr><td><b>ألتراسونيك يمين (US_R)</b></td><td class="mono">TRIG_R / ECHO_R</td><td class="mono">GPIO 23 / GPIO 22</td><td class="mono">5.0V (BK1)</td><td><b>هام:</b> طرف <span class="mono">ECHO_R</span> يدخل على مقسم <span class="mono">1kΩ (فوق) / 2kΩ (أرضي)</span> ليصبح <span class="mono">3.3V</span></td></tr>
+        <tr><td><b>ألتراسونيك شمال (US_L)</b></td><td class="mono">TRIG_L / ECHO_L</td><td class="mono">GPIO 21 / GPIO 17</td><td class="mono">5.0V (BK1)</td><td><b>هام:</b> طرف <span class="mono">ECHO_L</span> يدخل على مقسم <span class="mono">1kΩ (فوق) / 2kΩ (أرضي)</span> ليصبح <span class="mono">3.3V</span></td></tr>
+        <tr><td><b>3 حساسات خط (TCRT5000)</b></td><td class="mono">DO (L / C / R)</td><td class="mono">GPIO 34 / 35 / 19</td><td class="mono">3.3V (من ESP32)</td><td>تغذيتها من طرف <span class="mono">3.3V</span> في الـ ESP32 يجعل خرجها <span class="mono">3.3V</span> آمن تماماً بدون مقسمات</td></tr>
+        <tr><td><b>عداد البطارية (VBAT)</b></td><td class="mono">Voltage Divider</td><td class="mono">GPIO 39 (VN)</td><td class="mono">X1 (VBAT)</td><td>مقاومة <span class="mono">100kΩ</span> من <span class="mono">X1</span> لـ <span class="mono">VN</span> + مقاومة <span class="mono">33kΩ</span> ومكثف <span class="mono">100nF</span> للأرضي</td></tr>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+function sim(){
+  const vb=+$('vbat').value;
+  $('vbatVal').textContent=vb.toFixed(2)+'V';
+  const drv=$('driverType').value;
+  const srv=$('servoType').value;
+  const mode=$('runMode').value;
+
+  const eEchoR=$('errEchoR').checked;
+  const eEchoL=$('errEchoL').checked;
+  const eSrvRail=$('errServoRail').checked;
+  const eBuck=$('errBuckUnset').checked;
+  const eUsb=$('errUsbBat').checked;
+  const eJmp=$('errJumper5V').checked;
+
+  const vDrop = drv==='tb6612' ? 0.3 : 2.0;
+  const vMotor = mode==='lift' ? 0 : Math.max(0, vb - vDrop);
+  const vBK1 = eBuck ? vb : (vb>=5.4 ? 5.0 : vb-0.4);
+  const iServoPeak = srv==='mg90s' ? 0.8 : 2.5;
+  const iServo = mode==='follow' ? 0.05 : (mode==='lift' ? (srv==='mg90s'?0.35:0.9) : iServoPeak);
+  const iMotors = mode==='lift' ? 0 : (mode==='follow' ? 0.55 : 3.2);
+  const iLogic = 0.12 + 0.06 + 0.03 + 0.03; // ESP32 + 3xIR + 2xUS + Driver logic = 0.24A
+
+  let vESP = vBK1;
+  if(eSrvRail && (mode==='lift' || mode==='stall') && srv==='mg996r'){
+    vESP = 4.1; // Brownout dip!
+  }
+  const vEchoR = eEchoR ? 5.0 : 3.33;
+  const vEchoL = eEchoL ? 5.0 : 3.33;
+  const vVN = vb * (33 / 133);
+  const iBat = iMotors + ((iLogic*vBK1 + iServo*5.0) / (vb*0.9));
+
+  const alerts=[];
+  let status='ok';
+
+  if(eBuck){
+    status='bad';
+    alerts.push(['crit',`خطر احتراق فوري! المنظم BK1 مطلع ${vb.toFixed(1)}V على الـ ESP32 والحساسات! اضبط مسمار المنظم بالملتيميتر على 5.00V قبل توصيل أي سلك.`]);
+  }
+  if(eEchoR || eEchoL){
+    status='bad';
+    alerts.push(['crit',`خطر تلف أطراف الـ ESP32! طرف Echo (${eEchoR?'اليمين GPIO22':''} ${eEchoL?'الشمال GPIO17':''}) واصل عليه 5.0V مباشرة! الـ ESP32 أقصاه 3.6V. لازم تركب مقسم الجهد (1kΩ فوق و 2kΩ للأرضي).`]);
+  }
+  if(eSrvRail && srv==='mg996r'){
+    status='bad';
+    alerts.push(['crit',`سيرفو MG996R متوصل على نفس منظم الـ ESP32 (BK1)! لحظة رفع كيس الشيبسي الجهد بيسقط لـ ${vESP.toFixed(1)}V والـ ESP32 هيعمل Brownout Reset. افصل السيرفو على BK2 لوحده.`]);
+  } else if(eSrvRail && srv==='mg90s'){
+    if(status==='ok') status='warn';
+    alerts.push(['warn',`السيرفو متوصل على BK1، رغم إن MG90S سحبه خفيف (0.8A) بس الأفضل هندسياً يفضل على BK2 لوحده لمنع أي شوشرة.`]);
+  }
+  if(eJmp && drv==='l298n'){
+    status='bad';
+    alerts.push(['crit',`جمبر 5V-EN راكب في الـ L298N! كده منظم الـ L298N الداخلي بيتخانق مع خرج المنظم BK1 (5V). شيل جمبر 5V-EN لو هتغذي منطق الـ L298N من BK1، أو سيب الجمبر ومتوصلش سلك 5V من BK1 للـ L298N.`]);
+  }
+  if(eUsb){
+    if(status==='ok') status='warn';
+    alerts.push(['warn',`تحذير: كابل الـ USB متوصل والبطارية شغالة! يتسمح بده لمدة 10 ثواني بس وقت معايرة البطارية والمواتير واقفة. غير كده افصل الـ USB قبل فتح السويتش.`]);
+  }
+  if(vb < 6.6){
+    if(status==='ok') status='warn';
+    alerts.push(['warn',`جهد البطارية (${vb.toFixed(1)}V) أقل من 6.6V! الكود هيوقف المواتير تلقائياً لحماية خلايا الـ 18650. اشحن البطارية.`]);
+  }
+  if(alerts.length===0){
+    alerts.push(['ok',`كل التوصيلات والجهود في النطاق الآمن 100%! ${drv==='tb6612'?'درايفر TB6612FNG موفر 1.7V إضافية للمواتير وبارد تماماً.':'درايفر L298N شغال بأمان.'}`]);
+  }
+
+  const b=$('statusBadge');
+  b.className='badge '+status;
+  b.textContent = status==='bad' ? 'خطر احتراق! راجع الأخطاء بالأسفل' : (status==='warn' ? 'تنبيه في التشغيل' : 'الدائرة آمنة 100% — جاهزة للتوصيل');
+
+  const ro=[
+    ['جهد الـ ESP32 (BK1)', vESP.toFixed(2)+'V', (vESP>5.5||vESP<4.6)?'bad':'ok'],
+    ['جهد الموتور الصافي', vMotor.toFixed(2)+'V', (mode!=='lift'&&vMotor<4.5)?'warn':'ok'],
+    ['Echo يمين (GPIO22)', vEchoR.toFixed(2)+'V', vEchoR>3.6?'bad':'ok'],
+    ['Echo شمال (GPIO17)', vEchoL.toFixed(2)+'V', vEchoL>3.6?'bad':'ok'],
+    ['قراءة VN (GPIO39)', vVN.toFixed(2)+'V', vVN>3.3?'bad':'ok'],
+    ['إجمالي سحب البطارية', iBat.toFixed(2)+' A', iBat>6.3?'warn':'ok']
+  ];
+  $('readouts').innerHTML = ro.map(r=>`<div class="ro ${r[2]}"><div class="k">${r[0]}</div><div class="v">${r[1]}</div></div>`).join('');
+  $('alerts').innerHTML = alerts.map(a=>`<li class="${a[0]}">${a[1]}</li>`).join('');
+
+  // Draw schematic SVG
+  let svg = `<rect x="0" y="0" width="920" height="470" fill="#fcfdfd"/>`;
+  const box=(x,y,w,h,fill,stroke,t1,t2)=>`<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="${fill}" stroke="${stroke}" stroke-width="1.6"/><text x="${x+w/2}" y="${y+24}" text-anchor="middle" font-weight="700" font-size="13" fill="#1d2731">${t1}</text><text x="${x+w/2}" y="${y+44}" text-anchor="middle" font-size="11" fill="#5d6b78">${t2}</text></g>`;
+  const line=(x1,y1,x2,y2,col,dash)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="2.5" ${dash?'stroke-dasharray="6 4"':''}/>`;
+
+  // Battery & Power left column
+  svg += box(20, 30, 160, 65, '#fdeaea', '#d32f2f', `Battery 2S (${vb.toFixed(1)}V)`, 'BMS 8A + Fuse T6.3A + SW');
+  svg += box(20, 125, 160, 60, eBuck?'#fdeaea':'#fff3e0', '#ef6c00', `BK1 Buck (${vBK1.toFixed(1)}V)`, 'ESP32 + 2×US + Driver Logic');
+  svg += box(20, 215, 160, 60, '#f3e5f5', '#7b1fa2', 'BK2 Buck (5.0V)', 'Servo Power + 1000µF Cap');
+  svg += box(20, 310, 160, 120, '#e8f5e9', '#2e7d32', '3 × IR TCRT5000', 'Powered by 3.3V · GPIO 34,35,19');
+
+  // Center ESP32
+  svg += `<rect x="330" y="40" width="230" height="390" rx="10" fill="#e3f2fd" stroke="#0d6b93" stroke-width="2.2"/>`;
+  svg += `<text x="445" y="70" text-anchor="middle" font-weight="700" font-size="16" fill="#0d6b93">ESP32 DevKit (30-Pin)</text>`;
+  svg += `<text x="445" y="92" text-anchor="middle" font-size="11.5" fill="#37474f">VIN = ${vESP.toFixed(2)}V · WiFi OFF</text>`;
+
+  const pin=(x,y,lbl,col)=>`<g><rect x="${x}" y="${y}" width="95" height="22" rx="3" fill="${col}"/><text x="${x+47}" y="${y+15}" text-anchor="middle" font-family="monospace" font-size="11" fill="#fff" font-weight="700">${lbl}</text></g>`;
+  // Left pins on ESP32
+  svg += pin(338, 125, 'VIN (5V)', eBuck?'#c62828':'#ef6c00');
+  svg += pin(338, 165, '3.3V Out', '#2e7d32');
+  svg += pin(338, 210, 'GPIO 39 (VN)', '#2e7d32');
+  svg += pin(338, 320, 'GPIO 34 (IR_L)', '#1565c0');
+  svg += pin(338, 350, 'GPIO 35 (IR_C)', '#1565c0');
+  svg += pin(338, 380, 'GPIO 19 (IR_R)', '#1565c0');
+
+  // Right pins on ESP32
+  svg += pin(457, 125, '25/26/27 (M1)', '#d32f2f');
+  svg += pin(457, 160, '33/32/14 (M2)', '#d32f2f');
+  svg += pin(457, 220, 'GPIO 18 (Srv)', '#7b1fa2');
+  svg += pin(457, 295, '23/22 (US_R)', eEchoR?'#c62828':'#0277bd');
+  svg += pin(457, 375, '21/17 (US_L)', eEchoL?'#c62828':'#0277bd');
+
+  // Right column blocks
+  svg += box(700, 40, 195, 135, '#ffebee', '#c62828', drv==='tb6612'?'TB6612FNG Driver':'L298N Driver', `Motor V = ${vMotor.toFixed(1)}V · M1 & M2`);
+  svg += box(700, 195, 195, 65, '#f3e5f5', '#7b1fa2', srv==='mg90s'?'Servo MG90S Metal':'Servo MG996R', 'Chipsy Arm (0° ↔ 90°)');
+  svg += box(700, 280, 195, 70, eEchoR?'#fdeaea':'#e1f5fe', eEchoR?'#c62828':'#0277bd', 'HC-SR04 Right (يمين)', eEchoR?'✖ بدون مقسم (5V خطر!)':'✔ مقسم 1k/2k -> 3.3V');
+  svg += box(700, 365, 195, 70, eEchoL?'#fdeaea':'#e1f5fe', eEchoL?'#c62828':'#0277bd', 'HC-SR04 Left (شمال)', eEchoL?'✖ بدون مقسم (5V خطر!)':'✔ مقسم 1k/2k -> 3.3V');
+
+  // Connections
+  svg += line(180, 62, 700, 62, '#d32f2f', false);
+  svg += line(180, 136, 338, 136, '#ef6c00', false);
+  svg += line(180, 245, 700, 245, '#7b1fa2', true);
+  svg += line(180, 360, 338, 360, '#1565c0', false);
+  svg += line(552, 136, 700, 100, '#d32f2f', false);
+  svg += line(552, 171, 700, 135, '#d32f2f', false);
+  svg += line(552, 231, 700, 225, '#7b1fa2', false);
+  svg += line(552, 306, 700, 315, eEchoR?'#c62828':'#0277bd', false);
+  svg += line(552, 386, 700, 400, eEchoL?'#c62828':'#0277bd', false);
+
+  $('schSvg').innerHTML = svg;
+}
+document.querySelectorAll('input,select').forEach(el=>{el.addEventListener('input',sim);el.addEventListener('change',sim);});
+sim();
+</script>
+</body>
+</html>
