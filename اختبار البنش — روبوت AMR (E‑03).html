@@ -1,0 +1,1027 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>اختبار البنش — روبوت AMR (E‑03)</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: same drafting-office sheets as E-01/E-02 — numbered cards down one column, each test is a "bench station" card. */
+:root{
+  --board:#eef2f0; --sheet:#fffffd; --ink:#1d2731; --muted:#5d6b78; --line:#cfd8de; --accent:#0d6b93; --accent-soft:#e1eff6;
+  --ok:#2e7d32; --ok-soft:#e6f4e7; --ok-line:#b9dcbb; --warn:#a86a00; --warn-soft:#fff3dc; --warn-line:#f0d39a; --bad:#c62828; --bad-soft:#fdeaea; --bad-line:#f2b9b9;
+  --tile:#ffffff; --th:#f4f7f8; --code:#f6f8f8; --track:#ffffff; --tape:#111111; --wood:#e9dcc4;
+  --w-red:#d32f2f; --w-black:#212121; --w-orange:#ef6c00; --w-purple:#7b1fa2; --w-green:#2e7d32; --w-blue:#1565c0; --w-yellow:#d4a000; --w-brown:#6d4c41;
+  --font-body:'IBM Plex Sans Arabic','Noto Sans Arabic','DejaVu Sans',Tahoma,sans-serif;
+  --font-mono:'IBM Plex Mono','DejaVu Sans Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --board:#111a1f; --sheet:#172228; --ink:#e3eaee; --muted:#9aabb6; --line:#2c3b44; --accent:#4fb3dc; --accent-soft:#16323f;
+  --ok:#7cc884; --ok-soft:#173022; --ok-line:#2f5a39; --warn:#e7b45a; --warn-soft:#33270f; --warn-line:#5e4a1f; --bad:#ef8a8a; --bad-soft:#3a1a1c; --bad-line:#6a2d30;
+  --tile:#1b2830; --th:#1e2c34; --code:#0f181d; --track:#dfe4e6; --tape:#111111; --wood:#5a4c35; --w-black:#9aa7ae; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --board:#111a1f; --sheet:#172228; --ink:#e3eaee; --muted:#9aabb6; --line:#2c3b44; --accent:#4fb3dc; --accent-soft:#16323f;
+  --ok:#7cc884; --ok-soft:#173022; --ok-line:#2f5a39; --warn:#e7b45a; --warn-soft:#33270f; --warn-line:#5e4a1f; --bad:#ef8a8a; --bad-soft:#3a1a1c; --bad-line:#6a2d30;
+  --tile:#1b2830; --th:#1e2c34; --code:#0f181d; --track:#dfe4e6; --tape:#111111; --wood:#5a4c35; --w-black:#9aa7ae; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--board);color:var(--ink);font-family:var(--font-body);font-size:15.5px;line-height:1.7;margin:0}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+.muted{color:var(--muted)}
+h1,h2,h3{line-height:1.3;margin:0;text-wrap:balance}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto}
+.gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--sheet)}
+header.top{background:var(--sheet);border-bottom:1px solid var(--line);padding-block:14px 0;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.titlerow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.titlerow h1{font-size:22px}
+.titlerow>div{min-width:0}
+.drawno{font-family:var(--font-mono);font-size:12px;border:1px solid var(--ink);padding:2px 8px;border-radius:2px;direction:ltr}
+.meta{font-size:13px;color:var(--muted)}
+nav.tabs{display:flex;gap:2px;overflow-x:auto;margin-top:10px}
+nav.tabs a{padding:8px 11px;font-size:14px;color:var(--muted);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
+nav.tabs a:hover{color:var(--ink);border-bottom-color:var(--line)}
+.status{display:inline-flex;gap:8px;align-items:center;font-size:14px;font-weight:600;padding:5px 12px;border-radius:999px;border:1px solid}
+.status .dot{width:9px;height:9px;border-radius:50%;background:currentColor}
+.status.ok{color:var(--ok);background:var(--ok-soft);border-color:var(--ok-line)}
+.status.warn{color:var(--warn);background:var(--warn-soft);border-color:var(--warn-line)}
+.status.bad{color:var(--bad);background:var(--bad-soft);border-color:var(--bad-line)}
+.status.idle{color:var(--muted);background:var(--sheet);border-color:var(--line)}
+
+main{padding-block:18px 60px}
+section.card{background:var(--sheet);border:1px solid var(--line);border-radius:6px;padding:20px;margin:0 0 18px;scroll-margin-top:120px}
+section.card>h2{font-size:19px;margin-bottom:4px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+section.card>h2 .n{font-family:var(--font-mono);font-size:13px;color:var(--accent);border:1px solid var(--accent);border-radius:3px;padding:0 6px}
+.lead{color:var(--muted);margin:0 0 14px;max-width:75ch}
+.p{max-width:75ch}
+.callout{border:1px solid var(--warn-line);background:var(--warn-soft);border-radius:6px;padding:10px 14px;font-size:14.5px}
+.callout.info{border-color:var(--line);background:var(--accent-soft)}
+.callout b{display:block}
+
+.story{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.tile{border:1px solid var(--line);border-radius:6px;padding:12px 14px;background:var(--tile)}
+.tile .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:14px;margin-bottom:6px}
+.tile h3{font-size:15.5px;margin-bottom:2px}
+.tile p{margin:0;font-size:14.5px}
+.tile .real{display:block;margin-top:6px;font-size:13px;color:var(--muted)}
+
+ol.steps{list-style:none;margin:0;padding:0;counter-reset:s;display:grid;gap:10px}
+ol.steps>li{counter-increment:s;display:grid;grid-template-columns:38px minmax(0,1fr);gap:12px;border:1px solid var(--line);border-radius:6px;padding:12px;background:var(--tile)}
+ol.steps>li::before{content:counter(s);width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--sheet);display:grid;place-items:center;font-weight:700;font-family:var(--font-mono)}
+ol.steps b.t{display:block}
+.why{font-size:14px;color:var(--muted)}
+.why::before{content:"ليه؟ ";font-weight:700;color:var(--accent)}
+
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:right;vertical-align:top}
+th{background:var(--th);font-weight:600;font-size:13px;color:var(--muted)}
+td.num,th.num{text-align:left;font-family:var(--font-mono);direction:ltr;font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:1px 9px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
+.pill.ok{color:var(--ok);border-color:var(--ok-line);background:var(--ok-soft)}
+.pill.warn{color:var(--warn);border-color:var(--warn-line);background:var(--warn-soft)}
+.pill.bad{color:var(--bad);border-color:var(--bad-line);background:var(--bad-soft)}
+.pill.idle{color:var(--muted)}
+
+/* station cards */
+.station{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px}
+@media (max-width:900px){.station{grid-template-columns:minmax(0,1fr)}}
+.station h3{font-size:16px;margin:0 0 6px}
+.how{margin:0;padding-right:20px;display:grid;gap:4px}
+.how li{padding-right:2px}
+.need{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
+.need span{font-size:12.5px;border:1px solid var(--line);border-radius:4px;padding:1px 8px;background:var(--tile)}
+.sheet{border:1px solid var(--line);border-radius:6px;background:var(--tile);padding:12px;display:grid;gap:10px;align-content:start}
+.sheet .row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;font-size:14px}
+.sheet .row2{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.sheet label{font-size:13px;color:var(--muted);display:grid;gap:2px}
+input.v,select.v{border:1px solid var(--line);border-radius:4px;padding:3px 6px;background:var(--sheet);font-family:var(--font-mono);direction:ltr;width:100%;min-width:0}
+.verdict{border-radius:6px;padding:8px 12px;font-size:14px;border:1px solid var(--line)}
+.verdict.ok{background:var(--ok-soft);border-color:var(--ok-line)}
+.verdict.warn{background:var(--warn-soft);border-color:var(--warn-line)}
+.verdict.bad{background:var(--bad-soft);border-color:var(--bad-line)}
+.verdict.idle{color:var(--muted)}
+.verdict b{display:block}
+.verdict code{font-family:var(--font-mono);direction:ltr;unicode-bidi:isolate;background:var(--code);padding:0 4px;border-radius:3px}
+
+/* virtual bench */
+.segtabs{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:6px;overflow:hidden;width:max-content;max-width:100%}
+.segtabs button{border:0;background:var(--tile);padding:7px 14px;cursor:pointer;font-size:14px}
+.segtabs button[aria-pressed="true"]{background:var(--accent);color:var(--sheet)}
+.simgrid{display:grid;grid-template-columns:280px minmax(0,1fr);gap:16px;margin-top:12px}
+@media (max-width:860px){.simgrid{grid-template-columns:minmax(0,1fr)}}
+.ctrl{border:1px solid var(--line);border-radius:6px;padding:14px;background:var(--tile);display:grid;gap:12px;align-content:start}
+.ctrl label{display:grid;gap:4px;font-size:14px}
+.ctrl label .lv{display:flex;justify-content:space-between;gap:8px}
+.ctrl input[type=range]{width:100%;accent-color:var(--accent)}
+.ctrl .chk{display:flex;gap:8px;align-items:center;font-size:13.5px}
+.view{border:1px solid var(--line);border-radius:6px;background:var(--tile);overflow:auto}
+.view svg{display:block;width:100%;height:auto;min-width:520px;direction:ltr}
+.view svg text{unicode-bidi:plaintext}
+svg text{font-family:var(--font-body)}
+.readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px}
+.ro{border:1px solid var(--line);border-radius:6px;padding:7px 10px;background:var(--tile)}
+.ro .k{font-size:12.5px;color:var(--muted)}
+.ro .val{font-family:var(--font-mono);font-size:19px;font-weight:600;direction:ltr;text-align:right}
+.ro.bad{border-color:var(--bad-line);background:var(--bad-soft)}
+.ro.warn{border-color:var(--warn-line);background:var(--warn-soft)}
+.ro.ok{border-color:var(--ok-line);background:var(--ok-soft)}
+.simmsg{margin-top:10px}
+
+/* code */
+pre.code{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:12px;overflow:auto;max-height:520px;font-family:var(--font-mono);font-size:12.5px;line-height:1.55;direction:ltr;text-align:left;margin:0;white-space:pre}
+.btn{border:1px solid var(--accent);background:var(--sheet);color:var(--accent);border-radius:6px;padding:6px 12px;cursor:pointer}
+.btn:hover{background:var(--accent-soft)}
+.btn.primary{background:var(--accent);color:var(--sheet)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+textarea#summary{width:100%;min-height:150px;font-family:var(--font-body);font-size:14px;border:1px solid var(--line);border-radius:6px;padding:10px;background:var(--tile)}
+
+.chk-list{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+.chk-list label{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--tile);cursor:pointer}
+.chk-list input{margin-top:5px;width:18px;height:18px;flex:0 0 auto;accent-color:var(--ok)}
+.chk-list label:has(input:checked){background:var(--ok-soft);border-color:var(--ok-line)}
+.foot{font-size:13px;color:var(--muted);text-align:center;margin-top:20px}
+@media (max-width:640px){.titlerow h1{font-size:19px} section.card{padding:16px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<header class="top gut">
+ <div class="wrap">
+  <div class="titlerow">
+   <div>
+    <h1>اختبار المكونات على البنش — روبوت AMR</h1>
+    <div class="meta">فريق الكهرباء والبرمجة · المهمة 3 · الأربعاء 25/11/2026 · التسليم 5:00 م · مبني على E‑01 Rev B وE‑02 Rev A · إعداد: Mohamed ibn Ibrahim</div>
+   </div>
+   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <span class="drawno">AMR‑E‑03 · Rev A</span>
+    <span id="badge" class="status idle"><span class="dot"></span><span id="badgeTxt">النتايج: 0 من 5</span></span>
+   </div>
+  </div>
+  <nav class="tabs" aria-label="أقسام الصفحة">
+   <a href="#story">الحكاية</a><a href="#rules">قواعد البنش</a><a href="#steps">الترتيب</a><a href="#t1">الموتورين</a><a href="#t2">السيرفو</a>
+   <a href="#t3">حساسات IR</a><a href="#t4">حساس المسافة</a><a href="#t5">البطارية</a><a href="#sim">البنش الافتراضي</a><a href="#code">الكود</a><a href="#report">التقرير</a>
+  </nav>
+ </div>
+</header>
+
+<main class="wrap gut">
+
+<section class="card" id="story">
+ <h2><span class="n">1</span>الحكاية في دقيقة</h2>
+ <p class="lead">قبل أي ماتش، كل لاعب بيعمل كشف عند الدكتور. النهارده كل قطعة في الروبوت هتعمل كشفها لوحدها على الترابيزة (البنش)، قبل ما تدخل الفريق جوه الشاسيه.</p>
+ <div class="story">
+  <div class="tile"><div class="ic" style="background:var(--w-brown)">1</div><h3>الموتورين = توأم بيجروا</h3><p>لو واحد أسرع من التاني ولو شوية، الروبوت هيلف بدل ما يمشي دوغري. هنعد لفات كل عجلة، والأسرع ناخد منه شوية سرعة.</p><span class="real">نعدّ اللفات في 10 ث عند 40% و60% و80%، ونطلع TRIM_L وTRIM_R</span></div>
+  <div class="tile"><div class="ic" style="background:var(--w-purple)">2</div><h3>السيرفو = الدراع</h3><p>بنعلّمه فين "تحت" وفين "فوق" بالظبط، ونتأكد إنه وهو بيتحرك مش بيخطف الكهربا من المخ.</p><span class="real">0° للنزول و90° للرفع · BK2 ميقلش عن 4.8V · صفر Reset</span></div>
+  <div class="tile"><div class="ic" style="background:var(--w-green)">3</div><h3>حساسات IR = عيون بتبص في الأرض</h3><p>كل عين بتقول حاجة واحدة بس: "أنا شايفة أسود" أو "شايفة أبيض". هنضبط نضارتها (المسمار الأزرق) لحد ما تفرّق صح.</p><span class="real">TCRT5000 على خط أسود 2–3 سم · ارتفاع 3–5 مم</span></div>
+  <div class="tile"><div class="ic" style="background:var(--w-blue)">4</div><h3>حساسين المسافة (يمين وشمال) = الخفاش</h3><p>حساس على اليمين وحساس على الشمال عشان الأمان. كل واحد بيزعق زعقة ويستنى الصدى يرجع عشان الروبوت يقف لو فيه عائق يمين أو شمال.</p><span class="real">2 × HC‑SR04 · يمين (23/22) وشمال (21/17) · المسافة = الوقت × 0.0343 ÷ 2</span></div>
+  <div class="tile"><div class="ic" style="background:var(--w-red)">5</div><h3>قراءة البطارية = عداد البنزين</h3><p>الروبوت لازم يعرف فاضل في الشنطة قد إيه، عشان يقف قبل ما تفضى. هنقارن عداده بالملتيميتر.</p><span class="real">VN على GPIO39 · مقسم 100k/33k · معامل VBAT_CAL</span></div>
+  <div class="tile"><div class="ic" style="background:#455a64">6</div><h3>Serial Monitor = الروبوت بيكلمنا</h3><p>الـ ESP32 بيكتب على شاشة اللابتوب هو شايف إيه. ولما مفيش لابتوب، بيكلمنا باللمبة الزرقا: بترمش رقم الخطوة.</p><span class="real">115200 baud · حرف i وu وb · زرار BOOT للمواتير والسيرفو</span></div>
+ </div>
+</section>
+
+<section class="card" id="rules">
+ <h2><span class="n">2</span>قواعد البنش (قبل ما تلمس أي حاجة)</h2>
+ <p class="lead">القواعد دي جاية من E‑01 وE‑02، ومفيش استثناء فيها.</p>
+ <div class="story">
+  <div class="tile"><h3>وضعين بس، عمرهم ما يتقابلوا</h3><p><b>وضع USB:</b> السويتش OFF والـ ESP32 في اللابتوب، للـ IR وحساس المسافة وقراءة الكود. <b>وضع البطارية:</b> الـ USB مفصول والسويتش ON، للمواتير والسيرفو.</p><span class="real">مصدرين على VIN في نفس الوقت = تحذير في محاكاة E‑01</span></div>
+  <div class="tile"><h3>العجل مرفوع دايمًا</h3><p>الشاسيه المؤقت فوق علبة أو كتاب، والعجل في الهوا. مفيش روبوت يجري من على الترابيزة.</p></div>
+  <div class="tile"><h3>أي توصيل والسويتش OFF</h3><p>تركّب سلك أو تشيله؟ السويتش OFF الأول. وأي شغل في الباور يبقى والخلايا بره، زي القاعدة الذهبية في الورك بوك.</p></div>
+  <div class="tile"><h3>الملتيميتر في فتحة V</h3><p>قبل أي قياس جهد، بص على الفيشة الحمرا: لازم في فتحة V مش 10A. غلطة الفتحة = قصر على البطارية.</p></div>
+  <div class="tile"><h3>ريحة أو سخونية = OFF فورًا</h3><p>لو حاجة سخنت لدرجة إنك متقدرش تسيب صباعك عليها، اقفل السويتش واكتب اللي حصل في الورقة.</p></div>
+  <div class="tile"><h3>السيرفو من غير حمل</h3><p>النهارده السيرفو بيتجرب لوحده، من غير الكيس ومن غير آلية الرفع. الحمل يتجرب يوم 3/12 في المعايرة.</p></div>
+ </div>
+ <div class="callout info" style="margin-top:12px"><b>لو القطع لسه موصلتش</b>الورك بوك متوقع وصول القطع يوم السبت 28/11. النهارده نرفع الكود على الـ ESP32 ونجرب أي قطعة في إيدينا، ونتمرّن على البنش الافتراضي (القسم 9). وأول ما القطع توصل، نمشي على نفس الصفحة بالظبط ونملا ورقة النتايج.</div>
+</section>
+
+<section class="card" id="steps">
+ <h2><span class="n">3</span>ترتيب الاختبارات وليه بالترتيب ده</h2>
+ <p class="lead">من الأخف للأتقل: الأول الحاجات اللي بتشتغل على اللابتوب، وبعدين البطارية، وآخر حاجة السيرفو لأنه أكتر قطعة بتسحب كهربا فجأة.</p>
+ <ol class="steps">
+  <li><div><b class="t">ارفع كود البنش والسويتش OFF</b>انسخ الكود من القسم 10، واختار "ESP32 Dev Module"، وارفعه. افتح Serial Monitor على 115200: لازم تشوف <span class="mono">Reset reason: POWERON</span> أو <span class="mono">SW</span>.<div class="why">لو الكود مترفعش، كل اللي بعده ملوش لازمة. وسطر سبب الـ Reset هو اللي هيقولنا بعدين لو الكهربا هبطت.</div></div></li>
+  <li><div><b class="t">قراءة البطارية (اختبار 5)</b>شغل السويتش ثواني بس من غير USB، قيس TP0 بالملتيميتر. وبعدين ارجع لوضع USB واكتب b.<div class="why">الكود بيوقف المواتير تحت 6.6V. لو العداد غلط، الروبوت هيقف بدري أو هيكمّل لحد ما البطارية تتأذي.</div></div></li>
+  <li><div><b class="t">حساسات IR (اختبار 3)</b>وضع USB. حرف i، والحساس فوق ورقة بيضا وفوق شريط أسود.<div class="why">IR بياخد 3.3V من الـ ESP32 نفسه، فده أأمن اختبار. ولو اتقلبت القراءة هنا، نعدّل سطر واحد في الكود.</div></div></li>
+  <li><div><b class="t">حساس المسافة (اختبار 4)</b>وضع USB. حرف u، والعلبة الكرتون على مسافات من المسطرة.<div class="why">الروبوت لازم يقف من 15 لـ 20 سم قبل العائق (T3). لازم نعرف الحساس بيغلط قد إيه قبل ما نثق فيه.</div></div></li>
+  <li><div><b class="t">الموتورين (اختبار 1)</b>وضع البطارية، العجل مرفوع. زرار BOOT للخطوات من 1 لـ 6، وصوّر العجلتين فيديو.<div class="why">مفيش Encoders، فالطريقة الوحيدة نعوّض فرق السرعة هي إننا نقيسه بإيدينا ونحطه في الكود.</div></div></li>
+  <li><div><b class="t">السيرفو (اختبار 2)</b>وضع البطارية. زرار BOOT للخطوات 7 و8 و9، والملتيميتر على TP4.<div class="why">ده أكتر اختبار ممكن يعمل Reset. بنعمله آخر حاجة، وكل الباقي متأكدين منه، فلو حصل Reset نعرف إنه من السيرفو.</div></div></li>
+  <li><div><b class="t">املا ورقة النتايج وابعت التقرير</b>كل اختبار ليه ورقة في القسم بتاعه، والقسم 11 بيجمعهم في رسالة واحدة تتنسخ للجروب.<div class="why">الأرقام دي هي اللي هتتكتب في كود تتبع الخط بكرة (26/11). من غيرها بكرة هيبدأ من الصفر.</div></div></li>
+ </ol>
+</section>
+
+<!-- ========== TEST 1 MOTORS ========== -->
+<section class="card" id="t1">
+ <h2><span class="n">4</span>اختبار 1: الموتورين وفرق السرعة <span id="p1" class="pill idle">لسه</span></h2>
+ <p class="lead">الهدف: نعرف كل موتور بيلف قد إيه عند نفس الـ PWM، ونطلّع رقم التعويض. ونتأكد كمان إن الاتنين بيلفوا في الاتجاه الصح.</p>
+ <div class="station">
+  <div>
+   <h3>المطلوب</h3>
+   <div class="need"><span>البطارية مشحونة (≥ 7.6V)</span><span>شريط لاصق أبيض على كل عجلة</span><span>موبايل للفيديو</span><span>العجل مرفوع</span><span>الـ USB مفصول</span></div>
+   <h3>الخطوات</h3>
+   <ol class="how">
+    <li>حط علامة بشريط لاصق على كل عجلة، في نفس المكان من الاتنين.</li>
+    <li>افصل الـ USB، وشغل السويتش. هتشوف اللمبة الزرقا منورة 2 ثانية (ده الإقلاع).</li>
+    <li>اضغط BOOT مرة (خطوة 1): اللمبة ترمش مرة، وبعدها 3 رمشات طويلة (استعد)، والموتور <b>الشمال</b> يلف لقدام 2 ث. اكتب: لف لقدام ولا لورا؟</li>
+    <li>اضغط BOOT تاني (خطوة 2): نفس الكلام للموتور <b>اليمين</b>.</li>
+    <li>شغّل الفيديو على العجلتين مع بعض. اضغط BOOT (خطوة 3): الاتنين يلفوا 10 ث على 40%. وبعدين خطوة 4 (60%) وخطوة 5 (80%).</li>
+    <li>من الفيديو بالتصوير البطيء، عدّ كام مرة العلامة عدّت من فوق في الـ 10 ث لكل عجلة. اكتب الأرقام في الورقة.</li>
+    <li>خطوة 6: الاتنين لورا 3 ث. اتأكد إنهم الاتنين عكسوا.</li>
+    <li>بعد ما تخلص، المس الـ L298N: دافي عادي، سخن جدًا = اكتبه.</li>
+   </ol>
+   <p class="why" style="margin-top:10px">العدّ على 10 ث وبعدين × 6 بيدي اللفات في الدقيقة (RPM). وبنقيس الاتنين في نفس اللحظة عشان البطارية تبقى هي هي للاتنين، فالمقارنة تبقى عادلة.</p>
+  </div>
+  <div class="sheet" aria-label="ورقة نتايج الموتورين">
+   <b>ورقة النتايج</b>
+   <div class="row2">
+    <label for="m_dirL">اتجاه الشمال (خطوة 1)<select id="m_dirL" class="v"><option value="">—</option><option value="ok">لقدام ✔</option><option value="rev">لورا ✖</option><option value="none">مبيلفش</option></select></label>
+    <label for="m_dirR">اتجاه اليمين (خطوة 2)<select id="m_dirR" class="v"><option value="">—</option><option value="ok">لقدام ✔</option><option value="rev">لورا ✖</option><option value="none">مبيلفش</option></select></label>
+   </div>
+   <div class="scroll"><table>
+    <tr><th>الـ PWM</th><th class="num">لفات الشمال / 10ث</th><th class="num">لفات اليمين / 10ث</th></tr>
+    <tr><td>40% (خطوة 3)</td><td><input id="m_l40" class="v" type="number" min="0" step="0.5" inputmode="decimal" aria-label="لفات الشمال 40%"></td><td><input id="m_r40" class="v" type="number" min="0" step="0.5" inputmode="decimal" aria-label="لفات اليمين 40%"></td></tr>
+    <tr><td>60% (خطوة 4)</td><td><input id="m_l60" class="v" type="number" min="0" step="0.5" inputmode="decimal" aria-label="لفات الشمال 60%"></td><td><input id="m_r60" class="v" type="number" min="0" step="0.5" inputmode="decimal" aria-label="لفات اليمين 60%"></td></tr>
+    <tr><td>80% (خطوة 5)</td><td><input id="m_l80" class="v" type="number" min="0" step="0.5" inputmode="decimal" aria-label="لفات الشمال 80%"></td><td><input id="m_r80" class="v" type="number" min="0" step="0.5" inputmode="decimal" aria-label="لفات اليمين 80%"></td></tr>
+   </table></div>
+   <label for="m_rev">لورا (خطوة 6)<select id="m_rev" class="v"><option value="">—</option><option value="ok">الاتنين عكسوا ✔</option><option value="bad">واحد معكسش ✖</option></select></label>
+   <div id="v1" class="verdict idle">اكتب الأرقام والنتيجة هتظهر هنا.</div>
+  </div>
+ </div>
+</section>
+
+<!-- ========== TEST 2 SERVO ========== -->
+<section class="card" id="t2">
+ <h2><span class="n">5</span>اختبار 2: زوايا السيرفو <span id="p2" class="pill idle">لسه</span></h2>
+ <p class="lead">الهدف: 0° يبقى "تحت" بالظبط و90° "فوق" بالظبط، والسيرفو يتحرك 10 مرات من غير ما الـ ESP32 يعمل Reset.</p>
+ <div class="station">
+  <div>
+   <h3>المطلوب</h3>
+   <div class="need"><span>منقلة (ورق أو أبلكيشن على الموبايل)</span><span>ذراع السيرفو متركب من غير آلية الرفع</span><span>ملتيميتر على TP4</span><span>السيرفو في BK2 بس</span></div>
+   <h3>الخطوات</h3>
+   <ol class="how">
+    <li>اتأكد إن فيشة السيرفو داخلة على BK2 والمكثف 1000µF، مش على البريدبورد. وإن السيرفو مكتوب عليه 180° مش 360°.</li>
+    <li>الملتيميتر: الأسود على X2، والأحمر على TP4 (خرج BK2)، على وضع V DC.</li>
+    <li>دوس BOOT لحد ما توصل خطوة 7 (اللمبة ترمش 7 مرات): السيرفو يروح 0° ويفضل ماسك. حط المنقلة واكتب الزاوية الحقيقية.</li>
+    <li>لو السيرفو بيزن (صوت "زززز") وهو واقف على 0°، يبقى بيخبط في آخره. اكتبها، وزوّد SERVO_US_0 بـ 50.</li>
+    <li>خطوة 8: السيرفو يروح 90°. اكتب الزاوية الحقيقية.</li>
+    <li>خطوة 9: 10 مرات 0↔90. بص على الملتيميتر واكتب أقل رقم شفته، وبص على اللمبة الزرقا: لو نوّرت 2 ث لوحدها = Reset.</li>
+   </ol>
+   <p class="why" style="margin-top:10px">السيرفو بيفهم الزاوية من طول نبضة كل 20 ملي ثانية: 500 ميكرو ثانية تقريبًا = 0°، و1500 = 90°. بس كل سيرفو مختلف شوية، فبنقيس ونصحح الرقمين.</p>
+  </div>
+  <div class="sheet" aria-label="ورقة نتايج السيرفو">
+   <b>ورقة النتايج</b>
+   <div class="row2">
+    <label for="s_us0">SERVO_US_0 في الكود<input id="s_us0" class="v" type="number" value="500" min="400" max="1200" step="10"></label>
+    <label for="s_us90">SERVO_US_90 في الكود<input id="s_us90" class="v" type="number" value="1500" min="1000" max="2400" step="10"></label>
+   </div>
+   <div class="row2">
+    <label for="s_a0">الزاوية الحقيقية عند 0° (خطوة 7)<input id="s_a0" class="v" type="number" step="1" inputmode="decimal"></label>
+    <label for="s_a90">الزاوية الحقيقية عند 90° (خطوة 8)<input id="s_a90" class="v" type="number" step="1" inputmode="decimal"></label>
+   </div>
+   <div class="row2">
+    <label for="s_vmin">أقل جهد على TP4 (V)<input id="s_vmin" class="v" type="number" step="0.01" inputmode="decimal"></label>
+    <label for="s_rst">عدد مرات الـ Reset<input id="s_rst" class="v" type="number" min="0" step="1"></label>
+   </div>
+   <label for="s_buzz">صوت زنّ عند 0° أو 90°؟<select id="s_buzz" class="v"><option value="">—</option><option value="no">لا ✔</option><option value="b0">أيوه عند 0°</option><option value="b90">أيوه عند 90°</option></select></label>
+   <div id="v2" class="verdict idle">اكتب الأرقام والنتيجة هتظهر هنا.</div>
+  </div>
+ </div>
+</section>
+
+<!-- ========== TEST 3 IR ========== -->
+<section class="card" id="t3">
+ <h2><span class="n">6</span>اختبار 3: حساسات IR على الخط <span id="p3" class="pill idle">لسه</span></h2>
+ <p class="lead">الهدف: كل حساس من التلاتة يقول "أسود" فوق الشريط و"أبيض" فوق الورقة، كل مرة، وعلى نفس الارتفاع.</p>
+ <div class="station">
+  <div>
+   <h3>المطلوب</h3>
+   <div class="need"><span>ورقة A4 بيضا</span><span>شريط أسود 2–3 سم (أو شيكرتون)</span><span>مسطرة للارتفاع</span><span>مفك صغير</span><span>وضع USB</span></div>
+   <h3>الخطوات</h3>
+   <ol class="how">
+    <li>الزق الشريط الأسود في نص الورقة. ده نفس الخط اللي هيمشي عليه الروبوت.</li>
+    <li>امسك الحساس الشمال (S2) فوق الورقة البيضا على ارتفاع 4 مم (تقريبًا عرض 4 كروت فيزا فوق بعض).</li>
+    <li>اكتب i في Serial Monitor. اقرا L: لازم <span class="mono">white</span>. واللمبة الصغيرة على الموديول تنور.</li>
+    <li>حرّك الحساس فوق الشريط الأسود: لازم يقلب <span class="mono">BLACK</span> واللمبة تطفي.</li>
+    <li>لو مش بيقلب: لف المسمار الأزرق على الموديول بالراحة، ربع لفة كل مرة، لحد ما يفرّق.</li>
+    <li>نفس الكلام لـ C (S3) وR (S4). وبعدين جرّب 3 مم و5 مم، واختار الارتفاع اللي التلاتة فرّقوا فيه.</li>
+    <li>آخر حاجة: حط التلاتة جنب بعض فوق خط عرضي أسود. لازم تشوف <span class="mono">STATION MARK</span>.</li>
+   </ol>
+   <p class="why" style="margin-top:10px">الحساس بيبعت ضوء أحمر مبنشوفوش. الأبيض بيرجّعه زي المراية، والأسود بيشربه زي الإسفنجة. والمسمار الأزرق بيحدد "قد إيه ضوء" يعتبره أبيض.</p>
+  </div>
+  <div class="sheet" aria-label="ورقة نتايج IR">
+   <b>ورقة النتايج (القيمة اللي ظهرت جنب L وC وR)</b>
+   <div class="scroll"><table>
+    <tr><th>الحساس</th><th>فوق الأبيض</th><th>فوق الأسود</th></tr>
+    <tr><td>L شمال (GPIO34)</td><td><select id="ir_lw" class="v" aria-label="شمال أبيض"><option value="">—</option><option>0</option><option>1</option></select></td><td><select id="ir_lb" class="v" aria-label="شمال أسود"><option value="">—</option><option>0</option><option>1</option></select></td></tr>
+    <tr><td>C نص (GPIO35)</td><td><select id="ir_cw" class="v" aria-label="نص أبيض"><option value="">—</option><option>0</option><option>1</option></select></td><td><select id="ir_cb" class="v" aria-label="نص أسود"><option value="">—</option><option>0</option><option>1</option></select></td></tr>
+    <tr><td>R يمين (GPIO19)</td><td><select id="ir_rw" class="v" aria-label="يمين أبيض"><option value="">—</option><option>0</option><option>1</option></select></td><td><select id="ir_rb" class="v" aria-label="يمين أسود"><option value="">—</option><option>0</option><option>1</option></select></td></tr>
+   </table></div>
+   <div class="row2">
+    <label for="ir_h">الارتفاع اللي اشتغل (مم)<select id="ir_h" class="v"><option value="">—</option><option>3</option><option>4</option><option>5</option><option value="x">ولا واحد</option></select></label>
+    <label for="ir_st">علامة المحطة ظهرت؟<select id="ir_st" class="v"><option value="">—</option><option value="ok">أيوه ✔</option><option value="no">لا ✖</option></select></label>
+   </div>
+   <div id="v3" class="verdict idle">اختار القيم والنتيجة هتظهر هنا.</div>
+  </div>
+ </div>
+</section>
+
+<!-- ========== TEST 4 ULTRASONIC ========== -->
+<section class="card" id="t4">
+ <h2><span class="n">7</span>اختبار 4: حساس المسافة قصاد المسطرة <span id="p4" class="pill idle">لسه</span></h2>
+ <p class="lead">الهدف: الحساس ميغلطش أكتر من 1 سم لحد 30 سم، عشان الروبوت يقف صح من 15 لـ 20 سم قبل العائق.</p>
+ <div class="station">
+  <div>
+   <h3>المطلوب</h3>
+   <div class="need"><span>علبة كرتون 10×10×10 سم (نفس العائق)</span><span>مسطرة أو شريط قياس</span><span>الحساس ثابت على كتاب</span><span>وضع USB</span></div>
+   <h3>الخطوات</h3>
+   <ol class="how">
+    <li>اتأكد إن Echo داخل على المقسم (1k فوق، 2k تحت)، مش على D22 مباشرة. دي أشهر غلطة في المبتدئين.</li>
+    <li>ثبّت الحساس على حافة كتاب، والعينين باصين لقدام ومفيش حاجة قدامهم.</li>
+    <li>حط العلبة على 5 سم بالمسطرة (من وش الحساس لوش العلبة). اكتب u.</li>
+    <li>الكود بيطبع 10 قرايات. اكتب الرقم اللي اتكرر أكتر.</li>
+    <li>كرر على 10 و15 و20 و30 و50 سم.</li>
+    <li>زيادة: لف العلبة بزاوية 45° على 20 سم. لو ظهر <span class="mono">no echo</span>، اكتبها. معناها إن العائق المايل ممكن ميتشافش.</li>
+   </ol>
+   <p class="why" style="margin-top:10px">الصوت بيمشي 343 متر في الثانية، يعني 0.0343 سم في كل ميكرو ثانية. والموجة بتروح وترجع، فبنقسم على 2. على 20 سم الصدى بيرجع بعد حوالي 1166 ميكرو ثانية.</p>
+  </div>
+  <div class="sheet" aria-label="ورقة نتايج حساس المسافة">
+   <b>ورقة النتايج</b>
+   <div class="scroll"><table id="uTable">
+    <tr><th class="num">المسطرة (سم)</th><th class="num">الحساس (سم)</th><th class="num">الغلط</th><th>الحكم</th></tr>
+   </table></div>
+   <label for="u_ang">العلبة مايلة 45° على 20 سم<select id="u_ang" class="v"><option value="">—</option><option value="ok">قراها ✔</option><option value="lost">no echo</option></select></label>
+   <div id="v4" class="verdict idle">اكتب القرايات والنتيجة هتظهر هنا.</div>
+  </div>
+ </div>
+</section>
+
+<!-- ========== TEST 5 BATTERY ========== -->
+<section class="card" id="t5">
+ <h2><span class="n">8</span>اختبار 5: عداد البطارية <span id="p5" class="pill idle">لسه</span></h2>
+ <p class="lead">الهدف: الرقم اللي الـ ESP32 شايفه للبطارية يطابق الملتيميتر بفرق أقل من 0.1V بعد التصحيح.</p>
+ <div class="station">
+  <div>
+   <h3>الخطوات</h3>
+   <ol class="how">
+    <li>الـ USB مفصول. شغل السويتش، وقيس TP0 بالملتيميتر (الأحمر على X1، والأسود على X2). اكتب الرقم.</li>
+    <li>والسويتش لسه ON، وصّل الـ USB وافتح Serial Monitor واكتب b. اكتب أول رقم بعد <span class="mono">VBAT =</span>.</li>
+    <li>افصل الـ USB واقفل السويتش على طول. الخطوتين دول ميزيدوش عن 10 ثواني.</li>
+    <li>اكتب الرقمين في الورقة، وهي هتحسبلك VBAT_CAL.</li>
+    <li>لو كتبت b والسويتش OFF، هتشوف رقم قريب من صفر. ده طبيعي، لأن البطارية مفصولة عن المقسم.</li>
+   </ol>
+   <div class="callout" style="margin-top:10px"><b>استثناء واحد مسموح</b>قراءة البطارية بس بتحتاج الـ USB والسويتش ON مع بعض لمدة أقل من 10 ثواني، والمواتير والسيرفو واقفين (الكود مش بيحركهم من غير BOOT). ده نفس "التحذير" اللي في محاكاة E‑01، فخليه قصير ومتعملش غيره في الوقت ده.</div>
+  </div>
+  <div class="sheet" aria-label="ورقة نتايج البطارية">
+   <b>ورقة النتايج</b>
+   <div class="row2">
+    <label for="b_meter">الملتيميتر على TP0 (V)<input id="b_meter" class="v" type="number" step="0.01" inputmode="decimal"></label>
+    <label for="b_esp">الـ ESP32 (حرف b) (V)<input id="b_esp" class="v" type="number" step="0.01" inputmode="decimal"></label>
+   </div>
+   <div id="v5" class="verdict idle">اكتب الرقمين والنتيجة هتظهر هنا.</div>
+  </div>
+ </div>
+</section>
+
+<!-- ========== VIRTUAL BENCH ========== -->
+<section class="card" id="sim">
+ <h2><span class="n">9</span>البنش الافتراضي: اتمرّن قبل القطع الحقيقية</h2>
+ <p class="lead">نفس الاختبارات، على الشاشة. حرّك الأزرار وشوف إيه اللي بيحصل، وجرّب الغلطات. الأرقام محسوبة بنفس المعادلات اللي في الكود.</p>
+ <div class="segtabs" role="group" aria-label="اختار جهاز">
+  <button type="button" data-sim="mot" aria-pressed="true">الموتورين</button><button type="button" data-sim="srv" aria-pressed="false">السيرفو</button><button type="button" data-sim="ir" aria-pressed="false">حساسات IR</button><button type="button" data-sim="us" aria-pressed="false">حساس المسافة</button>
+ </div>
+
+ <div class="simgrid" data-pane="mot">
+  <div class="ctrl">
+   <label for="sm_vb"><span class="lv">جهد البطارية <span class="mono" id="sm_vbT"></span></span><input type="range" id="sm_vb" min="6.6" max="8.4" step="0.1" value="7.4"></label>
+   <label for="sm_d"><span class="lv">الـ PWM <span class="mono" id="sm_dT"></span></span><input type="range" id="sm_d" min="20" max="100" step="5" value="40"></label>
+   <label for="sm_f"><span class="lv">الموتور اليمين أضعف بـ <span class="mono" id="sm_fT"></span></span><input type="range" id="sm_f" min="0" max="25" step="1" value="8"></label>
+   <label class="chk"><input type="checkbox" id="sm_trim"> طبّق TRIM من الورقة</label>
+   <label class="chk"><input type="checkbox" id="sm_comp" checked> عوّض جهد البطارية (7.4 ÷ Vbat)</label>
+  </div>
+  <div>
+   <div class="view"><svg id="svgMot" viewBox="0 0 640 300" role="img" aria-label="مسار الروبوت من فوق"></svg></div>
+   <div class="readouts" id="roMot"></div>
+   <div class="simmsg verdict idle" id="msgMot"></div>
+  </div>
+ </div>
+
+ <div class="simgrid" data-pane="srv" hidden>
+  <div class="ctrl">
+   <label for="ss_us"><span class="lv">طول النبضة <span class="mono" id="ss_usT"></span></span><input type="range" id="ss_us" min="400" max="2600" step="10" value="500"></label>
+   <label class="chk"><input type="checkbox" id="ss_bb"> غلطة: السيرفو على ريل البريدبورد (BK1)</label>
+   <label class="chk"><input type="checkbox" id="ss_cap"> غلطة: مكثف 1000µF مش موجود</label>
+   <label class="chk"><input type="checkbox" id="ss_360"> غلطة: سيرفو نسخة 360°</label>
+   <button type="button" class="btn" id="ss_go">حرّكه 0 ↔ 90</button>
+  </div>
+  <div>
+   <div class="view"><svg id="svgSrv" viewBox="0 0 640 300" role="img" aria-label="زاوية السيرفو ونبضة الإشارة"></svg></div>
+   <div class="readouts" id="roSrv"></div>
+   <div class="simmsg verdict idle" id="msgSrv"></div>
+  </div>
+ </div>
+
+ <div class="simgrid" data-pane="ir" hidden>
+  <div class="ctrl">
+   <label for="si_off"><span class="lv">الروبوت زاح عن الخط <span class="mono" id="si_offT"></span></span><input type="range" id="si_off" min="-40" max="40" step="1" value="0"></label>
+   <label for="si_h"><span class="lv">ارتفاع الحساس <span class="mono" id="si_hT"></span></span><input type="range" id="si_h" min="2" max="10" step="0.5" value="4"></label>
+   <label for="si_sp"><span class="lv">المسافة بين الحساسات <span class="mono" id="si_spT"></span></span><input type="range" id="si_sp" min="12" max="35" step="1" value="22"></label>
+   <label for="si_w"><span class="lv">عرض الخط <span class="mono" id="si_wT"></span></span><input type="range" id="si_w" min="15" max="30" step="1" value="20"></label>
+   <label class="chk"><input type="checkbox" id="si_st"> فوق علامة المحطة (خط عرضي)</label>
+  </div>
+  <div>
+   <div class="view"><svg id="svgIr" viewBox="0 0 640 300" role="img" aria-label="الحساسات فوق الخط"></svg></div>
+   <div class="readouts" id="roIr"></div>
+   <div class="simmsg verdict idle" id="msgIr"></div>
+  </div>
+ </div>
+
+ <div class="simgrid" data-pane="us" hidden>
+  <div class="ctrl">
+   <label for="su_d"><span class="lv">مكان العلبة بالمسطرة <span class="mono" id="su_dT"></span></span><input type="range" id="su_d" min="2" max="80" step="1" value="20"></label>
+   <label for="su_a"><span class="lv">ميل العلبة <span class="mono" id="su_aT"></span></span><input type="range" id="su_a" min="0" max="60" step="5" value="0"></label>
+   <label class="chk"><input type="checkbox" id="su_nodiv"> غلطة: Echo من غير مقسم</label>
+   <label class="chk"><input type="checkbox" id="su_swap"> غلطة: المقسم مقلوب (2k فوق)</label>
+  </div>
+  <div>
+   <div class="view"><svg id="svgUs" viewBox="0 0 640 300" role="img" aria-label="الحساس والعلبة والصدى"></svg></div>
+   <div class="readouts" id="roUs"></div>
+   <div class="simmsg verdict idle" id="msgUs"></div>
+  </div>
+ </div>
+</section>
+
+<!-- ========== CODE ========== -->
+<section class="card" id="code">
+ <h2><span class="n">10</span>كود البنش (AMR_Bench_E03.ino)</h2>
+ <p class="lead">كود واحد لكل الاختبارات. الأطراف نفس E‑01 Rev B بالظبط. بعد ما تملا الورق، غيّر الأربع أرقام اللي في قسم "أرقام بتتعدل" (القسم 11 بيطلعهملك جاهزين).</p>
+ <div class="bar"><button type="button" class="btn primary" id="copyCode">انسخ الكود</button><span id="copyMsg" class="muted" role="status"></span></div>
+ <pre class="code" id="codeBox"></pre>
+ <div class="scroll" style="margin-top:12px"><table>
+  <tr><th>الحاجة</th><th>الطرف</th><th>السلك</th><th>ملاحظة</th></tr>
+  <tr><td>الموتور الشمال: ENA / IN1 / IN2</td><td class="num">25 / 26 / 27</td><td class="num">W34–W36</td><td>ENA عليه 10k للأرضي</td></tr>
+  <tr><td>الموتور اليمين: ENB / IN3 / IN4</td><td class="num">33 / 32 / 14</td><td class="num">W37–W39</td><td>14 بيطلع نبضات لحظة الإقلاع، والـ 10k على ENB بيمنع الموتور يتحرك</td></tr>
+  <tr><td>السيرفو</td><td class="num">18</td><td class="num">W45, W57, W58</td><td>1k توالي + 10k للأرضي · 50Hz</td></tr>
+  <tr><td>HC‑SR04: Trig / Echo</td><td class="num">23 / 22</td><td class="num">W46–W48</td><td>Echo عن طريق 1k/2k</td></tr>
+  <tr><td>IR: شمال / نص / يمين</td><td class="num">34 / 35 / 19</td><td class="num">W50–W52</td><td>طرف 36 فاضي (Errata GPIO‑3.11)</td></tr>
+  <tr><td>قراءة البطارية VN</td><td class="num">39</td><td class="num">W20, W53</td><td>100k/33k · المعامل 4.03</td></tr>
+  <tr><td>زرار BOOT / اللمبة الزرقا</td><td class="num">0 / 2</td><td>على البورد</td><td>مفيش أي سلك عليهم</td></tr>
+ </table></div>
+</section>
+
+<!-- ========== REPORT ========== -->
+<section class="card" id="report">
+ <h2><span class="n">11</span>التقرير والأرقام اللي هتدخل الكود</h2>
+ <p class="lead">بيتملا لوحده من ورق الاختبارات. انسخه وابعته في جروب الفريق قبل 5:00 م. الأرقام محفوظة على الجهاز ده بس.</p>
+ <div class="scroll"><table id="sumTable"></table></div>
+ <div class="bar" style="margin-top:12px"><button type="button" class="btn primary" id="copySum">انسخ التقرير</button><button type="button" class="btn" id="fillEx">املا بأرقام تجريبية</button><button type="button" class="btn" id="clearAll">امسح الورق</button><span id="sumMsg" class="muted" role="status"></span></div>
+ <label for="summary" class="muted" style="font-size:13px">نص التقرير</label>
+ <textarea id="summary" readonly></textarea>
+ <h3 style="font-size:16px;margin:16px 0 6px">قبل ما تقفل البنش</h3>
+ <ul class="chk-list">
+  <li><label><input type="checkbox" id="k1"><span>السويتش OFF، والـ USB مفصول، والخلايا بره الحامل.</span></label></li>
+  <li><label><input type="checkbox" id="k2"><span>الأرقام الأربعة (TRIM_L وTRIM_R وSERVO_US_0/90 وVBAT_CAL) واخدها Ahmed لكود تتبع الخط بكرة.</span></label></li>
+  <li><label><input type="checkbox" id="k3"><span>الارتفاع المختار لحساسات IR والمسافة بينهم اتبعتوا لفريق الميكانيكا قبل تجميد المقاسات (الجمعة 27/11 الساعة 3:00 م).</span></label></li>
+  <li><label><input type="checkbox" id="k4"><span>أي Reset أو سخونية أو قطعة بايظة اتكتبت في الجروب، ومعاها سبب الـ Reset من Serial Monitor.</span></label></li>
+  <li><label><input type="checkbox" id="k5"><span>نسخة من الكود اللي اشتغل اتحفظت قبل أي تعديل (قاعدة كود الأمان).</span></label></li>
+ </ul>
+</section>
+
+<p class="foot">AMR‑E‑03 · اختبار المكونات على البنش · Rev A · 25/11/2026 · مبني على AMR‑E‑01 Rev B وAMR‑E‑02 Rev A · Mohamed ibn Ibrahim</p>
+</main>
+
+<script id="inoSrc" type="text/plain">
+// =====================================================================
+//  AMR-E-03 · كود اختبار البنش · Rev A · 25/11/2026
+//  روبوت AMR لنقل الحمولة · فريق الكهرباء والبرمجة · إعداد: Mohamed ibn Ibrahim
+//  الأطراف من مخطط التوصيل AMR-E-01 Rev B · الحدود من دائرة الباور AMR-E-02
+//  ESP32 Arduino core 3.x (Board: "ESP32 Dev Module")
+// ---------------------------------------------------------------------
+//  وضعين:
+//   (أ) وضع USB: السويتش OFF، والـ ESP32 في اللابتوب.
+//       افتح Serial Monitor على 115200 واكتب حرف:
+//       i = حساسات IR · u = حساس المسافة · b = جهد البطارية · h = المساعدة
+//   (ب) وضع البطارية: افصل الـ USB، والعجل مرفوع، والسويتش ON.
+//       كل ضغطة على زرار BOOT = الخطوة اللي بعدها (اللمبة الزرقا بترمش رقم الخطوة).
+//       1 موتور شمال لقدام 2ث · 2 موتور يمين لقدام 2ث
+//       3 الاتنين 40% لمدة 10ث · 4 الاتنين 60% · 5 الاتنين 80% · 6 الاتنين لورا 60% 3ث
+//       7 السيرفو 0° · 8 السيرفو 90° · 9 السيرفو 10 مرات 0↔90
+//  لو اللمبة الزرقا نوّرت 2 ثانية لوحدها في نص الاختبار = الـ ESP32 عمل Reset. اكتبها في الورقة.
+// =====================================================================
+#include <Arduino.h>
+#include <WiFi.h>
+#include "esp_system.h"
+
+// ---------- الأطراف (E-01 Rev B) ----------
+const int ENA = 25, IN1 = 26, IN2 = 27;   // الموتور الشمال M1 (W34, W35, W36)
+const int ENB = 33, IN3 = 32, IN4 = 14;   // الموتور اليمين M2 (W37, W38, W39)
+const int SERVO_PIN = 18;                 // عن طريق 1k + 10k (W45, W57, W58)
+const int TRIG_R = 23, ECHO_R = 22;       // ألتراسونيك يمين: Echo عن طريق مقسم 1k/2k (W46, W47, W48)
+const int TRIG_L = 21, ECHO_L = 17;       // ألتراسونيك شمال: Echo عن طريق مقسم 1k/2k (W60, W61, W62)
+const int IR_L = 34, IR_C = 35, IR_R = 19;// (W50, W51, W52)  · طرف 36 فاضي (Errata GPIO-3.11)
+const int VBAT_PIN = 39;                  // VN · مقسم 100k/33k (W20, W53)
+const int BOOT_BTN = 0, LED = 2;          // زرار BOOT واللمبة الزرقا اللي على البورد
+
+// ---------- أرقام بتتعدل من ورقة النتايج ----------
+float TRIM_L = 1.00, TRIM_R = 1.00;       // تعويض فرق سرعة المواتير
+int   SERVO_US_0  = 500;                  // نبضة زاوية 0° (تحت)
+int   SERVO_US_90 = 1500;                 // نبضة زاوية 90° (فوق)
+float VBAT_CAL = 1.000;                   // معامل تصحيح قراءة البطارية
+const int IR_BLACK = HIGH;                // الحساس بيطلع إيه فوق الأسود (اتأكد في اختبار IR)
+
+// ---------- حدود ثابتة (E-02) ----------
+const float V_NOMINAL = 7.4, V_WARN = 7.0, V_CUT = 6.6;
+const float DIV_RATIO = (100.0 + 33.0) / 33.0;   // 4.03
+const int   PWM_FREQ = 1000, PWM_BITS = 10;      // المواتير 1kHz
+const int   SERVO_FREQ = 50, SERVO_BITS = 14;    // السيرفو 50Hz
+bool servoOn = false;
+int  step = 0;
+
+// ---------------------------------------------------------------------
+float readVbat() {
+  uint32_t mv = 0;
+  for (int i = 0; i < 16; i++) { mv += analogReadMilliVolts(VBAT_PIN); delay(2); }
+  return (mv / 16.0f) / 1000.0f * DIV_RATIO * VBAT_CAL;
+}
+
+void blink(int n, int onMs = 200, int offMs = 250) {
+  for (int i = 0; i < n; i++) { digitalWrite(LED, HIGH); delay(onMs); digitalWrite(LED, LOW); delay(offMs); }
+}
+
+void motorsStop() {
+  ledcWrite(ENA, 0); ledcWrite(ENB, 0);
+  digitalWrite(IN1, LOW); digitalWrite(IN2, LOW); digitalWrite(IN3, LOW); digitalWrite(IN4, LOW);
+}
+
+// pct من 0 لـ 1 · dir = +1 لقدام / -1 لورا · الجهد بيتعوض عشان السرعة متقلش مع البطارية
+void motorDrive(bool left, float pct, int dir) {
+  float vb = readVbat();
+  float trim = left ? TRIM_L : TRIM_R;
+  float duty = pct * trim * (V_NOMINAL / max(vb, V_CUT));
+  if (duty > 1.0f) duty = 1.0f;
+  int d = (int)(duty * ((1 << PWM_BITS) - 1));
+  int a = left ? IN1 : IN3, b = left ? IN2 : IN4, en = left ? ENA : ENB;
+  digitalWrite(a, dir > 0 ? HIGH : LOW);
+  digitalWrite(b, dir > 0 ? LOW : HIGH);
+  ledcWrite(en, d);
+}
+
+void servoWriteUs(int us) {
+  if (!servoOn) { ledcAttach(SERVO_PIN, SERVO_FREQ, SERVO_BITS); servoOn = true; }
+  uint32_t d = (uint32_t)us * ((1 << SERVO_BITS) - 1) / 20000UL;
+  ledcWrite(SERVO_PIN, d);
+}
+void servoDeg(float deg) {
+  servoWriteUs(SERVO_US_0 + (int)((SERVO_US_90 - SERVO_US_0) * deg / 90.0f));
+}
+
+float readCmOnce(int trigPin, int echoPin) {
+  digitalWrite(trigPin, LOW);  delayMicroseconds(3);
+  digitalWrite(trigPin, HIGH); delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  unsigned long t = pulseIn(echoPin, HIGH, 25000UL);   // Timeout 25ms: الكود ميقفش لو مفيش صدى
+  if (t == 0) return -1;
+  return t * 0.0343f / 2.0f;
+}
+float readCm(int trigPin, int echoPin) {               // وسيط 3 قرايات (من اللجنة 5)
+  float a[3];
+  for (int i = 0; i < 3; i++) { a[i] = readCmOnce(trigPin, echoPin); delay(35); }
+  for (int i = 0; i < 2; i++) for (int j = i + 1; j < 3; j++) if (a[j] < a[i]) { float t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a[1];
+}
+
+const char* resetName(esp_reset_reason_t r) {
+  switch (r) {
+    case ESP_RST_POWERON:  return "POWERON (تشغيل عادي)";
+    case ESP_RST_BROWNOUT: return "BROWNOUT (الكهربا هبطت!)";
+    case ESP_RST_SW:       return "SW (رفع كود)";
+    case ESP_RST_PANIC:    return "PANIC (الكود وقع)";
+    case ESP_RST_INT_WDT:
+    case ESP_RST_TASK_WDT:
+    case ESP_RST_WDT:      return "WATCHDOG";
+    case ESP_RST_EXT:      return "EN button";
+    default:               return "OTHER";
+  }
+}
+
+void help() {
+  Serial.println(F("\n--- AMR-E-03 Bench ---"));
+  Serial.println(F("i = IR x20   u = distance x10   b = battery x5   h = help"));
+  Serial.println(F("Motors/servo: unplug USB, switch ON, wheels up, press BOOT."));
+}
+
+// ---------------------------------------------------------------------
+void testIR() {
+  Serial.println(F("IR  (1 = black when IR_BLACK = HIGH)"));
+  for (int k = 0; k < 20; k++) {
+    int l = digitalRead(IR_L), c = digitalRead(IR_C), r = digitalRead(IR_R);
+    Serial.printf("L=%d C=%d R=%d   %s %s %s%s\n", l, c, r,
+      l == IR_BLACK ? "BLACK" : "white", c == IR_BLACK ? "BLACK" : "white", r == IR_BLACK ? "BLACK" : "white",
+      (l == IR_BLACK && c == IR_BLACK && r == IR_BLACK) ? "   << STATION MARK" : "");
+    delay(250);
+  }
+}
+
+void testUltra() {
+  Serial.println(F("Distance Right & Left (median of 3), cm"));
+  for (int k = 0; k < 10; k++) {
+    float dR = readCm(TRIG_R, ECHO_R);
+    float dL = readCm(TRIG_L, ECHO_L);
+    Serial.printf("Right: %s cm   |   Left: %s cm   %s\n",
+      dR < 0 ? "no echo" : String(dR, 1).c_str(),
+      dL < 0 ? "no echo" : String(dL, 1).c_str(),
+      ((dR > 0 && dR <= 20.0f) || (dL > 0 && dL <= 20.0f)) ? "<< STOP zone!" : "");
+    delay(200);
+  }
+}
+
+void testBatt() {
+  for (int k = 0; k < 5; k++) {
+    float v = readVbat();
+    Serial.printf("VBAT = %.2f V  (raw VN = %.3f V)%s\n", v, v / DIV_RATIO / VBAT_CAL,
+      v < V_CUT ? "  << below 6.6V" : (v < V_WARN ? "  << warning <7.0V" : ""));
+    delay(400);
+  }
+}
+
+// خطوة واحدة من خطوات زرار BOOT
+void runStep(int s) {
+  blink(s, 150, 200);              // اللمبة بترمش رقم الخطوة
+  delay(800);
+  bool motorStep = (s >= 1 && s <= 6);
+  if (motorStep && readVbat() < V_CUT) {         // البطارية ضعيفة: ممنوع المواتير
+    for (int i = 0; i < 10; i++) blink(1, 60, 60);
+    return;
+  }
+  if (motorStep) { blink(3, 500, 500); }         // عد تنازلي 3 ث: شغّل الفيديو
+  switch (s) {
+    case 1: motorDrive(true, 0.40, +1);  delay(2000); break;
+    case 2: motorDrive(false, 0.40, +1); delay(2000); break;
+    case 3: motorDrive(true, 0.40, +1); motorDrive(false, 0.40, +1); delay(10000); break;
+    case 4: motorDrive(true, 0.60, +1); motorDrive(false, 0.60, +1); delay(10000); break;
+    case 5: motorDrive(true, 0.80, +1); motorDrive(false, 0.80, +1); delay(10000); break;
+    case 6: motorDrive(true, 0.60, -1); motorDrive(false, 0.60, -1); delay(3000); break;
+    case 7: motorsStop(); servoDeg(0);  break;   // يفضل ماسك 0° لحد الضغطة الجاية
+    case 8: motorsStop(); servoDeg(90); break;
+    case 9: motorsStop();
+      for (int i = 0; i < 10; i++) { servoDeg(90); delay(2000); servoDeg(0); delay(2000); }
+      break;
+  }
+  if (motorStep) motorsStop();                   // السيرفو عمره ما يتحرك والمواتير شغالة
+}
+
+void setup() {
+  WiFi.mode(WIFI_OFF);                           // WiFi OFF (من اللجنة 5)
+  pinMode(LED, OUTPUT);
+  pinMode(BOOT_BTN, INPUT_PULLUP);
+  pinMode(IN1, OUTPUT); pinMode(IN2, OUTPUT); pinMode(IN3, OUTPUT); pinMode(IN4, OUTPUT);
+  ledcAttach(ENA, PWM_FREQ, PWM_BITS);
+  ledcAttach(ENB, PWM_FREQ, PWM_BITS);
+  motorsStop();
+  pinMode(TRIG_R, OUTPUT); digitalWrite(TRIG_R, LOW);
+  pinMode(ECHO_R, INPUT);
+  pinMode(TRIG_L, OUTPUT); digitalWrite(TRIG_L, LOW);
+  pinMode(ECHO_L, INPUT);
+  pinMode(IR_L, INPUT); pinMode(IR_C, INPUT); pinMode(IR_R, INPUT);
+  analogSetPinAttenuation(VBAT_PIN, ADC_11db);
+
+  Serial.begin(115200);
+  delay(300);
+  Serial.printf("\nReset reason: %s\n", resetName(esp_reset_reason()));
+  digitalWrite(LED, HIGH); delay(2000); digitalWrite(LED, LOW);   // علامة الإقلاع
+  help();
+}
+
+void loop() {
+  if (Serial.available()) {
+    char c = Serial.read();
+    if (c == 'i') testIR();
+    else if (c == 'u') testUltra();
+    else if (c == 'b') testBatt();
+    else if (c == 'h') help();
+  }
+  if (digitalRead(BOOT_BTN) == LOW) {
+    delay(40);
+    while (digitalRead(BOOT_BTN) == LOW) delay(10);
+    step = (step % 9) + 1;
+    Serial.printf("Step %d\n", step);
+    runStep(step);
+  }
+}
+</script>
+<script>
+/* ===================== helpers ===================== */
+const $=id=>document.getElementById(id);
+const num=id=>{const v=$(id).value; return v===''?null:+v;};
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const f1=v=>(Math.round(v*10)/10).toFixed(1), f2=v=>(Math.round(v*100)/100).toFixed(2);
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const LS='amr-e03-bench-v1';
+const U_DIST=[5,10,15,20,30,50];
+
+/* ultrasonic table rows */
+(function(){let h='';U_DIST.forEach(d=>{h+=`<tr><td class="num">${d}</td><td><input id="u_${d}" class="v" type="number" step="0.1" inputmode="decimal" aria-label="قراءة الحساس عند ${d} سم"></td><td class="num" id="ue_${d}">—</td><td id="uv_${d}"></td></tr>`;});$('uTable').insertAdjacentHTML('beforeend',h);})();
+
+const FIELDS=['m_dirL','m_dirR','m_l40','m_r40','m_l60','m_r60','m_l80','m_r80','m_rev','s_us0','s_us90','s_a0','s_a90','s_vmin','s_rst','s_buzz',
+ 'ir_lw','ir_lb','ir_cw','ir_cb','ir_rw','ir_rb','ir_h','ir_st',...U_DIST.map(d=>'u_'+d),'u_ang','b_meter','b_esp','k1','k2','k3','k4','k5'];
+function save(){try{const o={};FIELDS.forEach(k=>{const e=$(k);o[k]=e.type==='checkbox'?e.checked:e.value;});localStorage.setItem(LS,JSON.stringify(o));}catch(e){}}
+function load(){try{const o=JSON.parse(localStorage.getItem(LS)||'null');if(!o)return;FIELDS.forEach(k=>{if(o[k]===undefined)return;const e=$(k);if(e.type==='checkbox')e.checked=!!o[k];else e.value=o[k];});}catch(e){}}
+
+/* ===================== verdicts ===================== */
+const R={};  // results for report
+function setV(i,state,html){const v=$('v'+i);v.className='verdict '+state;v.innerHTML=html;const p=$('p'+i);p.className='pill '+state;p.textContent={ok:'✔ عدّى',warn:'⚠ عدّى بملاحظة',bad:'✖ مرجّع',idle:'لسه'}[state];R[i]=state;}
+
+function vMotor(){
+  const dl=$('m_dirL').value, dr=$('m_dirR').value, rv=$('m_rev').value;
+  const pairs=[[40,num('m_l40'),num('m_r40')],[60,num('m_l60'),num('m_r60')],[80,num('m_l80'),num('m_r80')]].filter(p=>p[1]!=null&&p[2]!=null&&p[1]>0&&p[2]>0);
+  R.trim=null;
+  if(dl==='none'||dr==='none'){setV(1,'bad','<b>موتور مبيلفش</b>اقفل السويتش، واتأكد من سلكي الموتور في OUT1/OUT2 أو OUT3/OUT4، ومن جمبر ENA/ENB إنه متشال وسلك الـ ESP32 داخل مكانه. وقيس جهد +12V على الـ L298N.');return;}
+  if(dl==='rev'||dr==='rev'||rv==='bad'){const w=dl==='rev'?'الشمال (W41/W42)':dr==='rev'?'اليمين (W43/W44)':'اللي معكسش';setV(1,'bad',`<b>اتجاه غلط</b>اقفل السويتش واعكس سلكي الموتور ${w} على مسامير الـ L298N. متغيرش في الكود، عشان الكود يفضل مطابق للمخطط. وبعدها عيد خطوات 1 و2 و6.`);return;}
+  if(!pairs.length){ if(dl&&dr) setV(1,'idle','<b>الاتجاهات تمام</b>فاضل عدّ اللفات في خطوات 3 و4 و5.'); else setV(1,'idle','اكتب الأرقام والنتيجة هتظهر هنا.'); return;}
+  let rows='',diffs=[],ratio=[];
+  pairs.forEach(([d,l,r])=>{const df=Math.abs(l-r)/Math.max(l,r)*100;diffs.push(df);ratio.push(r/l);rows+=`${d}%: شمال ${f1(l*6)} RPM، يمين ${f1(r*6)} RPM، الفرق ${f1(df)}%<br>`;});
+  const rAvg=ratio.reduce((a,b)=>a+b,0)/ratio.length; // right/left
+  const tL=rAvg<1? rAvg:1, tR=rAvg>1? 1/rAvg:1;
+  R.trim=[tL,tR];
+  const mx=Math.max(...diffs);
+  const code=`<code>TRIM_L = ${f2(tL)}</code> و<code>TRIM_R = ${f2(tR)}</code>`;
+  const lowSpeed=pairs.find(p=>p[0]===40&&(p[1]*6<30||p[2]*6<30));
+  let extra=lowSpeed?'<br>عند 40% العجل بيلف أقل من 30 RPM. ده طبيعي مع الـ L298N لأنه بياكل حوالي 2V، بس خليه في بالك: أقل سرعة للتتبع هتبقى أعلى من 40%.':'';
+  if(mx<=15) setV(1,'ok',`<b>الموتورين متقاربين (أكبر فرق ${f1(mx)}%)</b>${rows}حط في الكود: ${code}.${extra}`);
+  else if(mx<=25) setV(1,'warn',`<b>فرق كبير شوية (${f1(mx)}%) بس يتعوض</b>${rows}حط في الكود: ${code}. وقبلها لف العجلة الأبطأ بإيدك: لو تقيلة أو بتحك في الشاسيه صلّحها الأول.${extra}`);
+  else setV(1,'bad',`<b>الفرق ${f1(mx)}% كبير جدًا</b>${rows}التعويض بالكود مش هيكفي. دوّر على احتكاك في العجلة أو الجيربوكس، أو سلك مرخي، أو جرّب الموتور الاحتياطي.`);
+}
+
+function vServo(){
+  const us0=num('s_us0')??500, us90=num('s_us90')??1500, a0=num('s_a0'), a90=num('s_a90'), vm=num('s_vmin'), rs=num('s_rst'), bz=$('s_buzz').value;
+  R.servo=null;
+  if(a0==null||a90==null){setV(2,'idle','اكتب الأرقام والنتيجة هتظهر هنا.');return;}
+  const k=(us90-us0)/((a90-a0)||1);                // us per real degree
+  let n0=Math.round((us0-a0*k)/10)*10, n90=Math.round((us0+(90-a0)*k)/10)*10;
+  if(bz==='b0') n0+=50;
+  if(bz==='b90') n90-=50;
+  R.servo=[n0,n90];
+  const angOk=Math.abs(a0)<=5&&Math.abs(a90-90)<=5;
+  const msgs=[];let st='ok';
+  if(a90-a0<10){setV(2,'bad','<b>السيرفو مش بيتحرك</b>اتأكد إن فيشته في BK2 والإشارة على W57 عن طريق R5. ولو بيلف على طول ومبيقفش، يبقى نسخة 360° وممنوع تتركب.');return;}
+  if(!angOk){st='warn';msgs.push(`الزوايا بعيدة عن المطلوب. حط في الكود: <code>SERVO_US_0 = ${n0}</code> و<code>SERVO_US_90 = ${n90}</code> وعيد خطوات 7 و8.`);}
+  else msgs.push(`الزوايا مظبوطة (0° طلعت ${a0}°، و90° طلعت ${a90}°).${(n0!==us0||n90!==us90)?` ولو عايز أدق: <code>SERVO_US_0 = ${n0}</code> و<code>SERVO_US_90 = ${n90}</code>.`:''}`);
+  if(bz&&bz!=='no'){st=st==='ok'?'warn':st;msgs.push('الزنّ معناه إن السيرفو بيزق في آخره وبيسحب تيار على الفاضي. التصحيح اتحسب في الرقم فوق.');}
+  if(vm!=null){ if(vm<4.8){st='bad';msgs.push(`أقل جهد على TP4 كان ${f2(vm)}V، وده أقل من 4.8V. اتأكد من مكثف الـ 1000µF جنب الفيشة، ومن إن BK2 متضبط على 5.0V، ومن إن البطارية فوق 7.0V.`);} else msgs.push(`أقل جهد على TP4 كان ${f2(vm)}V ✔ (المطلوب ≥ 4.8V).`);}
+  if(rs!=null){ if(rs>0){st='bad';msgs.push(`حصل ${rs} Reset. ده ضد شرط النجاح رقم 4. اكتب سبب الـ Reset من Serial Monitor (لو BROWNOUT يبقى الكهربا هبطت)، واتأكد إن السيرفو مش متوصل على BK1.`);} else msgs.push('صفر Reset في الـ 10 حركات ✔.');}
+  if(vm==null||rs==null){ if(st==='ok') st='warn'; msgs.push('فاضل تكتب أقل جهد وعدد الـ Reset من خطوة 9.');}
+  setV(2,st,`<b>${st==='ok'?'السيرفو جاهز':st==='warn'?'السيرفو محتاج تعديل بسيط':'السيرفو مرجّع'}</b>${msgs.join('<br>')}`);
+}
+
+function vIR(){
+  const g=id=>$(id).value, W=[g('ir_lw'),g('ir_cw'),g('ir_rw')], B=[g('ir_lb'),g('ir_cb'),g('ir_rb')], names=['الشمال','النص','اليمين'];
+  const h=g('ir_h'), stn=g('ir_st');
+  R.irBlack=null;
+  if(W.some(x=>x==='')||B.some(x=>x==='')){setV(3,'idle','اختار القيم والنتيجة هتظهر هنا.');return;}
+  const same=[0,1,2].filter(i=>W[i]===B[i]);
+  if(same.length){setV(3,'bad',`<b>${same.map(i=>names[i]).join(' و')} مش بيفرّق</b>القراية فوق الأبيض زي فوق الأسود. لف المسمار الأزرق ربع لفة وجرّب تاني، أو قرّب الحساس لـ 3 مم. ولو فضل كده، جرّب الحساس الاحتياطي.`);return;}
+  const bset=new Set(B);
+  if(bset.size>1){setV(3,'bad','<b>الحساسات مش متفقة</b>واحد بيقول 1 على الأسود وواحد بيقول 0. الموديولات لازم تبقى نفس النوع (HW‑511). اتأكد من الموديول المختلف وغيّره بالاحتياطي.');return;}
+  const b=B[0]; R.irBlack=b;
+  const msgs=[`التلاتة بيفرّقوا ✔. فوق الأسود بيطلعوا ${b}، يعني في الكود: <code>IR_BLACK = ${b==='1'?'HIGH':'LOW'}</code>.`];
+  let st='ok';
+  if(h==='x'){st='bad';msgs.push('مفيش ارتفاع اشتغل للتلاتة. ده لازم يتحل قبل تجميد المقاسات يوم الجمعة.');}
+  else if(h){msgs.push(`الارتفاع المختار ${h} مم. ابعته لفريق الميكانيكا عشان حامل الـ IR بالثقوب المشقوقة.`);}
+  else {st='warn';msgs.push('فاضل تكتب الارتفاع اللي اشتغل.');}
+  if(stn==='no'){st='bad';msgs.push('علامة المحطة مظهرتش. اتأكد إن الخط العرضي عريض كفاية (3 سم) ويغطي التلات حساسات مع بعض.');}
+  else if(stn==='ok') msgs.push('علامة المحطة ظهرت ✔.');
+  else if(st==='ok') {st='warn';msgs.push('فاضل تجرب علامة المحطة.');}
+  setV(3,st,`<b>${st==='ok'?'العيون شايفة كويس':st==='warn'?'قربنا':'IR مرجّع'}</b>${msgs.join('<br>')}`);
+}
+
+function vUS(){
+  let n=0,worst=0,bad=0,errs=[];
+  U_DIST.forEach(d=>{const r=num('u_'+d), e=$('ue_'+d), c=$('uv_'+d);
+    if(r==null){e.textContent='—';c.innerHTML='';return;}
+    n++; const er=r-d; errs.push(er); const lim=d>30?2:1; const ok=Math.abs(er)<=lim;
+    if(!ok) bad++; worst=Math.max(worst,Math.abs(er));
+    e.textContent=(er>0?'+':'')+f1(er); c.innerHTML=`<span class="pill ${ok?'ok':'bad'}">${ok?'✔':'✖'} ±${lim}</span>`;});
+  const ang=$('u_ang').value;
+  if(!n){setV(4,'idle','اكتب القرايات والنتيجة هتظهر هنا.');return;}
+  const mean=errs.reduce((a,b)=>a+b,0)/errs.length;
+  const near=[15,20].map(d=>num('u_'+d)).filter(x=>x!=null);
+  const msgs=[`اتقاس ${n} من ${U_DIST.length} مسافات، وأكبر غلط ${f1(worst)} سم.`];
+  let st=bad?'bad':(n<U_DIST.length?'warn':'ok');
+  if(bad&&Math.abs(mean)>0.8&&errs.every(e=>Math.sign(e)===Math.sign(mean))) msgs.push(`الغلط دايمًا في نفس الاتجاه (متوسط ${mean>0?'+':''}${f1(mean)} سم). ده معناه إن المسطرة مش بادئة من وش الحساس، أو إننا نطرح ${f1(mean)} سم في الكود.`);
+  else if(bad) msgs.push('الغلط مش ثابت. اتأكد إن مفيش حاجة تانية قدام الحساس (سلك، حافة ترابيزة)، وإن الحساس ثابت ومش مايل.');
+  if(n<U_DIST.length) msgs.push('فاضل مسافات متقاستش.');
+  if(ang==='lost'){ if(st==='ok') st='warn'; msgs.push('العلبة المايلة مظهرتش. في العرض حط العائق وشه للروبوت، وده هيتكتب في ملاحظات أول تشغيل.');}
+  if(!bad&&near.length===2) msgs.push('منطقة الوقوف (15–20 سم) بتتقاس صح ✔.');
+  setV(4,st,`<b>${st==='ok'?'الخفاش بيقيس صح':st==='warn'?'قربنا':'حساس المسافة مرجّع'}</b>${msgs.join('<br>')}`);
+}
+
+function vBat(){
+  const m=num('b_meter'), e=num('b_esp'); R.cal=null;
+  if(m==null||e==null||e<=0){setV(5,'idle','اكتب الرقمين والنتيجة هتظهر هنا.');return;}
+  const cal=m/e, diff=e-m; R.cal=cal;
+  if(m<6.6){setV(5,'warn',`<b>البطارية ${f2(m)}V، أقل من 6.6V</b>اشحن الأول وعيد القياس. والسويتش OFF وانت بتشحن.`);return;}
+  if(cal<0.85||cal>1.15){setV(5,'bad',`<b>الفرق كبير جدًا (${f2(diff)}V)</b>ده مش غلط قراية، ده غلط توصيل. اتأكد إن 100k ناحية X1 و33k ناحية الأرضي، والسلك الأخضر W53 على VN (39). لو المقاومتين متبدلين، طرف VN بيتشبع والـ ESP32 بيقرا رقم كبير قوي (حوالي 12V). ولو بيقرا قريب من صفر، يبقى السويتش OFF أو W20 مفكوك.`);return;}
+  const st=Math.abs(diff)<=0.1?'ok':'warn';
+  setV(5,st,`<b>${st==='ok'?'العداد مظبوط':'العداد محتاج تصحيح'}</b>الملتيميتر ${f2(m)}V والـ ESP32 ${f2(e)}V، الفرق ${diff>0?'+':''}${f2(diff)}V. حط في الكود: <code>VBAT_CAL = ${cal.toFixed(3)}</code>${st==='ok'?' (اختياري، الفرق أصلًا صغير)':''}.`);
+}
+
+function badge(){
+  const st=[1,2,3,4,5].map(i=>R[i]);
+  const okN=st.filter(s=>s==='ok'||s==='warn').length, badN=st.filter(s=>s==='bad').length;
+  const b=$('badge'); b.className='status '+(badN?'bad':okN===5?(st.includes('warn')?'warn':'ok'):okN?'warn':'idle');
+  $('badgeTxt').textContent=badN?`النتايج: ${okN} من 5 · ${badN} مرجّع`:`النتايج: ${okN} من 5`;
+}
+
+function report(){
+  const names=['الموتورين','السيرفو','حساسات IR','حساس المسافة','عداد البطارية'];
+  const lab={ok:'✔ عدّى',warn:'⚠ بملاحظة',bad:'✖ مرجّع',idle:'لسه'};
+  let h='<tr><th>الاختبار</th><th>الحالة</th><th>الرقم اللي هيدخل الكود</th></tr>';
+  const val=[R.trim?`TRIM_L = ${f2(R.trim[0])} · TRIM_R = ${f2(R.trim[1])}`:'—',
+    R.servo?`SERVO_US_0 = ${R.servo[0]} · SERVO_US_90 = ${R.servo[1]}`:'—',
+    R.irBlack!=null?`IR_BLACK = ${R.irBlack==='1'?'HIGH':'LOW'} · الارتفاع ${$('ir_h').value||'—'} مم`:'—',
+    (()=>{const r=num('u_20');return r!=null?`عند 20 سم قرا ${f1(r)} سم`:'—';})(),
+    R.cal?`VBAT_CAL = ${R.cal.toFixed(3)}`:'—'];
+  names.forEach((n,i)=>{const s=R[i+1]||'idle';h+=`<tr><td>${n}</td><td><span class="pill ${s}">${lab[s]}</span></td><td class="num">${esc(val[i])}</td></tr>`;});
+  $('sumTable').innerHTML=h;
+  const strip=s=>s.replace(/<br>/g,' — ').replace(/<[^>]+>/g,'');
+  let t=`تقرير المهمة 3 — اختبار المكونات على البنش (AMR‑E‑03 Rev A)\nفريق الكهرباء والبرمجة · الأربعاء 25/11/2026 · إعداد: Mohamed ibn Ibrahim\n\n`;
+  names.forEach((n,i)=>{const s=R[i+1]||'idle';t+=`${i+1}) ${n}: ${lab[s]}\n   ${strip($('v'+(i+1)).innerHTML)}\n`;});
+  t+=`\nالأرقام للكود:\n${val.filter((v,i)=>i!==3&&v!=='—').map(v=>'• '+v).join('\n')||'• لسه'}\n`;
+  $('summary').value=t;
+}
+
+function evalAll(){vMotor();vServo();vIR();vUS();vBat();badge();report();save();}
+document.querySelectorAll('#t1 .v,#t2 .v,#t3 .v,#t4 .v,#t5 .v,#report input').forEach(e=>{e.addEventListener('input',evalAll);e.addEventListener('change',evalAll);});
+
+const EX={m_dirL:'ok',m_dirR:'ok',m_l40:'7.5',m_r40:'7',m_l60:'13',m_r60:'12',m_l80:'18',m_r80:'16.5',m_rev:'ok',s_us0:'500',s_us90:'1500',s_a0:'4',s_a90:'88',s_vmin:'4.86',s_rst:'0',s_buzz:'no',
+ ir_lw:'0',ir_lb:'1',ir_cw:'0',ir_cb:'1',ir_rw:'0',ir_rb:'1',ir_h:'4',ir_st:'ok',u_5:'5.3',u_10:'10.2',u_15:'15.4',u_20:'20.3',u_30:'30.6',u_50:'50.9',u_ang:'lost',b_meter:'7.82',b_esp:'7.71'};
+$('fillEx').onclick=()=>{Object.entries(EX).forEach(([k,v])=>{$(k).value=v;});evalAll();$('sumMsg').textContent='دي أرقام تجريبية للتمرين، مش نتايج حقيقية. امسحها قبل ما تملا.';};
+$('clearAll').onclick=()=>{FIELDS.forEach(k=>{const e=$(k);if(e.type==='checkbox')e.checked=false;else e.value=(k==='s_us0'?'500':k==='s_us90'?'1500':'');});evalAll();$('sumMsg').textContent='الورق اتمسح.';};
+function copyText(text,msgEl,ok,ta){
+  const done=()=>{msgEl.textContent=ok;};
+  try{navigator.clipboard.writeText(text).then(done,()=>{fallback();});}catch(e){fallback();}
+  function fallback(){ if(ta){ta.removeAttribute('readonly');ta.select();ta.setAttribute('readonly','');msgEl.textContent='النص متعلّم، انسخه بإيدك (Ctrl+C).';} else { const r=document.createRange(); r.selectNodeContents($('codeBox')); const s=getSelection(); s.removeAllRanges(); s.addRange(r); msgEl.textContent='الكود متعلّم، انسخه بإيدك (Ctrl+C).';} }
+}
+$('copySum').onclick=()=>copyText($('summary').value,$('sumMsg'),'التقرير اتنسخ.',$('summary'));
+const INO=$('inoSrc').textContent.replace(/^\n/,'');
+$('codeBox').textContent=INO;
+$('copyCode').onclick=()=>copyText(INO,$('copyMsg'),'الكود اتنسخ.');
+
+/* ===================== VIRTUAL BENCH ===================== */
+document.querySelectorAll('[data-sim]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-sim]').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));
+  document.querySelectorAll('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==b.dataset.sim);
+  drawAll();
+}));
+const ro=(id,arr)=>{$(id).innerHTML=arr.map(x=>`<div class="ro ${x[2]||''}"><div class="k">${x[0]}</div><div class="val">${x[1]}</div></div>`).join('');};
+const msg=(id,st,html)=>{const e=$(id);e.className='simmsg verdict '+st;e.innerHTML=html;};
+
+/* --- motors --- */
+const RPM6=200, WHEEL=6.5, TRACK=17, DROP=2.0;  // no-load RPM at 6V, wheel cm, track cm, L298N drop V
+function simMot(){
+  const vb=+$('sm_vb').value, d=+$('sm_d').value/100, f=+$('sm_f').value/100, useT=$('sm_trim').checked, comp=$('sm_comp').checked;
+  $('sm_vbT').textContent=vb.toFixed(1)+'V'; $('sm_dT').textContent=Math.round(d*100)+'%'; $('sm_fT').textContent=Math.round(f*100)+'%';
+  let tL=1,tR=1; if(useT){ tL=1; tR=1/(1-f); if(tR>1){tL=1/tR;tR=1;} }
+  const k=comp?7.4/vb:1;
+  const dutyL=Math.min(1,d*tL*k), dutyR=Math.min(1,d*tR*k);
+  const vm=x=>Math.max(0,x*vb-DROP*(x>0?1:0));
+  const rL=Math.max(0,RPM6*vm(dutyL)/6), rR=Math.max(0,RPM6*vm(dutyR)/6*(1-f));
+  const vL=rL*Math.PI*WHEEL/60, vR=rR*Math.PI*WHEEL/60;    // cm/s
+  // integrate path over 100 cm of travel
+  let x=0,y=0,th=0,pts=[[0,0]],s=0; const v=(vL+vR)/2, w=(vR-vL)/TRACK;
+  if(v>0.1){ const dt=0.5/v; while(s<100){ x+=v*Math.cos(th)*dt; y+=v*Math.sin(th)*dt; th+=w*dt; s+=v*dt; pts.push([x,y]); if(pts.length>2000)break; } }
+  const drift=y; // cm to the left (+) / right (-)
+  const svg=$('svgMot'); const ink=css('--ink'),mut=css('--muted'),line=css('--line'),acc=css('--accent'),bad=css('--bad');
+  const X=px=>60+px*5, Y=py=>150-py*5;
+  let s2=`<rect x="0" y="0" width="640" height="300" fill="${css('--tile')}"/>`;
+  for(let i=0;i<=100;i+=10){s2+=`<line x1="${X(i)}" y1="20" x2="${X(i)}" y2="280" stroke="${line}" stroke-width="1"/><text x="${X(i)}" y="294" font-size="11" text-anchor="middle" fill="${mut}" class="mono">${i}</text>`;}
+  s2+=`<rect x="${X(0)}" y="${Y(1)}" width="${500}" height="10" fill="${css('--tape')}" opacity=".85"/>`;
+  s2+=`<text x="${X(100)}" y="${Y(1)-8}" font-size="12" text-anchor="end" fill="${mut}">الخط الأسود · 100 سم</text>`;
+  s2+=`<polyline points="${pts.map(p=>X(p[0]).toFixed(1)+','+Math.max(10,Math.min(290,Y(p[1]))).toFixed(1)).join(' ')}" fill="none" stroke="${Math.abs(drift)>2?bad:acc}" stroke-width="3" stroke-linecap="round"/>`;
+  const last=pts[pts.length-1];
+  s2+=`<g transform="translate(${X(last[0])},${Math.max(10,Math.min(290,Y(last[1])))}) rotate(${-th*180/Math.PI})"><rect x="-20" y="-14" width="40" height="28" rx="4" fill="${css('--wood')}" stroke="${ink}"/><rect x="-14" y="-19" width="12" height="6" fill="${ink}"/><rect x="-14" y="13" width="12" height="6" fill="${ink}"/><path d="M20 -6 L28 0 L20 6 Z" fill="${acc}"/></g>`;
+  s2+=`<text x="${X(0)}" y="36" font-size="12" fill="${mut}">من فوق: الروبوت بيبدأ على الخط ويمشي 100 سم من غير تصحيح</text>`;
+  svg.innerHTML=s2;
+  const diffP=rL>0?Math.abs(rL-rR)/Math.max(rL,rR)*100:0;
+  ro('roMot',[['الشمال',f1(rL)+' RPM'],['اليمين',f1(rR)+' RPM'],['الفرق',f1(diffP)+'%',diffP>15?'bad':diffP>5?'warn':'ok'],['السرعة',f1(v)+' cm/s'],['الجهد على الموتور',f2(vm(dutyL))+'V'],['البعد عن الخط بعد 1 م',(Math.abs(drift)<0.05?'0.0':f1(Math.abs(drift)))+' cm',Math.abs(drift)>2?'bad':'ok']]);
+  if(rL<1) msg('msgMot','bad','<b>الموتور مبيلفش</b>الـ PWM صغير قوي: الـ L298N بياكل حوالي 2V، فاللي فاضل مش كفاية يحرّك الموتور. ارفع الـ PWM.');
+  else if(Math.abs(drift)>2) msg('msgMot','bad',`<b>الروبوت بيلف ناحية ${drift<0?'اليمين':'الشمال'}</b>بعد متر واحد بس هيبقى بعيد ${f1(Math.abs(drift))} سم عن الخط. علّم "طبّق TRIM" وشوف الفرق.`);
+  else msg('msgMot','ok',`<b>ماشي دوغري</b>${useT?`TRIM_L = ${f2(tL)} · TRIM_R = ${f2(tR)}. الأسرع اتبطّأ شوية لحد ما الاتنين بقوا زي بعض.`:'الموتورين متساويين في المحاكاة دي.'}${!comp&&vb<7.2?' بس لاحظ إن من غير تعويض الجهد، العربية بقت أبطأ لأن البطارية ضعفت.':''}`);
+}
+
+/* --- servo --- */
+let srvAnim=null;
+function srvAngle(us){ return Math.max(0,Math.min(180,(us-500)/2000*180)); }
+function simSrv(usOverride){
+  const us=usOverride??+$('ss_us').value; $('ss_usT').textContent=us+' µs';
+  const onBB=$('ss_bb').checked, noCap=$('ss_cap').checked, c360=$('ss_360').checked;
+  const ang=srvAngle(us), clip=us<500||us>2500;
+  const moving=srvAnim!==null;
+  const vDip= onBB? (moving?4.1:4.9) : (noCap&&moving?4.45:moving?4.86:5.0);
+  const ink=css('--ink'),mut=css('--muted'),acc=css('--accent'),pur=css('--w-purple'),line=css('--line');
+  const cx=170,cy=210,rr=120;
+  let s=`<rect x="0" y="0" width="640" height="300" fill="${css('--tile')}"/>`;
+  s+=`<path d="M${cx-rr} ${cy} A${rr} ${rr} 0 0 1 ${cx+rr} ${cy}" fill="none" stroke="${line}" stroke-width="2"/>`;
+  [0,45,90,135,180].forEach(a=>{const t=Math.PI-a*Math.PI/180;const x1=cx+Math.cos(t)*(rr-8),y1=cy-Math.sin(t)*(rr-8),x2=cx+Math.cos(t)*rr,y2=cy-Math.sin(t)*rr;s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${mut}"/><text x="${cx+Math.cos(t)*(rr+16)}" y="${cy-Math.sin(t)*(rr+16)+4}" font-size="11" text-anchor="middle" fill="${mut}" class="mono">${a}°</text>`;});
+  const show=c360?((Date.now()/8)%180):ang; const t=Math.PI-show*Math.PI/180;
+  s+=`<rect x="${cx-34}" y="${cy-6}" width="68" height="44" rx="5" fill="${ink}"/><text x="${cx}" y="${cy+26}" font-size="11" text-anchor="middle" fill="${css('--tile')}">MG996R</text>`;
+  s+=`<line x1="${cx}" y1="${cy}" x2="${cx+Math.cos(t)*(rr-20)}" y2="${cy-Math.sin(t)*(rr-20)}" stroke="${pur}" stroke-width="9" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="9" fill="${css('--tile')}" stroke="${ink}" stroke-width="2"/>`;
+  s+=`<text x="${cx-rr}" y="${cy+20}" font-size="12" fill="${mut}">تحت</text><text x="${cx}" y="${cy-rr-26}" font-size="12" text-anchor="middle" fill="${mut}">فوق (90°)</text>`;
+  // pulse diagram
+  const px=360,pw=250,py=120,ph=60, hw=us/20000*pw*4; // zoom x4 so pulse visible
+  s+=`<text x="${px}" y="${py-30}" font-size="12" fill="${mut}">الإشارة على W57: نبضة كل 20 ms (مكبّرة)</text>`;
+  s+=`<polyline points="${px},${py+ph} ${px+20},${py+ph} ${px+20},${py} ${px+20+hw},${py} ${px+20+hw},${py+ph} ${px+pw},${py+ph}" fill="none" stroke="${acc}" stroke-width="2.5"/>`;
+  s+=`<text x="${px+20+hw/2}" y="${py-6}" font-size="12" text-anchor="middle" fill="${ink}" class="mono">${us} µs</text>`;
+  s+=`<text x="${px}" y="${py+ph+20}" font-size="11" fill="${mut}" class="mono">3.0V</text>`;
+  $('svgSrv').innerHTML=s;
+  ro('roSrv',[['الزاوية',c360?'بيلف على طول':f1(ang)+'°',c360||clip?'bad':''],['جهد السيرفو (TP4)',f2(vDip)+'V',vDip<4.8?'bad':'ok'],['ريل المخ BK1',onBB&&moving?'4.1V':'5.0V',onBB&&moving?'bad':'ok']]);
+  if(c360) msg('msgSrv','bad','<b>سيرفو 360°</b>النبضة هنا بتتحكم في السرعة مش الزاوية، فالسيرفو بيلف على طول ومبيقفش. ممنوع يتركب، رجّعه للمحل واطلب 180°.');
+  else if(onBB) msg('msgSrv','bad',`<b>السيرفو على ريل المخ</b>${moving?'وهو بيتحرك، ريل 5V وقع لـ 4.1V والـ ESP32 عمل Reset (BROWNOUT).':'وهو واقف كل حاجة تمام، بس جرّب "حرّكه" وشوف ريل المخ هيعمل إيه.'} مكانه BK2 لوحده.`);
+  else if(noCap&&moving) msg('msgSrv','warn','<b>من غير المكثف</b>جهد السيرفو بيهبط لـ 4.45V لحظة الحركة، فالسيرفو بيرتعش. رجّع الـ 1000µF جنب الفيشة.');
+  else if(clip) msg('msgSrv','warn',`<b>النبضة برّه المدى</b>${us<500?'أقل من 500':'أكتر من 2500'} µs: السيرفو بيزق في آخره ويزن ويسخن. خليك بين 500 و2500.`);
+  else msg('msgSrv','ok',`<b>تمام</b>${us} µs = حوالي ${f1(ang)}°. في الكود: 0° = SERVO_US_0 و90° = SERVO_US_90، والاتنين بيتصححوا من المنقلة في الاختبار 2.`);
+}
+$('ss_go').onclick=()=>{
+  if(srvAnim) return; let i=0; const seq=[]; for(let k=0;k<3;k++){seq.push(1500,500);}
+  const tick=()=>{ if(i>=seq.length){srvAnim=null; simSrv(); return;} $('ss_us').value=seq[i]; simSrv(seq[i]); i++; srvAnim=setTimeout(tick,700); };
+  srvAnim=1; tick();
+};
+
+/* --- IR --- */
+function simIR(){
+  const off=+$('si_off').value, h=+$('si_h').value, sp=+$('si_sp').value, lw=+$('si_w').value, st=$('si_st').checked; // mm
+  $('si_offT').textContent=(off>0?'+':'')+off+' mm'; $('si_hT').textContent=h+' mm'; $('si_spT').textContent=sp+' mm'; $('si_wT').textContent=lw+' mm';
+  const spot=2+0.9*h; // spot diameter mm (grows with height)
+  const contrast=h<=5?1:h<=7?0.6:0.25;
+  const pos=[-sp+off,off,sp+off]; // sensor centers relative to line center (mm), robot shifted by off
+  const cover=c=>{ if(st) return 1; const a=Math.max(c-spot/2,-lw/2), b=Math.min(c+spot/2,lw/2); return Math.max(0,b-a)/spot; };
+  const reads=pos.map(c=>{const cv=cover(c); const sure=contrast>=0.6; return {cv, black: cv>0.5, sure: sure || cv<0.15 || cv>0.85};});
+  const D=reads.map(r=>r.black?1:0);
+  let dec='', st2='ok';
+  if(D.join('')==='111') dec='علامة محطة: قف';
+  else if(D.join('')==='010') dec='مستقيم';
+  else if(D[0]&&!D[2]) dec='الخط ناحية الشمال: صحّح شمال';
+  else if(D[2]&&!D[0]) dec='الخط ناحية اليمين: صحّح يمين';
+  else if(D.join('')==='000'){dec='ضايع! مفيش حساس شايف الخط'; st2='bad';}
+  else dec='مش واضح';
+  const ink=css('--ink'),mut=css('--muted'),grn=css('--w-green'),bad=css('--bad');
+  const sc=5, cx=320; const X=mm=>cx+mm*sc;
+  let s=`<rect x="0" y="0" width="640" height="300" fill="${css('--track')}"/>`;
+  s+= st? `<rect x="20" y="170" width="600" height="${30*sc/2}" fill="${css('--tape')}"/>` : '';
+  s+=`<rect x="${X(-lw/2)}" y="20" width="${lw*sc}" height="270" fill="${css('--tape')}"/>`;
+  s+=`<rect x="${X(off-sp-14)}" y="70" width="${(2*sp+28)*sc}" height="34" rx="4" fill="${css('--wood')}" stroke="${ink}"/>`;
+  s+=`<text x="${X(off)}" y="62" font-size="12" text-anchor="middle" fill="#1d2731" style="paint-order:stroke" stroke="#ffffff" stroke-width="3">حامل الحساسات (منظر من فوق)</text>`;
+  ['L','C','R'].forEach((n,i)=>{const c=X(pos[i]); const r=reads[i];
+    s+=`<circle cx="${c}" cy="200" r="${spot*sc/2}" fill="${r.black?grn:bad}" opacity="${0.25+0.35*contrast}"/>`;
+    s+=`<rect x="${c-16}" y="76" width="32" height="22" rx="3" fill="#1565c0"/><text x="${c}" y="92" font-size="12" font-weight="700" text-anchor="middle" fill="#fff" class="mono">${n}</text>`;
+    s+=`<line x1="${c}" y1="98" x2="${c}" y2="${200-spot*sc/2}" stroke="#1565c0" stroke-dasharray="3 3"/>`;
+    s+=`<rect x="${c-22}" y="236" width="44" height="22" rx="4" fill="#ffffff" stroke="#1d2731"/><text x="${c}" y="252" font-size="13" font-weight="700" text-anchor="middle" fill="#1d2731" class="mono">${D[i]}${r.sure?'':'?'}</text>`;});
+  $('svgIr').innerHTML=s;
+  const unsure=reads.some(r=>!r.sure);
+  ro('roIr',[['L شمال',D[0]?'BLACK':'white'],['C نص',D[1]?'BLACK':'white'],['R يمين',D[2]?'BLACK':'white'],['قطر البقعة',f1(spot)+' mm',h>5?'warn':''],['القرار',dec,st2==='bad'?'bad':'']]);
+  if(h>7) msg('msgIr','bad',`<b>الحساس عالي قوي (${h} مم)</b>الضوء بيتفرّق والفرق بين الأسود والأبيض بيضعف، فالقرايات بتتهز (علامة ؟). نزّله لـ 3–5 مم.`);
+  else if(unsure) msg('msgIr','warn','<b>حساس واقف على حافة الخط</b>نص البقعة على الأسود ونصها على الأبيض، فالقراية ممكن تقلب كل شوية. ده طبيعي وقت التصحيح، والكود بياخد بيه.');
+  else if(!st&&sp<lw/2+spot/2) msg('msgIr','warn',`<b>الحساسات قريبة من بعض</b>المسافة ${sp} مم والخط ${lw} مم: الحساسات الجانبية بتشوف الخط مع النص، فالروبوت ممكن يحسبها محطة. خلي المسافة ${Math.ceil(lw/2+spot/2)} مم أو أكتر.`);
+  else if(st2==='bad') msg('msgIr','bad',`<b>الخط ضاع</b>الروبوت زاح ${Math.abs(off)} مم والحساسات التلاتة على الأبيض. المسافة بين الحساسات (${sp} مم) كبيرة على عرض الخط ده. قرّبها، أو خلي الكود يفتكر آخر اتجاه شافه.`);
+  else msg('msgIr','ok',`<b>${dec}</b>المسافة المقترحة لحامل الميكانيكا مع الخط ده: من ${Math.ceil(lw/2+spot/2)} لـ ${Math.floor(lw+spot/2)} مم من نص كل حساس لنص اللي جنبه، والارتفاع من 3 لـ 5 مم.`);
+}
+
+/* --- ultrasonic --- */
+function simUS(){
+  const d=+$('su_d').value, a=+$('su_a').value, nodiv=$('su_nodiv').checked, swap=$('su_swap').checked;
+  $('su_dT').textContent=d+' cm'; $('su_aT').textContent=a+'°';
+  const lost=a>=40||d>400, tooNear=d<2;
+  const t=d*2/0.0343; // us
+  const vEcho=nodiv?5.0:swap?5*1000/3000:5*2000/3000;
+  const seen=!lost&&!tooNear&&vEcho>=2.0;
+  const reading=seen? d+0.3+(a>0?a/30:0):null;
+  const ink=css('--ink'),mut=css('--muted'),acc=css('--accent'),bad=css('--bad'),line=css('--line');
+  const X=cm=>90+cm*6.2;
+  let s=`<rect x="0" y="0" width="640" height="300" fill="${css('--tile')}"/>`;
+  for(let i=0;i<=80;i+=10){s+=`<line x1="${X(i)}" y1="200" x2="${X(i)}" y2="${i%20?208:214}" stroke="${mut}"/><text x="${X(i)}" y="228" font-size="11" text-anchor="middle" fill="${mut}" class="mono">${i}</text>`;}
+  s+=`<line x1="${X(0)}" y1="200" x2="${X(80)}" y2="200" stroke="${mut}"/>`;
+  s+=`<rect x="${X(15)}" y="190" width="${X(20)-X(15)}" height="10" fill="${css('--ok')}" opacity=".35"/><text x="${(X(15)+X(20))/2}" y="184" font-size="11" text-anchor="middle" fill="${mut}">منطقة الوقوف</text>`;
+  s+=`<rect x="40" y="120" width="48" height="40" rx="4" fill="#0d47a1"/><circle cx="${88}" cy="132" r="9" fill="#cfd8dc" stroke="${ink}"/><circle cx="${88}" cy="150" r="9" fill="#cfd8dc" stroke="${ink}"/>`;
+  s+=`<g transform="translate(${X(d)+31},140) rotate(${a})"><rect x="-31" y="-31" width="62" height="62" fill="#c8a165" stroke="${ink}"/></g>`;
+  if(!lost){ for(let k=1;k<=3;k++){ const r=Math.min(X(d)-97, k*(X(d)-97)/3); s+=`<path d="M${97+r} ${118} Q${97+r+8} 141 ${97+r} ${164}" fill="none" stroke="${acc}" stroke-width="2" opacity="${0.4+k*0.2}"/>`; } }
+  else { s+=`<path d="M${X(d)} 120 L${X(d)+40} 70" stroke="${bad}" stroke-width="2" stroke-dasharray="5 4" marker-end=""/><text x="${X(d)+44}" y="66" font-size="12" fill="${bad}">الصدى راح بعيد</text>`; }
+  s+=`<text x="40" y="270" font-size="12" fill="${mut}">طرف Echo على الـ ESP32 (D22): <tspan class="mono" fill="${vEcho>3.6?bad:ink}">${f2(vEcho)}V</tspan> · الحد المطلق 3.6V</text>`;
+  $('svgUs').innerHTML=s;
+  ro('roUs',[['وقت الصدى',seen?Math.round(t)+' µs':'—'],['قراية الحساس',seen?f1(reading)+' cm':'no echo',seen?'':'bad'],['الغلط',seen?'+'+f1(reading-d)+' cm':'—',seen&&reading-d>1?'warn':''],['جهد Echo على D22',f2(vEcho)+'V',vEcho>3.6||vEcho<2?'bad':'ok'],['الروبوت',seen&&reading<=20?'قف!':'كمّل',seen&&reading<=20?'warn':'']]);
+  if(nodiv) msg('msgUs','bad','<b>5V على طرف الـ ESP32</b>ده أعلى من الحد المطلق 3.6V. ممكن يشتغل يوم ولا اتنين وبعدين الطرف يبوظ. Echo لازم يعدي على المقسم 1k/2k.');
+  else if(swap) msg('msgUs','bad','<b>المقسم مقلوب</b>Echo بقى 1.67V بس، والـ ESP32 مش هيعتبره HIGH، فمش هيشوف العائق خالص. 1k فوق ناحية الحساس، و2k تحت ناحية الأرضي.');
+  else if(lost) msg('msgUs','warn','<b>العلبة مايلة قوي</b>الصوت خبط فيها وراح ناحية تانية زي الكورة لما تخبط في حيطة مايلة، فالصدى مرجعش. في العرض العائق يبقى وشه للروبوت.');
+  else msg('msgUs','ok',`<b>الصدى رجع بعد ${Math.round(t)} µs</b>${Math.round(t)} × 0.0343 ÷ 2 = ${f1(d)} سم. ${d<=20?'الروبوت جوه منطقة الوقوف: يقف.':'لسه بعيد: الروبوت يكمّل.'}`);
+}
+
+function drawAll(){simMot();simSrv();simIR();simUS();}
+['sm_vb','sm_d','sm_f','sm_trim','sm_comp'].forEach(i=>$(i).addEventListener('input',simMot));
+['ss_us','ss_bb','ss_cap','ss_360'].forEach(i=>$(i).addEventListener('input',()=>simSrv()));
+['si_off','si_h','si_sp','si_w','si_st'].forEach(i=>$(i).addEventListener('input',simIR));
+['su_d','su_a','su_nodiv','su_swap'].forEach(i=>$(i).addEventListener('input',simUS));
+let spin=null; $('ss_360').addEventListener('change',()=>{ if($('ss_360').checked){ spin=setInterval(()=>simSrv(),80);} else {clearInterval(spin);spin=null;simSrv();} });
+if(window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',drawAll);
+new MutationObserver(drawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+load(); evalAll(); drawAll();
+</script>
+
+</body></html>

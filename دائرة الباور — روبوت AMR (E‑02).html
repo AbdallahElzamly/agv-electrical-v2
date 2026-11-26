@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>دائرة الباور — روبوت AMR (E‑02)</title>
+<style>
+:root{
+  --board:#eef2f0; --sheet:#fffffd; --ink:#1d2731; --muted:#5d6b78; --line:#cfd8de; --accent:#0d6b93; --accent-soft:#e1eff6;
+  --ok:#2e7d32; --ok-soft:#e6f4e7; --warn:#a86a00; --warn-soft:#fff3dc; --bad:#c62828; --bad-soft:#fdeaea;
+  --w-red:#d32f2f; --w-black:#212121; --w-orange:#ef6c00; --w-purple:#7b1fa2; --w-green:#2e7d32; --w-blue:#1565c0;
+  --font-body:'IBM Plex Sans Arabic','Noto Sans Arabic','DejaVu Sans',Tahoma,sans-serif;
+  --font-mono:'IBM Plex Mono','DejaVu Sans Mono',ui-monospace,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--board);color:var(--ink);font-family:var(--font-body);font-size:15.5px;line-height:1.7}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+.muted{color:var(--muted)}
+h1,h2,h3{line-height:1.3;margin:0;text-wrap:balance}
+button,select,input{font:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+header.top{background:var(--sheet);border-bottom:1px solid var(--line);padding:16px 16px 0;position:sticky;top:0;z-index:5}
+.wrap{max-width:1180px;margin:0 auto}
+.titlerow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.titlerow h1{font-size:22px}
+.drawno{font-family:var(--font-mono);font-size:12px;border:1px solid var(--ink);padding:2px 8px;border-radius:2px;direction:ltr}
+.meta{font-size:13px;color:var(--muted)}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;margin-top:12px}
+nav.tabs a{padding:8px 12px;font-size:14px;color:var(--muted);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
+nav.tabs a:hover{color:var(--ink)}
+.status{display:inline-flex;gap:8px;align-items:center;font-size:14px;font-weight:600;padding:5px 12px;border-radius:999px;border:1px solid}
+.status .dot{width:9px;height:9px;border-radius:50%;background:currentColor}
+.status.ok{color:var(--ok);background:var(--ok-soft);border-color:#b9dcbb}
+.status.warn{color:var(--warn);background:var(--warn-soft);border-color:#f0d39a}
+.status.bad{color:var(--bad);background:var(--bad-soft);border-color:#f2b9b9}
+
+main{padding:18px 16px 60px}
+section.card{background:var(--sheet);border:1px solid var(--line);border-radius:6px;padding:20px;margin:0 0 18px}
+section.card>h2{font-size:19px;margin-bottom:4px;display:flex;gap:10px;align-items:baseline}
+section.card>h2 .n{font-family:var(--font-mono);font-size:13px;color:var(--accent);border:1px solid var(--accent);border-radius:3px;padding:0 6px}
+.lead{color:var(--muted);margin:0 0 14px}
+
+/* kid story */
+.story{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.tile{border:1px solid var(--line);border-radius:6px;padding:12px 14px;background:#fff}
+.tile .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:14px;margin-bottom:6px}
+.tile h3{font-size:15.5px;margin-bottom:2px}
+.tile p{margin:0;font-size:14.5px}
+.tile .real{display:block;margin-top:6px;font-size:13px;color:var(--muted)}
+
+/* steps */
+ol.steps{list-style:none;margin:0;padding:0;counter-reset:s;display:grid;gap:10px}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:38px 1fr;gap:12px;border:1px solid var(--line);border-radius:6px;padding:12px;background:#fff}
+ol.steps li::before{content:counter(s);width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700;font-family:var(--font-mono)}
+ol.steps b{display:block}
+ol.steps .why{font-size:14px;color:var(--muted)}
+ol.steps .why::before{content:"ليه؟ ";font-weight:700;color:var(--accent)}
+
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:right;vertical-align:top}
+th{background:#f4f7f8;font-weight:600;font-size:13px;color:var(--muted)}
+td.num,th.num{text-align:left;font-family:var(--font-mono);direction:ltr}
+tr.total td{font-weight:700;background:#f8fafb}
+.scroll{overflow-x:auto}
+.sw{display:inline-block;width:26px;height:8px;border-radius:4px;vertical-align:middle;margin-left:6px;border:1px solid rgba(0,0,0,.2)}
+.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);background:#fafafa}
+.pill.ok{color:var(--ok);border-color:#b9dcbb;background:var(--ok-soft)}
+.pill.warn{color:var(--warn);border-color:#f0d39a;background:var(--warn-soft)}
+.pill.bad{color:var(--bad);border-color:#f2b9b9;background:var(--bad-soft)}
+
+/* schematic */
+.sheetbox{border:1px solid var(--line);background:#fff;border-radius:4px;overflow:auto}
+svg text{font-family:var(--font-body)}
+#svgSch text{unicode-bidi:plaintext}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;margin-top:10px;color:var(--muted)}
+.wire{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.wire.dead{opacity:.28}
+.wire.hot{stroke-dasharray:10 6;animation:flow 1.1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-32}}
+@media (prefers-reduced-motion:reduce){.wire.hot{animation:none;stroke-dasharray:none}}
+.wl{font-family:var(--font-mono);font-size:10px;fill:#37474f}
+.vtag{font-family:var(--font-mono);font-size:10.5px;font-weight:600}
+.tp circle{fill:#fff;stroke:#0d6b93;stroke-width:2}
+.tp text{font-family:var(--font-mono);font-size:10px;fill:#0d6b93;font-weight:600}
+
+/* sim */
+.simgrid{display:grid;grid-template-columns:300px 1fr;gap:16px}
+@media (max-width:860px){.simgrid{grid-template-columns:1fr}}
+.ctrl{border:1px solid var(--line);border-radius:6px;padding:14px;background:#fbfcfc;display:grid;gap:12px;align-content:start}
+.ctrl label{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:14px}
+.ctrl input[type=range]{width:100%}
+.ctrl fieldset{border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:0}
+.ctrl legend{font-size:13px;color:var(--muted);padding:0 4px}
+.seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{flex:1;border:0;background:#fff;padding:6px 4px;font-size:13px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--accent);color:#fff}
+.chk{justify-content:flex-start!important;gap:8px!important;font-size:13.5px!important}
+.readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.ro{border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:#fff}
+.ro .k{font-size:12.5px;color:var(--muted)}
+.ro .v{font-family:var(--font-mono);font-size:20px;font-weight:600;direction:ltr;text-align:right}
+.ro.bad{border-color:#f2b9b9;background:var(--bad-soft)} .ro.warn{border-color:#f0d39a;background:var(--warn-soft)}
+.finds{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.finds li{border-radius:6px;padding:8px 12px;font-size:14px;border:1px solid}
+.finds .crit{background:var(--bad-soft);border-color:#f2b9b9;color:#7f1d1d}
+.finds .err{background:#fff0ec;border-color:#f6c2b3;color:#8a2a12}
+.finds .warn{background:var(--warn-soft);border-color:#f0d39a;color:#6b4500}
+.finds .info{background:var(--accent-soft);border-color:#bcdcec;color:#0a4a66}
+.finds .ok{background:var(--ok-soft);border-color:#b9dcbb;color:#1b5e20}
+.finds .tag{font-weight:700;margin-left:6px}
+
+/* 3d */
+.v3{display:grid;grid-template-columns:1fr 260px;gap:14px}
+@media (max-width:860px){.v3{grid-template-columns:1fr}}
+#c3{width:100%;height:420px;background:linear-gradient(#f7faf9,#e7eeeb);border:1px solid var(--line);border-radius:6px;touch-action:none;cursor:grab}
+.v3 ul{margin:0;padding-right:18px;font-size:14px}
+
+/* checklist */
+.chk-list{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+.chk-list label{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:#fff;cursor:pointer}
+.chk-list input{margin-top:5px}
+.foot{font-size:13px;color:var(--muted);text-align:center;margin-top:20px}
+.btn{border:1px solid var(--accent);background:#fff;color:var(--accent);border-radius:6px;padding:6px 12px;cursor:pointer}
+.btn:hover{background:var(--accent-soft)}
+select.mini,input.mini{border:1px solid var(--line);border-radius:4px;padding:2px 4px;background:#fff;font-family:var(--font-mono);direction:ltr;width:64px}
+
+@media print{
+  @page{size:A3 landscape;margin:10mm}
+  header.top{position:static}
+  nav.tabs,.noprint,#sim .ctrl,#v3{display:none!important}
+  body{background:#fff}
+  section.card{break-inside:avoid;border:0;padding:0 0 10mm}
+  .wire.hot{animation:none;stroke-dasharray:none}
+}
+</style>
+</head>
+<body>
+<header class="top">
+ <div class="wrap">
+  <div class="titlerow">
+   <div>
+    <h1>دائرة الباور — روبوت AMR لنقل الحمولة</h1>
+    <div class="meta">فريق الكهرباء والبرمجة · المهمة 2 · الثلاثاء 24/11/2026 · التسليم 5:00 م · مبني على مخطط التوصيل Rev B · إعداد: Mohamed ibn Ibrahim</div>
+   </div>
+   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <span class="drawno">AMR‑E‑02 · Rev A</span>
+    <span id="badge" class="status ok"><span class="dot"></span><span id="badgeTxt">المحاكاة: سليمة</span></span>
+   </div>
+  </div>
+  <nav class="tabs" aria-label="أقسام الصفحة">
+   <a href="#story">الحكاية ببساطة</a><a href="#steps">خطوات التصميم</a><a href="#budget">حساب التيار</a>
+   <a href="#sch">المخطط</a><a href="#wires">جدول الأسلاك</a><a href="#sim">المحاكاة</a><a href="#v3">3D</a><a href="#check">قبل التشغيل</a>
+  </nav>
+ </div>
+</header>
+
+<main class="wrap">
+
+<section class="card" id="story">
+ <h2><span class="n">1</span>الحكاية في دقيقة</h2>
+ <p class="lead">الكهربا بتمشي في الروبوت زي طابور عيال خارجين من المدرسة: بيعدّوا على كذا باب، وكل باب له وظيفة.</p>
+ <div class="story">
+  <div class="tile"><div class="ic" style="background:var(--w-red)">1</div><h3>البطارية = شنطة الأكل</h3><p>فيها كل الطاقة اللي الروبوت هياكلها طول اليوم. خليتين جنب بعض، كل واحدة 3.7V، فبيبقوا مع بعض 7.4V.</p><span class="real">2 × 18650 توالي (2S): من 6.0V (فاضية) لـ 8.4V (مليانة)</span></div>
+  <div class="tile"><div class="ic" style="background:#1f7a3a">2</div><h3>الـ BMS = الحارس</h3><p>واقف جنب الشنطة. لو حد سحب أكل كتير مرة واحدة، أو الشنطة فضيت خالص، بيقفلها عشان متتبوظش.</p><span class="real">BMS 2S 8A: بيفصل تحت 6.0V، وبيوازن الخليتين وقت الشحن</span></div>
+  <div class="tile"><div class="ic" style="background:#a86a00">3</div><h3>الفيوز = البطل اللي بيضحي</h3><p>سلك رفيع جوه أنبوبة. لو حصلت مصيبة (شورت)، هو اللي يتقطع الأول عشان باقي الروبوت يعيش. بعدها بنغيره بواحد جديد.</p><span class="real">فيوز T6.3A بطيء: بيستحمل الزقة القصيرة، وبيقطع لو التيار فضل عالي</span></div>
+  <div class="tile"><div class="ic" style="background:#111">4</div><h3>السويتش = باب البيت</h3><p>نفتحه، الكهربا تدخل. نقفله، كل حاجة تنام. وبنقفله دايمًا وإحنا بنشحن.</p><span class="real">KCD3 16A بفيشة Faston</span></div>
+  <div class="tile"><div class="ic" style="background:var(--w-orange)">5</div><h3>المنظم = الأسانسير</h3><p>البطارية في الدور 7. الـ ESP32 والحساسات ساكنين في الدور 5. المنظم بينزّل الكهربا للدور 5 بالظبط، مهما البطارية تتعب.</p><span class="real">منظمين Mini buck منفصلين: BK1 للمخ والحساسات، BK2 للسيرفو لوحده</span></div>
+  <div class="tile"><div class="ic" style="background:var(--w-purple)">6</div><h3>المكثف = الكيس الصغير في جيبك</h3><p>لما السيرفو يجوع فجأة وهو بيرفع الكيس، ياكل من الكيس ده بسرعة، فالباقيين ميحسوش بحاجة.</p><span class="real">1000µF جنب السيرفو، و1000µF جنب الـ L298N، و100µF على ريل 5V</span></div>
+  <div class="tile"><div class="ic" style="background:var(--w-black)">7</div><h3>الأرضي المشترك = الأرض اللي كلنا واقفين عليها</h3><p>عشان نقيس طول أي حد، لازم كلنا نقيس من نفس الأرض. لو قطعة واقفة على كرسي، قراءتها هتبقى غلط.</p><span class="real">كل السوالب بتتجمع في موزع واحد X2</span></div>
+  <div class="tile"><div class="ic" style="background:var(--w-blue)">8</div><h3>الشاحن USB‑C = الماما اللي بتملا الشنطة</h3><p>بتاخد 5V من شاحن الموبايل، وتحولها لـ 8.4V، وتملا الخليتين بالراحة لحد ما يتملوا.</p><span class="real">موديول شحن 2S USB‑C: دخل 5V، خرج 8.4V، داخل عند N1</span></div>
+ </div>
+</section>
+
+<section class="card" id="steps">
+ <h2><span class="n">2</span>خطوات التصميم بالترتيب الهندسي</h2>
+ <p class="lead">دي نفس الخطوات اللي أي مهندس بيمشي عليها في أي دايرة باور: من "مين بياكل كام" لحد "إزاي أتأكد قبل ما أوصل".</p>
+ <ol class="steps">
+  <li><div><b>عدّ مين بياكل كهربا وقد إيه</b>اكتب كل قطعة: الجهد اللي محتاجاه، والتيار العادي، والتيار في أسوأ لحظة (الموتور متزنق).<div class="why">زي ما تعد العيال قبل ما تطلب الأكل. لو نسيت حد، هيجوع.</div></div></li>
+  <li><div><b>قسّم الأحمال على "أدوار"</b>المواتير على VBAT مباشرة (7.4V). المخ والحساسات على 5V. السيرفو على 5V لوحده. والـ IR على 3.3V من الـ ESP32.<div class="why">كل واحد ياكل في الدور بتاعه. السيرفو أكول جدًا، فلو قعد مع الـ ESP32 على نفس المنظم، هيخطف أكله ويعمله Reset.</div></div></li>
+  <li><div><b>احسب ميزانية التيار (الجدول في القسم 3)</b>اجمع التيار العادي والأسوأ، وحوّل تيار الـ 5V لتيار من البطارية.<div class="why">عشان نختار بطارية وفيوز وأسلاك تستحمل، من غير ما نكبّر على الفاضي.</div></div></li>
+  <li><div><b>اختار البطارية</b>2S (7.4V) عشان الـ L298N بياكل حوالي 2V من جهد المواتير، و1S (3.7V) مش هيكفي. و3S (11.1V) زيادة عن اللزوم وأخطر.<div class="why">زي ما تختار شنطة: صغيرة قوي مش هتكفي، وكبيرة قوي تقيلة على الروبوت.</div></div></li>
+  <li><div><b>رتّب سلسلة الحماية</b>البطارية ← BMS ← XT30 ← فيوز ← N1 ← سويتش ← الموزع X1.<div class="why">الحماية لازم تبقى أقرب حاجة للبطارية، عشان أي سلك بعدها لو عمل شورت يبقى محمي.</div></div></li>
+  <li><div><b>وزّع من نقطة واحدة (نجمة)</b>موزع موجب X1 وموزع سالب X2، وكل حمل ياخد سلكه لوحده منهم.<div class="why">زي حنفية الميه الرئيسية في البيت: كل أوضة لها ماسورتها، فلو المطبخ فتح ميه كتير، الحمام ميتأثرش.</div></div></li>
+  <li><div><b>ركّب المنظمين واضبطهم قبل التوصيل</b>BK1 وBK2 يتضبطوا على 5.0V بالمالتيميتر، من غير أي حمل.<div class="why">الـ Mini buck بيجي من المصنع على أي رقم. لو وصلته من غير ضبط، ممكن يدي 7V ويحرق الحساسات.</div></div></li>
+  <li><div><b>حط المكثفات جنب الأكولين</b>1000µF على دخل الـ L298N، و1000µF على فيشة السيرفو، و100µF على ريل البريدبورد، و100nF على كل موتور.<div class="why">الكيس الصغير في الجيب لازم يبقى قريب من الإيد، مش في أوضة تانية.</div></div></li>
+  <li><div><b>خلي الـ ESP32 يعرف البطارية فاضل فيها قد إيه</b>مقسم 100k / 33k من X1 لطرف VN.<div class="why">الـ ESP32 مبيستحملش أكتر من 3.3V. المقسم بيصغّر 8.4V لـ 2.08V، زي صورة مصغرة لنفس الحاجة.</div></div></li>
+  <li><div><b>ضيف الشحن في المكان الصح</b>خرج الشاحن يدخل عند N1 (بعد الفيوز وقبل السويتش)، والسالب على P− بتاع الـ BMS.<div class="why">كده الشحن بيعدي على الفيوز والـ BMS (محمي)، والسويتش المقفول بيفصل الأحمال وقت الشحن.</div></div></li>
+  <li><div><b>اختار تخانة السلك وطوله</b>مسار البطارية 16–18AWG، وفروع المواتير والمنظمين 20AWG، والـ 5V للبريدبورد 22AWG، والإشارات 26AWG Dupont.<div class="why">السلك الرفيع زي الشفاطة الرفيعة: لو شربت بيها عصير كتير بسرعة، هتتعب وتسخن.</div></div></li>
+  <li><div><b>جرّب على المحاكاة، وبعدين قيس بالمالتيميتر</b>المحاكاة في القسم 6 بتلقط الشورت والجهد الغلط. وبعدها قائمة الفحص في القسم 8 خطوة بخطوة.<div class="why">نغلط على الكمبيوتر ببلاش، بدل ما نغلط على القطع ونحرقها.</div></div></li>
+ </ol>
+</section>
+
+<section class="card" id="budget">
+ <h2><span class="n">3</span>حساب التيار (مين بياكل كام)</h2>
+ <p class="lead">تيار الـ 5V بيتحول لتيار من البطارية بالمعادلة: <span class="mono">I_bat = (5V × I_5V) ÷ (VBAT × 0.9)</span>. الـ 0.9 هي كفاءة المنظم (90%)، يعني 10% بتضيع حرارة.</p>
+ <div class="scroll"><table id="tBudget"></table></div>
+ <p class="muted" style="font-size:13.5px;margin-top:10px">أسوأ حالة = المواتير الاتنين متزنقين والسيرفو متزنق في نفس اللحظة. الكود بيقفل الحالة دي (السيرفو ميتحركش والمواتير شغالة)، فهي مش هتحصل في التشغيل العادي. حطيناها عشان نتأكد إن الفيوز والأسلاك والـ BMS مش هيتأذوا حتى لو حصلت.</p>
+ <div class="scroll" style="margin-top:12px"><table id="tRun"></table></div>
+</section>
+
+<section class="card" id="sch">
+ <h2><span class="n">4</span>مخطط دائرة الباور (لوحة A3)</h2>
+ <p class="lead">كل سلك ملوّن حسب وظيفته، ومكتوب عليه رقمه وجهده. الدواير الزرقا (TP) هي الأماكن اللي هنقيس فيها بالمالتيميتر. الخطوط المتحركة = الكهربا ماشية فيها دلوقتي في المحاكاة.</p>
+ <div class="sheetbox"><svg id="svgSch" direction="ltr" viewBox="0 0 1180 600" width="100%" role="img" aria-label="مخطط دائرة الباور"></svg></div>
+ <div class="legend">
+  <span><span class="sw" style="background:var(--w-red)"></span>أحمر: VBAT من 6.0 لـ 8.4V</span>
+  <span><span class="sw" style="background:var(--w-black)"></span>أسود: الأرضي 0V</span>
+  <span><span class="sw" style="background:var(--w-orange)"></span>برتقالي: 5V للمخ والحساسات</span>
+  <span><span class="sw" style="background:var(--w-purple)"></span>بنفسجي: 5V للسيرفو لوحده</span>
+  <span><span class="sw" style="background:var(--w-green)"></span>أخضر: قراءة البطارية (إشارة)</span>
+  <span><span class="sw" style="background:var(--w-blue)"></span>أزرق: الشحن 8.4V</span>
+ </div>
+</section>
+
+<section class="card" id="wires">
+ <h2><span class="n">5</span>جدول أسلاك الباور (W01–W20 + الشحن)</h2>
+ <p class="lead">نفس أرقام الأسلاك في Rev B. تقدر تغيّر التخانة (AWG) أو الطول، والجدول بيقولك فورًا لو السلك مش مستحمل التيار. التعديلات بتتحفظ على جهازك.</p>
+ <div class="noprint" style="margin-bottom:8px"><button class="btn" id="resetW">رجّع القيم الأصلية</button></div>
+ <div class="scroll"><table id="tWires"></table></div>
+</section>
+
+<section class="card" id="sim">
+ <h2><span class="n">6</span>المحاكاة: جرّب قبل ما توصّل</h2>
+ <p class="lead">غيّر جهد البطارية والحمل، أو اعمل غلطة متعمدة من القايمة، وشوف المحاكاة هتقول إيه. كل رقم بيتحسب من نفس المعادلات اللي في القسم 3.</p>
+ <div class="simgrid">
+  <div class="ctrl">
+   <label>جهد البطارية <span class="mono" id="vbatTxt">7.4V</span></label>
+   <input type="range" id="vbat" min="5.6" max="8.4" step="0.1" value="7.4" aria-label="جهد البطارية">
+   <div><div class="muted" style="font-size:13px;margin-bottom:4px">الحمل</div>
+    <div class="seg" id="mode"><button data-m="0" aria-pressed="false">واقف</button><button data-m="1" aria-pressed="true">ماشي عادي</button><button data-m="2" aria-pressed="false">أسوأ حالة</button></div></div>
+   <label class="chk"><input type="checkbox" id="sw" checked> السويتش مفتوح (شغال)</label>
+   <label class="chk"><input type="checkbox" id="usbc"> شاحن USB‑C متوصل</label>
+   <fieldset><legend>غلطات متعمدة (للتعلم)</legend>
+    <label class="chk"><input type="checkbox" data-f="servoLogic"> السيرفو على منظم المخ BK1</label>
+    <label class="chk"><input type="checkbox" data-f="noGnd"> أرضي BK2 مش متوصل</label>
+    <label class="chk"><input type="checkbox" data-f="buckRaw"> BK2 مش متظبط (طالع 7.4V)</label>
+    <label class="chk"><input type="checkbox" data-f="noFuse"> الفيوز متشال ومكانه سلك</label>
+    <label class="chk"><input type="checkbox" data-f="short"> شورت بين موجب وسالب المواتير</label>
+    <label class="chk"><input type="checkbox" data-f="chgBefore"> الشاحن داخل بعد السويتش</label>
+    <label class="chk"><input type="checkbox" data-f="noCap"> مكثف السيرفو مش موجود</label>
+   </fieldset>
+  </div>
+  <div>
+   <div class="readouts" id="ro"></div>
+   <ul class="finds" id="finds"></ul>
+  </div>
+ </div>
+</section>
+
+<section class="card" id="v3">
+ <h2><span class="n">7</span>شكل صندوق الباور 3D</h2>
+ <p class="lead">اسحب بالماوس أو بصباعك عشان تلف الشاسيه. ده مكان كل قطعة على القاعدة (16 × 24 سم)، عشان فريق الميكانيكا يعمل الثقوب، وإحنا نعرف السلك هيمشي منين.</p>
+ <div class="v3">
+  <canvas id="c3" aria-label="منظر ثلاثي الأبعاد لمكونات الباور"></canvas>
+  <div>
+   <b>قواعد التركيب</b>
+   <ul>
+    <li>البطارية قريبة من محور العجل الخلفي، عشان التوازن.</li>
+    <li>الفيوز والسويتش على الحافة، عشان إيدك توصلهم من غير ما تفك حاجة.</li>
+    <li>فتحة USB‑C بتاعة الشاحن باصة لبرة الشاسيه.</li>
+    <li>المنظمين بعيد عن آلية الرفع، والسخونية بتاعتهم ليها هوا.</li>
+    <li>ممنوع أي سلك أحمر أو أسود من مسار البطارية يعدي على البريدبورد.</li>
+    <li>الأسلاك تتربط بشريط أو رباط بلاستيك، وتبعد عن العجل.</li>
+   </ul>
+   <button class="btn noprint" id="r3">رجّع الزاوية</button>
+  </div>
+ </div>
+</section>
+
+<section class="card" id="check">
+ <h2><span class="n">8</span>قبل ما توصّل البطارية: قائمة الفحص</h2>
+ <p class="lead">امشي بالترتيب. متعديش لخطوة قبل ما اللي قبلها تبقى ✔. القيم المتوقعة جاية من المحاكاة.</p>
+ <ul class="chk-list" id="cl"></ul>
+ <div class="scroll" style="margin-top:14px"><table id="tTP"></table></div>
+</section>
+
+<p class="foot">AMR‑E‑02 · دائرة الباور · Rev A · 24/11/2026 · مبني على AMR‑E‑01 Rev B · Mohamed ibn Ibrahim</p>
+</main>
+
+<script>
+/* ===================== DATA ===================== */
+const LOADS=[ // name, rail, I_typ, I_worst (A at its rail), note
+ ['ESP32 DevKit','5V (BK1)',0.12,0.30,'لما الـ WiFi مقفول بيسحب 120mA بس'],
+ ['3 حساسات IR TCRT5000','3.3V (من ESP32)',0.06,0.06,'20mA لكل واحد (شمال + نص + يمين)'],
+ ['2 حساس مسافة HC‑SR04 (يمين وشمال)','5V (BK1)',0.030,0.030,'15mA لكل حساس (تعديل الأمان Rev C)'],
+ ['منطق الدرايفر (L298N أو TB6612FNG)','5V (BK1)',0.036,0.036,'الجمبر 5V‑EN متشال في L298N'],
+ ['سيرفو الرفع (MG996R / MG90S)','5V (BK2)',0.35,2.5,'لرفع كيس الشيبسي (2.5A أقصى زنقة)'],
+ ['موتور شمال','VBAT',0.30,2.0,'2A وهو متزنق'],
+ ['موتور يمين','VBAT',0.30,2.0,'2A وهو متزنق'],
+];
+const EFF=0.9, VN=7.4, RDIV=[100000,33000];
+const AWG_RATING={28:0.8,26:1.0,24:2.0,22:3.0,20:5.0,18:7.0,16:10.0};
+const COL={red:'#d32f2f',black:'#212121',orange:'#ef6c00',purple:'#7b1fa2',green:'#2e7d32',blue:'#1565c0'};
+const COLAR={red:'أحمر',black:'أسود',orange:'برتقالي',purple:'بنفسجي',green:'أخضر',blue:'أزرق'};
+/* id, from, to, color, awg, len, kind, volt, purpose, current key */
+const DEFAULT_WIRES=[
+ ['W01','البطارية B+','BMS B+','red',16,8,'لحام على لسان الحامل','6.0–8.4V','موجب البطارية داخل الحارس','bat'],
+ ['W02','نص البطارية','BMS BM','red',26,8,'سلك Balance مكتوب BAL','3.0–4.2V','الـ BMS يشوف كل خلية لوحدها','bal'],
+ ['W03','البطارية B−','BMS B−','black',16,8,'لحام على لسان الحامل','0V','سالب البطارية','bat'],
+ ['W04','BMS P+','الفيوز F1','red',18,10,'سلك الحامل + XT30','VBAT','خرج الحارس للفيوز (XT30 الأنثى ناحية البطارية)','bat'],
+ ['W05','الفيوز F1','السويتش S1 (عبر N1)','red',18,10,'سيليكون + PCT‑215 + Faston','VBAT','من الفيوز لنقطة N1 وبعدين السويتش','bat'],
+ ['W06','السويتش S1','الموزع X1','red',18,10,'سيليكون + Faston','VBAT','من الباب للحنفية الرئيسية','bat'],
+ ['W07','BMS P−','موزع الأرضي X2','black',18,15,'سيليكون','0V','الأرضي الرئيسي','bat'],
+ ['W08','الشاحن OUT+','N1','blue',22,10,'سيليكون في PCT‑215','8.4V شحن','الشحن داخل بعد الفيوز','chg'],
+ ['W09','الشاحن OUT−','BMS P−','black',22,10,'لحام على P−','0V','راجع الشحن','chg'],
+ ['W10','X1 خرج 2','L298N +12V','red',20,15,'سيليكون + 1000µF','VBAT','أكل المواتير','mot'],
+ ['W11','X2 خرج 3','L298N GND','black',20,15,'سيليكون','0V','أرضي المواتير','mot'],
+ ['W12','X1 خرج 1','BK1 IN+','red',20,10,'سيليكون','VBAT','دخل منظم المخ','bk1'],
+ ['W13','X2 خرج 2','BK1 IN−','black',20,10,'سيليكون','0V','أرضي منظم المخ','bk1'],
+ ['W14','X1 خرج 4','BK2 IN+','red',20,10,'سيليكون','VBAT','دخل منظم السيرفو','bk2'],
+ ['W15','X2 خرج 1','BK2 IN−','black',20,10,'سيليكون','0V','أرضي منظم السيرفو','bk2'],
+ ['W16','BK1 5V','ريل 5V (البريدبورد)','orange',22,20,'سيليكون + دبوس + 100µF','5.0V','5V للمخ والحساسات','o1'],
+ ['W17','BK1 GND','ريل الأرضي','black',22,20,'سيليكون + دبوس','0V','أرضي البريدبورد','o1'],
+ ['W18','BK2 5V','السيرفو V+','purple',20,20,'فيشة سيرفو + 1000µF','5.0V','أكل السيرفو لوحده (ممنوع البريدبورد)','o2'],
+ ['W19','BK2 GND','السيرفو GND','black',20,20,'فيشة سيرفو','0V','أرضي السيرفو','o2'],
+ ['W20','X1 خرج 3','مقسم 100k / 33k','red',26,20,'100k ملحومة عند X1 + Dupont','VBAT (تيار صغير جدًا)','عشان الـ ESP32 يعرف البطارية','div'],
+ ['W53','وسط المقسم','ESP32 VN','green',26,10,'Dupont M‑M + 100nF','1.5–2.1V','قراءة جهد البطارية','div'],
+];
+const LS_KEY='amr-e02-wires-v1';
+function cloneW(){return DEFAULT_WIRES.map(a=>({id:a[0],from:a[1],to:a[2],color:a[3],awg:a[4],len:a[5],kind:a[6],volt:a[7],purpose:a[8],key:a[9]}));}
+function loadW(){try{const s=localStorage.getItem(LS_KEY);if(s){const w=JSON.parse(s);if(Array.isArray(w)&&w.length===DEFAULT_WIRES.length)return w;}}catch(e){}return cloneW();}
+function saveW(){try{localStorage.setItem(LS_KEY,JSON.stringify(WIRES));}catch(e){}}
+let WIRES=loadW();
+const S={vbat:7.4,mode:1,sw:true,usbc:false,f:{}};
+
+const fmtV=v=>(v==null||isNaN(v))?'—':(Math.round(v*100)/100).toFixed(2)+'V';
+const fmtA=a=>(a==null)?'—':a<1?Math.round(a*1000)+' mA':a.toFixed(2)+' A';
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+
+/* ===================== BUDGET TABLES ===================== */
+function toBat(i5,vb){return 5*i5/(vb*EFF);}
+function budget(){
+  let h='<tr><th>القطعة</th><th>بتاكل من</th><th class="num">عادي</th><th class="num">أسوأ حالة</th><th class="num">من البطارية (عادي)</th><th class="num">من البطارية (أسوأ)</th><th>ملاحظة</th></tr>';
+  let tt=0,tw=0;
+  LOADS.forEach(l=>{const onV=l[1]==='VBAT'; const bt=onV?l[2]:toBat(l[2],VN), bw=onV?l[3]:toBat(l[3],VN);
+    tt+=bt;tw+=bw;h+=`<tr><td>${l[0]}</td><td>${l[1]}</td><td class="num">${fmtA(l[2])}</td><td class="num">${fmtA(l[3])}</td><td class="num">${fmtA(bt)}</td><td class="num">${fmtA(bw)}</td><td class="muted">${l[4]}</td></tr>`;});
+  const idiv=VN/(RDIV[0]+RDIV[1]); tt+=idiv;tw+=idiv;
+  h+=`<tr><td>مقسم قراءة البطارية</td><td>VBAT</td><td class="num">${(idiv*1e6).toFixed(0)} µA</td><td class="num">—</td><td class="num">${(idiv*1e6).toFixed(0)} µA</td><td class="num">—</td><td class="muted">صغير جدًا، تقريبًا صفر</td></tr>`;
+  h+=`<tr class="total"><td colspan="4">الإجمالي من البطارية عند 7.4V</td><td class="num">${fmtA(tt)}</td><td class="num">${fmtA(tw)}</td><td></td></tr>`;
+  document.getElementById('tBudget').innerHTML=h;
+  const i5bk1=0.12+0.06+0.030+0.036, i5bk1w=0.30+0.06+0.030+0.036;
+  const rows=[
+   ['منظم المخ BK1 (3A)',fmtA(i5bk1w)+' أسوأ',(i5bk1w/3*100).toFixed(0)+'%','ok','مستحمل بسهولة'],
+   ['منظم السيرفو BK2 (3A)',fmtA(2.5)+' أسوأ',(2.5/3*100).toFixed(0)+'%','warn','قريب من الحد لحظة الزنقة بس، والمكثف 1000µF بيساعد'],
+   ['قناة الـ L298N (2A)',fmtA(2.0)+' أسوأ','100%','warn','الكود بيبدأ MAX_DUTY من 40% وبيقفل الزنقة'],
+   ['الـ BMS (8A مستمر)',fmtA(tw)+' أسوأ',(tw/8*100).toFixed(0)+'%','ok','فيه هامش، بشرط إن الـ OCP عند البائع ≥ 10A'],
+   ['الفيوز T6.3A',fmtA(tw)+' أسوأ',(tw/6.3*100).toFixed(0)+'%','warn','الفيوز البطيء بيستحمل الزقة اللحظية دي'],
+  ];
+  let r='<tr><th>القطعة وحدها</th><th class="num">أقصى تيار عليها</th><th class="num">نسبة التحميل</th><th>الحكم</th></tr>';
+  rows.forEach(x=>r+=`<tr><td>${x[0]}</td><td class="num">${x[1]}</td><td class="num">${x[2]}</td><td><span class="pill ${x[3]}">${x[3]==='ok'?'✔':'⚠'}</span> ${x[4]}</td></tr>`);
+  // runtime
+  r+=`<tr><td colspan="4" style="background:#f8fafb"><b>البطارية هتعيش قد إيه؟</b> لو كل خلية 2000mAh (اكتبوا الرقم الحقيقي من على الخلية)، والتيار العادي ${fmtA(tt)}، يبقى الوقت ≈ 2.0 × 0.8 ÷ ${tt.toFixed(2)} ≈ <b class="mono">${(2*0.8/tt*60).toFixed(0)} دقيقة</b>. الـ 0.8 لأننا مش بنفضّي البطارية للآخر. ده كفاية لعرض كامل وتجارب كتير.</td></tr>`;
+  document.getElementById('tRun').innerHTML=r;
+}
+
+/* ===================== SIMULATION ===================== */
+function simulate(){
+  const F=[]; const add=(l,m)=>F.push([l,m]);
+  const f=S.f, vb=S.vbat;
+  const bmsOn=vb>=6.0;
+  let fuseOk=true;
+  const live=bmsOn&&S.sw;
+  // loads at rails per mode
+  const m=S.mode;
+  const iLogic=[0.215,0.246,0.426][m];         // at 5V (ESP+2xHC+L298 logic+IR)
+  const iServo=[0.05,0.35,2.5][m];
+  const iMot=[0,0.6,4.0][m];
+  // regulator outputs
+  const buckOut=(vin)=>vin>=5.5?5.0:Math.max(0,vin-0.4);
+  let vX1= live? vb : 0;
+  let v1= live? buckOut(vb):0;
+  let v2= live? (f.buckRaw? vb : buckOut(vb)) :0;
+  let iBK1=iLogic + (f.servoLogic? iServo:0);
+  let iBK2=f.servoLogic?0:iServo;
+  let iBat=0;
+  if(live){
+    iBat = iMot + toBat(iLogic,vb) + (f.servoLogic? toBat(iServo,vb):0) + (f.servoLogic||f.noGnd?0:(f.buckRaw? iServo: toBat(iServo,vb))) + vb/(RDIV[0]+RDIV[1]);
+    if(f.short){ iBat=40; }
+  }
+  // fuse / short
+  if(f.short && live){
+    if(f.noFuse){ add('crit','شورت والفيوز متشال: التيار ممكن يوصل 40A. الحارس (BMS) هيحاول يفصل، ولو اتأخر السلك هيسخن ويسيح، والخلية ممكن تسخن جامد. عشان كده الفيوز عمره ما يتشال.'); }
+    else { fuseOk=false; add('crit','شورت على خط المواتير: الفيوز T6.3A ضرب (البطل ضحّى بنفسه). كل حاجة طفت والقطع سليمة. صلّح الشورت وغيّر الفيوز.'); }
+  }
+  if(!fuseOk){ vX1=0; v1=0; v2=0; iBat=0; }
+  // BK1 overload / dips
+  if(live&&fuseOk&&f.servoLogic){
+    if(iBK1>3) add('crit',`منظم المخ BK1 شايل ${fmtA(iBK1)} وحدّه 3A. الجهد هيقع، والـ ESP32 هيعمل Reset وهو بيرفع الكيس.`);
+    else add('err',`السيرفو قاعد مع المخ على BK1. كل ما يتحرك بيشد تيار فجأة، والـ 5V بتهتز، والـ ESP32 ممكن يعمل Reset. رجّعه على BK2.`);
+    if(iBK1>3) v1=4.3;
+  }
+  if(live&&fuseOk&&f.noGnd){ add('err','أرضي BK2 مش متوصل: مفيش طريق ترجع منه الكهربا، فالسيرفو مش هيتحرك خالص. زي ما تفتح الحنفية والصرف مسدود.'); v2=NaN; }
+  if(live&&fuseOk&&f.buckRaw){ if(vb>7.2) add('crit',`BK2 طالع ${fmtV(vb)}، والسيرفو MG996R أقصاه 7.2V. هيسخن ويتحرق. اضبط BK2 على 5.0V بالمالتيميتر قبل ما توصّل السيرفو.`); else add('err',`BK2 طالع ${fmtV(vb)} بدل 5.0V. السيرفو لسه مستحمل، بس أول ما البطارية تتشحن (8.4V) هيتحرق.`); }
+  if(f.noFuse && !f.short && live) add('err','الفيوز متشال ومكانه سلك. الدايرة شغالة دلوقتي، بس أول شورت مفيش حد هيضحّي غير الأسلاك والقطع.');
+  if(f.noCap && live && m===2) add('warn','مكثف السيرفو مش موجود: لحظة الزنقة جهد السيرفو بينزل لحوالي 4.4V، والسيرفو بيرتعش. رجّع الـ 1000µF جنب الفيشة.');
+  else if(f.noCap && live) add('warn','مكثف السيرفو مش موجود. في الحركة العادية مش هتحس، بس وقت الرفع التقيل السيرفو هيرتعش.');
+  if(f.noCap && live && m===2 && !isNaN(v2)) v2=Math.min(v2,4.4);
+  // battery level
+  if(!bmsOn) add('warn',`البطارية ${fmtV(vb)} أقل من 6.0V، فالحارس (BMS) قفل الشنطة عشان الخلايا متتبوظش. اشحن.`);
+  else if(vb<6.6) add('warn',`البطارية ضعفت (${fmtV(vb)}). الكود بيوقف المواتير تحت 6.6V. اشحن قبل ما تكمّل.`);
+  else if(vb<7.0) add('info',`البطارية ${fmtV(vb)}. الروبوت شغال، بس الكود هيطلع تحذير (أقل من 7.0V).`);
+  if(live&&fuseOk&&vb<5.5) add('warn','البطارية واطية قوي على المنظمين، فخرجهم نزل تحت 5V.');
+  // fuse loading
+  if(live&&fuseOk&&!f.short){
+    if(iBat>6.3) add('warn',`التيار ${fmtA(iBat)} أعلى شوية من 6.3A بتاعة الفيوز. الفيوز البطيء بيستحمل الزقة دي ثانية أو اتنين، والقفل في الكود بيمنعها تطول.`);
+    if(iBat>8) add('err',`التيار ${fmtA(iBat)} فوق الـ 8A بتاعة الـ BMS.`);
+  }
+  // charging
+  if(S.usbc){
+    if(f.chgBefore && S.sw) add('err','الشاحن داخل بعد السويتش: وانت بتشحن والسويتش مفتوح، الشاحن بيأكّل الروبوت والخلايا مش بتتملا صح. ولو السويتش مقفول، الشحن مش هيوصل البطارية خالص.');
+    else if(f.chgBefore) add('err','الشاحن داخل بعد السويتش، والسويتش مقفول، فالكهربا مش واصلة للبطارية. الشحن مش شغال. رجّع W08 على N1.');
+    else if(S.sw) add('warn','الشاحن متوصل والسويتش مفتوح. القاعدة: اقفل السويتش وانت بتشحن، عشان الشاحن يملا الخلايا بس.');
+    else add('ok',`بيشحن: 8.4V عند N1، والـ BMS بيوازن الخليتين. الشحن بيقف لوحده لما يوصلوا 4.2V لكل خلية.`);
+  }
+  if(!S.sw) add('info','السويتش مقفول: كل الأحمال نايمة. وده الوضع الصح للشحن ولتوصيل الأسلاك.');
+  const vSense= vX1? vX1*RDIV[1]/(RDIV[0]+RDIV[1]) : 0;
+  if(live&&fuseOk&&!f.short&&F.filter(x=>x[0]==='crit'||x[0]==='err').length===0) add('ok','مفيش شورت، ومفيش جهد زيادة على أي قطعة، وكل الأرضيات متجمعة في X2.');
+  return {F,vX1,v1,v2,iBat,vSense,live,fuseOk,iBK1,iBK2};
+}
+
+function render(){
+  const R=simulate();
+  document.getElementById('vbatTxt').textContent=fmtV(S.vbat);
+  const ro=[
+   ['البطارية (TP0)',fmtV(S.vbat),''],
+   ['بعد السويتش X1 (TP2)',fmtV(R.vX1),R.vX1?'':'warn'],
+   ['منظم المخ BK1 (TP3)',fmtV(R.v1),(R.live&&R.fuseOk&&Math.abs(R.v1-5)>0.25)?'bad':''],
+   ['منظم السيرفو BK2 (TP4)',isNaN(R.v2)?'مفصول':fmtV(R.v2),(isNaN(R.v2)||R.v2>5.5)?'bad':(R.live&&R.fuseOk&&R.v2<4.7)?'warn':''],
+   ['قراءة VN (TP5)',fmtV(R.vSense),R.vSense>3.3?'bad':''],
+   ['تيار البطارية',S.f.short&&R.live?(R.fuseOk?'—':'40 A'):fmtA(R.iBat),R.iBat>6.3?'warn':''],
+  ];
+  document.getElementById('ro').innerHTML=ro.map(x=>`<div class="ro ${x[2]}"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join('');
+  const lab={crit:'خطر:',err:'غلط:',warn:'تحذير:',info:'معلومة:',ok:'تمام:'};
+  const order={crit:0,err:1,warn:2,info:3,ok:4};
+  R.F.sort((a,b)=>order[a[0]]-order[b[0]]);
+  document.getElementById('finds').innerHTML=R.F.map(x=>`<li class="${x[0]}"><span class="tag">${lab[x[0]]}</span>${esc(x[1])}</li>`).join('');
+  const nc=R.F.filter(x=>x[0]==='crit').length, ne=R.F.filter(x=>x[0]==='err').length, nw=R.F.filter(x=>x[0]==='warn').length;
+  const b=document.getElementById('badge');
+  b.className='status '+(nc?'bad':ne?'bad':nw?'warn':'ok');
+  document.getElementById('badgeTxt').textContent=nc?`المحاكاة: ${nc} خطر`:ne?`المحاكاة: ${ne} غلط`:nw?`المحاكاة: ${nw} تحذير`:'المحاكاة: سليمة';
+  drawSch(R);
+}
+
+/* ===================== SCHEMATIC ===================== */
+function drawSch(R){
+  const live=R?R.live&&R.fuseOk:true, f=S.f;
+  const hot=(on)=>on?'wire hot':'wire'+(live?'':' dead');
+  const chgOn=S.usbc;
+  let s='';
+  // sheet frame & title block
+  s+=`<rect x="6" y="6" width="1168" height="588" fill="none" stroke="#1d2731" stroke-width="1.5"/>`;
+  s+=`<g font-size="11" fill="#1d2731"><rect x="860" y="532" width="314" height="62" fill="#fff" stroke="#1d2731"/>
+   <line x1="860" y1="552" x2="1174" y2="552" stroke="#1d2731"/><line x1="1020" y1="552" x2="1020" y2="594" stroke="#1d2731"/>
+   <text direction="rtl" x="1166" y="547" text-anchor="start" font-weight="700" font-size="13">دائرة الباور — AMR</text>
+   <text direction="rtl" x="1166" y="570" text-anchor="start">رقم اللوحة: AMR‑E‑02 · Rev A</text><text direction="rtl" x="1166" y="588" text-anchor="start">التاريخ: 24/11/2026 · A3</text>
+   <text direction="rtl" x="1012" y="570" text-anchor="start">مبني على E‑01 Rev B</text><text direction="rtl" x="1012" y="588" text-anchor="start">إعداد: Mohamed ibn Ibrahim</text></g>`;
+  const box=(x,y,w,h,fill,t1,t2,ref)=>`<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="${fill}" stroke="#1d2731" stroke-width="1.3"/>
+    <text x="${x+w/2}" y="${y+16}" text-anchor="middle" font-size="10" font-family="monospace" fill="#5d6b78">${ref}</text>
+    <text x="${x+w/2}" y="${y+h/2+4}" text-anchor="middle" font-size="13" font-weight="700">${t1}</text>
+    <text x="${x+w/2}" y="${y+h/2+21}" text-anchor="middle" font-size="10.5" fill="#5d6b78">${t2}</text></g>`;
+  const wire=(d,c,cls,id,lx,ly,vt)=>`<path d="${d}" class="${cls}" stroke="${COL[c]}"/>`+(id?`<text class="wl" x="${lx}" y="${ly}" text-anchor="middle">${id}${vt?` · <tspan class="vtag" fill="${COL[c]}">${vt}</tspan>`:''}</text>`:'');
+  const tp=(x,y,n)=>`<g class="tp"><circle cx="${x}" cy="${y}" r="9"/><text x="${x}" y="${y+3.5}" text-anchor="middle">${n}</text></g>`;
+  const vb=fmtV(S.vbat);
+  // Wires first (under boxes)
+  // battery -> BMS
+  s+=wire('M150 110 H200','red',hot(live||chgOn),'W01',175,102,'');
+  s+=wire('M150 160 H200','red',hot(chgOn),'W02',175,152,'');
+  s+=wire('M150 210 H200','black',hot(live||chgOn),'W03',175,226,'');
+  // BMS P+ -> fuse
+  s+=wire('M300 110 H360','red',hot(live||chgOn),'W04',330,102,vb);
+  // fuse -> N1 -> switch
+  s+=wire('M430 110 H520','red',hot(live||chgOn),'W05',475,102,vb);
+  // switch -> X1
+  s+=wire('M590 110 H660','red',hot(live),'W06',625,102,S.sw?vb:'0V');
+  // ground main BMS P- -> X2
+  s+=wire('M300 210 H340 V430 H660','black',hot(live||chgOn),'W07',480,446,'0V');
+  // charger
+  const chgPath=f.chgBefore?'M300 330 H620 V122':'M300 330 H475 V112';
+  s+=wire(chgPath,'blue',hot(chgOn&&!(f.chgBefore&&!S.sw)),'W08',f.chgBefore?560:400,322,'8.4V');
+  s+=wire('M300 360 H318 V215','black',hot(chgOn),'W09',330,300,'');
+  // X1 outputs (x=700) to loads
+  s+=wire('M700 80 H780','red',hot(live),'W12',740,72,vb);
+  s+=wire('M700 180 H780','red',hot(live),'W10',740,172,vb);
+  s+=wire('M700 275 H780','red',hot(live),'W20',740,267,'');
+  s+=wire('M700 340 H780','red',hot(live),'W14',740,332,vb);
+  // X2 outputs (x=700, y 400-470) to loads
+  s+=wire('M700 410 H760 V110 H780','black',hot(live),'W13','','','');
+  s+=wire('M700 425 H750 V205 H780','black',hot(live),'W11','','','');
+  s+=wire('M700 440 H770 V370 H780',f.noGnd?'black':'black',f.noGnd?'wire dead':hot(live),'W15','','','');
+  // regulator outputs
+  s+=wire('M900 80 H990','orange',hot(live),'W16',945,72,fmtV(R?R.v1:5));
+  s+=wire('M900 105 H990','black',hot(live),'W17',945,122,'0V');
+  const servoFrom=f.servoLogic?'M900 90 H960 V340 H990':'M900 340 H990';
+  s+=wire(servoFrom,'purple',hot(live&&!f.noGnd),'W18',945,332,(R&&!isNaN(R.v2))?fmtV(R.v2):'—');
+  s+=wire('M900 365 H990','black',hot(live&&!f.noGnd),'W19',945,382,'0V');
+  s+=wire('M900 280 H990','green',hot(live),'W53',945,272,fmtV(R?R.vSense:1.84));
+  // Boxes
+  // battery
+  s+=`<g><rect x="40" y="80" width="110" height="160" rx="8" fill="#fdeaea" stroke="#1d2731" stroke-width="1.3"/>
+    <text x="95" y="98" text-anchor="middle" font-size="10" font-family="monospace" fill="#5d6b78">BT1</text>
+    <rect x="58" y="108" width="74" height="40" rx="18" fill="#1565c0" opacity=".85"/><text x="95" y="133" text-anchor="middle" fill="#fff" font-size="11">18650 · 3.7V</text>
+    <rect x="58" y="168" width="74" height="40" rx="18" fill="#1565c0" opacity=".85"/><text x="95" y="193" text-anchor="middle" fill="#fff" font-size="11">18650 · 3.7V</text>
+    <text x="95" y="230" text-anchor="middle" font-size="11" font-weight="700">2S = 7.4V</text></g>`;
+  s+=box(200,80,100,150,'#e7f3e8','BMS 2S 8A','الحارس','U1');
+  s+=`<text x="296" y="114" text-anchor="end" font-size="10" font-family="monospace">P+</text><text x="296" y="214" text-anchor="end" font-size="10" font-family="monospace">P−</text><text x="204" y="114" font-size="10" font-family="monospace">B+</text><text x="204" y="164" font-size="10" font-family="monospace">BM</text><text x="204" y="214" font-size="10" font-family="monospace">B−</text>`;
+  // XT30 + fuse
+  const fuseCol=(R&&!R.fuseOk)?'#fdeaea':'#fff4e5';
+  s+=box(360,85,70,50,fuseCol,f.noFuse?'سلك!':'T6.3A',(R&&!R.fuseOk)?'ضرب ✖':'الفيوز','F1');
+  // N1 node
+  s+=`<circle cx="475" cy="110" r="6" fill="#d32f2f"/><text x="475" y="135" text-anchor="middle" font-size="10" font-family="monospace">N1</text>`;
+  // switch
+  s+=`<g><rect x="520" y="85" width="70" height="50" rx="6" fill="#fff4e5" stroke="#1d2731" stroke-width="1.3"/>
+    <text x="555" y="101" text-anchor="middle" font-size="10" font-family="monospace" fill="#5d6b78">S1</text>
+    <line x1="535" y1="120" x2="${S.sw?575:570}" y2="${S.sw?120:106}" stroke="#1d2731" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="535" cy="120" r="3"/><circle cx="575" cy="120" r="3"/>
+    <text x="555" y="150" text-anchor="middle" font-size="10.5" fill="#5d6b78">${S.sw?'مفتوح (شغال)':'مقفول'}</text></g>`;
+  // charger
+  s+=box(190,300,110,80,'#e6eef8','شاحن USB‑C','دخل 5V · خرج 8.4V','U2');
+  s+=`<rect x="160" y="328" width="30" height="18" rx="6" fill="#455a64"/><text x="175" y="341" text-anchor="middle" fill="#fff" font-size="9">C</text>`;
+  // X1 / X2 bars
+  s+=`<rect x="660" y="60" width="40" height="300" rx="5" fill="#fdeaea" stroke="#d32f2f" stroke-width="2"/><text x="680" y="52" text-anchor="middle" font-size="11" font-weight="700">X1 موجب</text>`;
+  s+=`<rect x="660" y="395" width="40" height="75" rx="5" fill="#ececec" stroke="#212121" stroke-width="2"/><text x="680" y="488" text-anchor="middle" font-size="11" font-weight="700">X2 أرضي</text>`;
+  // loads
+  s+=box(780,55,120,70,'#fff3e0','BK1 → 5.0V','منظم المخ · 3A','BK1');
+  s+=box(780,160,120,60,'#ffebee','L298N +12V','+1000µF · المواتير','U5');
+  s+=box(780,250,120,50,'#f1f8e9','100k / 33k','مقسم قراءة البطارية','R3/R4');
+  s+=box(780,315,120,70,'#f3e5f5','BK2 → 5.0V','منظم السيرفو · 3A','BK2');
+  // destinations
+  s+=box(990,50,140,70,'#fffde7','ريل 5V','ESP32 · 2×HC‑SR04 · Driver','BB');
+  s+=box(990,255,140,45,'#e8eaf6','ESP32 VN','قراءة 1.5–2.1V','U6');
+  s+=box(990,315,140,70,'#f3e5f5','سيرفو الشيبسي',f.noCap?'من غير مكثف ⚠':'+1000µF على الفيشة','M3');
+  // test points
+  s+=tp(120,262,'TP0')+tp(445,150,'TP1')+tp(630,140,'TP2')+tp(960,135,'TP3')+tp(960,400,'TP4')+tp(945,300,'TP5');
+  // short marker
+  if(f.short){s+=`<g><path d="M820 230 l10 -14 l6 10 l10 -14" stroke="#c62828" stroke-width="3" fill="none"/><text x="860" y="244" font-size="11" fill="#c62828" font-weight="700">شورت!</text></g>`;}
+  // notes
+  s+=`<g font-size="11.5" fill="#1d2731"><text direction="rtl" x="820" y="512" font-weight="700">ملاحظات اللوحة:</text>
+   <text direction="rtl" x="820" y="530">1. الأرضيات كلها بتتجمع في X2 بس (أرضي نجمة). ممنوع أرضي يتوصل من قطعة لقطعة.</text>
+   <text direction="rtl" x="820" y="548">2. المنظمين BK1 وBK2 يتضبطوا على 5.0V بالمالتيميتر قبل توصيل أي حمل.</text>
+   <text direction="rtl" x="820" y="566">3. الشحن والسويتش مقفول دايمًا. والـ XT30 الأنثى ناحية البطارية عشان محدش يلمس طرف عريان.</text>
+   <text direction="rtl" x="820" y="584">4. أسلاك البطارية 16–18AWG، والفروع 20AWG، والإشارات 26AWG. مقاسات الطول بالسنتيمتر في جدول الأسلاك.</text></g>`;
+  document.getElementById('svgSch').innerHTML=s;
+}
+
+/* ===================== WIRE TABLE ===================== */
+function wireCurrent(key){
+  const w={bat:6.31,bal:0.05,chg:1.0,mot:4.0,bk1:toBat(0.441,6.6),bk2:toBat(2.5,6.6),o1:0.441,o2:2.5,div:0.0001}; return w[key]||0.1; }
+function wiresTable(){
+  let h='<tr><th>رقم</th><th>من</th><th>إلى</th><th>اللون</th><th class="num">AWG</th><th class="num">طول (سم)</th><th>النوع</th><th>الجهد</th><th class="num">أقصى تيار</th><th>الحالة</th><th>بيعمل إيه</th></tr>';
+  WIRES.forEach((w,i)=>{const I=wireCurrent(w.key), lim=AWG_RATING[w.awg]||1; const ok=I<=lim, near=I>lim*0.85&&ok;
+   const opts=Object.keys(AWG_RATING).sort((a,b)=>b-a).map(a=>`<option ${+a===+w.awg?'selected':''}>${a}</option>`).join('');
+   h+=`<tr><td class="mono">${w.id}</td><td>${esc(w.from)}</td><td>${esc(w.to)}</td><td><span class="sw" style="background:${COL[w.color]}"></span>${COLAR[w.color]}</td>
+   <td class="num"><select class="mini" data-i="${i}" data-k="awg" aria-label="تخانة ${w.id}">${opts}</select></td>
+   <td class="num"><input class="mini" type="number" min="3" max="60" value="${w.len}" data-i="${i}" data-k="len" aria-label="طول ${w.id}"></td>
+   <td class="muted">${esc(w.kind)}</td><td class="mono" style="color:${COL[w.color]}">${esc(w.volt)}</td><td class="num">${fmtA(I)}</td>
+   <td>${ok?(near?'<span class="pill warn">⚠ قريب من الحد</span>':'<span class="pill ok">✔</span>'):`<span class="pill bad">✖ رفيع (حدّه ${lim}A)</span>`}</td><td>${esc(w.purpose)}</td></tr>`;});
+  const tot=WIRES.reduce((a,w)=>a+(+w.len||0),0);
+  h+=`<tr class="total"><td colspan="5">إجمالي طول أسلاك الباور</td><td class="num">${tot} سم</td><td colspan="5">زوّد 20% احتياطي وقت الشراء ≈ ${Math.ceil(tot*1.2/10)*10} سم</td></tr>`;
+  document.getElementById('tWires').innerHTML=h;
+}
+document.getElementById('tWires').addEventListener('change',e=>{const t=e.target; if(t.dataset.i==null) return; const w=WIRES[+t.dataset.i]; w[t.dataset.k]=+t.value; saveW(); wiresTable();});
+document.getElementById('resetW').onclick=()=>{WIRES=cloneW(); saveW(); wiresTable();};
+
+/* ===================== CHECKLIST & TP ===================== */
+const CL=[
+ 'السويتش مقفول، والفيوز متشال من الحامل، والبطارية مش متركبة.',
+ 'بالمالتيميتر على وضع الصفارة (Continuity): مفيش صفارة بين X1 وX2. لو صفّرت = شورت، متكملش.',
+ 'ركّب الخلايا واتأكد من الاتجاه (+ ناحية B+). قيس TP0: لازم 6.0–8.4V.',
+ 'وصّل BK1 وBK2 للبطارية من غير أي حمل، ولف المسمار الصغير لحد ما الخرج يبقى 5.00V (±0.05).',
+ 'ركّب الفيوز، وافتح السويتش. قيس TP1 وTP2: نفس جهد البطارية.',
+ 'وصّل ريل 5V والبريدبورد. قيس TP3: من 4.9 لـ 5.1V.',
+ 'وصّل السيرفو من غير ما يتحرك. قيس TP4: من 4.9 لـ 5.1V.',
+ 'قيس TP5 (طرف VN): لازم أقل من 2.1V، وبيساوي تقريبًا VBAT × 0.248.',
+ 'المس المنظمين والـ L298N بعد دقيقتين: دافيين بس، مش سخنين لدرجة إنك متقدرش تسيب صباعك.',
+ 'اقفل السويتش، ووصّل الشاحن USB‑C. اللمبة الحمرا = بيشحن، الخضرا = مليان.',
+];
+document.getElementById('cl').innerHTML=CL.map((t,i)=>`<li><label><input type="checkbox"> <span><b class="mono">${i+1}.</b> ${t}</span></label></li>`).join('');
+function tpTable(){
+  const r=v=>`${(v*RDIV[1]/(RDIV[0]+RDIV[1])).toFixed(2)}V`;
+  const rows=[['TP0','البطارية بعد الـ BMS','6.0–8.4V','7.4V','أقل من 6.0V = اشحن'],['TP1','بعد الفيوز','= TP0','7.4V','صفر = الفيوز ضرب'],['TP2','بعد السويتش (X1)','= TP0 (مفتوح) / 0V (مقفول)','7.4V','لو فيه فرق أكتر من 0.2V = توصيلة Faston مفكوكة'],['TP3','خرج BK1','4.9–5.1V','5.0V','أكتر من 5.5V = اضبط فورًا'],['TP4','خرج BK2','4.9–5.1V','5.0V','بينزل لحظيًا وقت الرفع لحد 4.7V عادي'],['TP5','طرف VN','1.49–2.08V',''+r(7.4),'أكتر من 3.3V = المقسم غلط']];
+  document.getElementById('tTP').innerHTML='<tr><th>نقطة القياس</th><th>مكانها</th><th class="num">المدى الصح</th><th class="num">في المحاكاة عند 7.4V</th><th>لو طلع غير كده</th></tr>'+rows.map(x=>`<tr><td class="mono">${x[0]}</td><td>${x[1]}</td><td class="num">${x[2]}</td><td class="num">${x[3]}</td><td>${x[4]}</td></tr>`).join('');
+}
+
+/* ===================== 3D ===================== */
+const B3=[ // name, x,y,z (cm, center), w,d,h, color, top
+ ['القاعدة 16×24',0,0,-0.3,16,24,0.3,'#d9c4a0'],
+ ['البطارية 2S',0,-6,1.1,7.6,4.2,2.0,'#1565c0'],
+ ['BMS',0,-9.8,0.25,3.7,1.6,0.4,'#1f7a3a'],
+ ['شاحن USB‑C',5.2,-10,0.3,2.6,2.0,0.5,'#1b4f9c'],
+ ['فيوز',-6.2,-5,0.6,1.0,3.0,1.2,'#3a3a3a'],
+ ['سويتش',-7.2,-1.2,0.9,1.5,2.1,1.8,'#111111'],
+ ['X1',-5.5,1.5,0.45,2.0,1.9,0.9,'#ef6c00'],
+ ['X2',-5.5,3.8,0.45,2.0,1.9,0.9,'#78909c'],
+ ['BK1',-5.5,6.6,0.5,1.8,4.0,1.0,'#ef6c00'],
+ ['BK2',-5.5,10.2,0.5,1.8,4.0,1.0,'#7b1fa2'],
+ ['L298N',0.4,-0.5,1.3,4.3,4.3,2.6,'#c62828'],
+ ['البريدبورد',4.2,5.5,0.5,5.5,8.2,0.9,'#f5f5f5'],
+ ['موتور شمال',-6.5,-8,-1.2,2.2,6,1.9,'#f2c200'],
+ ['موتور يمين',6.5,-8,-1.2,2.2,6,1.9,'#f2c200'],
+];
+let yaw=-0.7,pitch=0.55;
+const cv=document.getElementById('c3'), cx=cv.getContext('2d');
+function draw3(){
+  const dpr=window.devicePixelRatio||1, W=cv.clientWidth, H=cv.clientHeight;
+  cv.width=W*dpr; cv.height=H*dpr; cx.setTransform(dpr,0,0,dpr,0,0); cx.clearRect(0,0,W,H);
+  const sc=Math.min(W,H)/30, ox=W/2, oy=H/2+20;
+  const cy=Math.cos(yaw), sy=Math.sin(yaw), cp=Math.cos(pitch), sp=Math.sin(pitch);
+  const P=(x,y,z)=>{const X=x*cy-y*sy, Y=x*sy+y*cy; const Z2=Y*sp+z*cp, D=Y*cp-z*sp; return [ox+X*sc, oy-Z2*sc, D];};
+  const faces=[];
+  B3.forEach(b=>{const [n,x,y,z,w,d,h,c]=b; const x0=x-w/2,x1=x+w/2,y0=y-d/2,y1=y+d/2,z0=z-h/2,z1=z+h/2;
+    const v=[[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]].map(p=>P(...p));
+    [[4,5,6,7,1.0],[0,1,5,4,.78],[1,2,6,5,.66],[2,3,7,6,.78],[3,0,4,7,.66]].forEach(fc=>{
+      const pts=fc.slice(0,4).map(i=>v[i]); const dep=pts.reduce((a,p)=>a+p[2],0)/4;
+      faces.push({pts,dep,c,sh:fc[4],n,top:fc[4]===1.0,cen:P(x,y,z1)});});});
+  faces.sort((a,b)=>b.dep-a.dep);
+  const shade=(hex,k)=>{const n=parseInt(hex.slice(1),16);const r=(n>>16)*k,g=(n>>8&255)*k,b=(n&255)*k;return `rgb(${r|0},${g|0},${b|0})`;};
+  faces.forEach(f=>{cx.beginPath(); f.pts.forEach((p,i)=>i?cx.lineTo(p[0],p[1]):cx.moveTo(p[0],p[1])); cx.closePath();
+    cx.fillStyle=shade(f.c,f.sh); cx.fill(); cx.strokeStyle='rgba(0,0,0,.35)'; cx.lineWidth=.8; cx.stroke();});
+  // wires main path (red) bat->fuse->switch->X1
+  const path=(pts,col)=>{cx.beginPath();pts.forEach((p,i)=>{const q=P(...p);i?cx.lineTo(q[0],q[1]):cx.moveTo(q[0],q[1]);});cx.strokeStyle=col;cx.lineWidth=2.4;cx.stroke();};
+  path([[-3.8,-6,2],[-6.2,-6,1.3],[-6.2,-3.5,1.3],[-7.2,-1.2,1.9],[-5.5,1.5,1]],'#d32f2f');
+  path([[-5.5,3.8,1],[-3,3.8,0.8],[-3,-4,1.2]],'#212121');
+  path([[-5.5,6.6,1.1],[1.5,6.6,1],[2,5.5,1]],'#ef6c00');
+  path([[-5.5,12,1.1],[-1,12,1.2]],'#7b1fa2');
+  cx.font='12px Tahoma, sans-serif'; cx.textAlign='center';
+  B3.slice(1).forEach(b=>{const q=P(b[1],b[2],b[3]+b[6]/2+0.6); cx.fillStyle='rgba(255,255,255,.85)'; const tw=cx.measureText(b[0]).width+8; cx.fillRect(q[0]-tw/2,q[1]-12,tw,16); cx.fillStyle='#1d2731'; cx.fillText(b[0],q[0],q[1]);});
+}
+let drag=null;
+cv.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY,yaw,pitch]; cv.setPointerCapture(e.pointerId); cv.style.cursor='grabbing';});
+cv.addEventListener('pointermove',e=>{if(!drag) return; yaw=drag[2]+(e.clientX-drag[0])*0.01; pitch=Math.max(0.1,Math.min(1.45,drag[3]+(e.clientY-drag[1])*0.01)); draw3();});
+cv.addEventListener('pointerup',()=>{drag=null; cv.style.cursor='grab';});
+document.getElementById('r3').onclick=()=>{yaw=-0.7;pitch=0.55;draw3();};
+window.addEventListener('resize',draw3);
+
+/* ===================== WIRE UP ===================== */
+document.getElementById('vbat').oninput=e=>{S.vbat=+e.target.value; render();};
+document.querySelectorAll('#mode button').forEach(b=>b.onclick=()=>{S.mode=+b.dataset.m; document.querySelectorAll('#mode button').forEach(x=>x.setAttribute('aria-pressed',x===b)); render();});
+document.getElementById('sw').onchange=e=>{S.sw=e.target.checked; render();};
+document.getElementById('usbc').onchange=e=>{S.usbc=e.target.checked; render();};
+document.querySelectorAll('[data-f]').forEach(c=>c.onchange=()=>{S.f[c.dataset.f]=c.checked; render();});
+budget(); wiresTable(); tpTable(); render(); draw3();
+window.__sim=(o)=>{Object.assign(S,o); return simulate();};
+</script>
+</body>
+</html>
