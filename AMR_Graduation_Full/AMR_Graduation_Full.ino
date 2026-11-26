@@ -5,7 +5,8 @@
 // ----------------------------------------------------------------------------
 //  المواصفات المعمارية:
 //  - الدفع: عجلتين خلفيتين (Differential Drive) + عجلة حرة أمامية (Caster Wheel)
-//  - الدرايفر: متوافق مع L298N ومع البديل الأرخص والأكفأ TB6612FNG بنفس التوصيل
+//  - الدرايفر: متوافق مع L298N (تغذية المنطق 5V من BK1 مع إزالة جمبر 5V-EN)
+//              ومتوافق مع TB6612FNG (نفس أطراف التحكم في الـ ESP32 مع توصيل VCC و STBY بـ 3.3V)
 //  - تتبع الخط: 3 حساسات IR TCRT5000 (شمال GPIO34، وسط GPIO35، يمين GPIO19)
 //  - الأمان وتفادي الاصطدام: 2 حساس ألتراسونيك HC-SR04
 //      * يمين (TRIG_R = 23, ECHO_R = 22 عبر مقسم 1k/2k)
@@ -394,7 +395,15 @@ void loop() {
       blinkLED(1, 60, 60);
       break;
 
-    case STATE_PICKUP_CHIPSY:
+    case STATE_PICKUP_CHIPSY: {
+      // فحص أمان البطارية قبل تحريك السيرفو أو المواتير
+      float vbStart = readVbat();
+      if (vbStart > 2.5f && vbStart < V_CUT) {
+        motorsStop();
+        state = STATE_LOW_BATTERY;
+        Serial.printf("[ALERT] Battery too low to start mission (%.2fV < %.2fV)!\n", vbStart, V_CUT);
+        break;
+      }
       // الروبوت واقف في بداية المسار: يرفع كيس الشيبسي من 0° لـ 90° بنعومة قبل ما يتحرك
       motorsStop();
       Serial.println(F("[STATE] Picking up Chipsy bag (0 -> 90 deg)..."));
@@ -408,6 +417,7 @@ void loop() {
       Serial.println(F("[STATE] Following line + Active Ultrasonic Safety (Right & Left)..."));
       state = STATE_FOLLOW_LINE;
       break;
+    }
 
     case STATE_FOLLOW_LINE: {
       // أ) فحص حساسات الألتراسونيك (يمين وشمال) للأمان
