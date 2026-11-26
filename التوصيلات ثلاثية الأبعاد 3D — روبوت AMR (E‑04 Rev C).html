@@ -2,70 +2,84 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>المخطط الثلاثي الأبعاد التفاعلي للتوصيلات — روبوت AMR (3D Wiring Master — E‑04 Rev C)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<title>محاكي البنوز والتوصيلات التفصيلي 3D — روبوت AMR (ESP32 30-Pin & Components — E‑04 Rev D)</title>
 <style>
 :root{
-  --bg:#0f171e; --panel:#16222c; --card:#1c2b38; --ink:#e8f0f7; --muted:#93a8b8; --line:#2c4052;
-  --accent:#38bdf8; --accent-soft:#15384d;
-  --ok:#4ade80; --ok-bg:#123524; --warn:#fbbf24; --warn-bg:#3b2a0d; --bad:#f87171; --bad-bg:#3f161a;
+  --bg:#0b1117; --panel:#121c26; --card:#182635; --ink:#ecf3f9; --muted:#94abc0; --line:#293d52;
+  --accent:#38bdf8; --accent-soft:#13354b; --gold:#fbbf24;
+  --ok:#4ade80; --ok-bg:#102e1f; --warn:#fbbf24; --warn-bg:#38280b; --bad:#f87171; --bad-bg:#3b1418;
   --font:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;
   --mono:'IBM Plex Mono',Consolas,monospace;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:14.5px;line-height:1.6}
-header{background:var(--panel);border-bottom:1px solid var(--line);padding:12px 18px;position:sticky;top:0;z-index:20}
-.wrap{max-width:1380px;margin:0 auto}
+header{background:rgba(18,28,38,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 18px;position:sticky;top:0;z-index:30}
+.wrap{max-width:1440px;margin:0 auto}
 .top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
 h1{font-size:19px;margin:0;color:#fff}
 .sub{font-size:12.5px;color:var(--muted)}
 .badges{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.pill{padding:4px 12px;border-radius:999px;font-size:12.5px;font-weight:700;border:1px solid}
+.pill{padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid}
 .pill.ok{background:var(--ok-bg);color:var(--ok);border-color:#22c55e}
 .pill.warn{background:var(--warn-bg);color:var(--warn);border-color:#f59e0b}
 .mono{font-family:var(--mono);direction:ltr;unicode-bidi:isolate}
 
 main{padding:14px}
-.layout{display:grid;grid-template-columns:310px 1fr 370px;gap:14px;align-items:start}
-@media(max-width:1150px){.layout{grid-template-columns:1fr}}
+.grid-top{display:grid;grid-template-columns:290px minmax(0,1fr) 350px;gap:14px;align-items:start}
+@media(max-width:1200px){.grid-top{grid-template-columns:1fr}}
 
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
-.panel h2{font-size:16px;margin:0 0 10px;color:var(--accent);display:flex;justify-content:space-between;align-items:center}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px}
+.panel h2{font-size:15.5px;margin:0 0 10px;color:var(--accent);display:flex;justify-content:space-between;align-items:center;gap:6px}
 
-/* Component list */
-.comp-list{display:grid;gap:6px;max-height:540px;overflow-y:auto;padding-left:4px}
+/* Sidebar */
+.comp-list{display:grid;gap:6px;max-height:570px;overflow-y:auto;padding-left:4px}
 .comp-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:right;background:var(--card);border:1px solid var(--line);color:var(--ink);padding:8px 10px;border-radius:7px;cursor:pointer;font:inherit;transition:.15s}
 .comp-btn:hover{border-color:var(--accent)}
 .comp-btn.active{background:var(--accent-soft);border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
-.comp-btn .dot{width:12px;height:12px;border-radius:50%;flex:0 0 12px}
-.comp-btn .title{font-weight:700;font-size:13.5px;display:block}
-.comp-btn . pins{font-size:11.5px;color:var(--muted);display:block}
+.comp-btn .dot{width:11px;height:11px;border-radius:50%;flex:0 0 11px}
+.comp-btn .title{font-weight:700;font-size:13px;display:block}
+.comp-btn .pins{font-size:11px;color:var(--muted);display:block}
 
-/* 3D Canvas area */
-.stage-box{position:relative;background:radial-gradient(circle at 50% 40%, #1d2f3f 0%, #0b1117 100%);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-#cv3d{width:100%;height:560px;display:block;touch-action:none;cursor:grab}
-#cv3d:active{cursor:grabbing}
-.toolbar{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:rgba(15,23,30,.88);border-bottom:1px solid var(--line);align-items:center;justify-content:space-between}
-.btn{background:var(--card);border:1px solid var(--line);color:var(--ink);padding:5px 11px;border-radius:6px;cursor:pointer;font-size:12.5px;font-family:inherit}
+/* 3D Stage */
+.stage-box{background:radial-gradient(circle at 50% 42%, #1a2d40 0%, #090e14 100%);border:1px solid var(--line);border-radius:10px;overflow:hidden;position:relative}
+.toolbar{display:flex;flex-wrap:wrap;gap:6px;padding:9px 11px;background:rgba(12,19,27,.92);border-bottom:1px solid var(--line);align-items:center;justify-content:space-between}
+.btn{background:var(--card);border:1px solid var(--line);color:var(--ink);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:600;transition:.15s}
 .btn:hover,.btn.active{border-color:var(--accent);background:var(--accent-soft);color:#fff}
-.legend-bar{display:flex;flex-wrap:wrap;gap:10px;padding:8px 12px;background:rgba(15,23,30,.9);border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
-.sw{display:inline-block;width:18px;height:6px;border-radius:3px;vertical-align:middle;margin-left:5px}
+.btn.gold{border-color:#f59e0b;background:#38280b;color:#fde68a}
+.btn.gold:hover,.btn.gold.active{background:#b45309;color:#fff}
+#cv3d{width:100%;height:540px;display:block;touch-action:none;cursor:grab}
+#cv3d:active{cursor:grabbing}
+.hud-tip{position:absolute;bottom:44px;right:12px;background:rgba(9,14,20,.82);border:1px solid var(--line);border-radius:6px;padding:5px 10px;font-size:11.5px;color:var(--muted);pointer-events:none}
+.legend-bar{display:flex;flex-wrap:wrap;gap:10px;padding:8px 12px;background:rgba(12,19,27,.95);border-top:1px solid var(--line);font-size:11.5px;color:var(--muted)}
+.sw{display:inline-block;width:16px;height:6px;border-radius:3px;vertical-align:middle;margin-left:4px}
 
-/* Inspector right panel */
-.insp-card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:10px}
-.insp-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:4px}
-.safety-box{background:var(--bad-bg);border:1px solid #ef4444;color:#fecaca;border-radius:7px;padding:10px;font-size:13px;margin:10px 0}
-.safety-box b{color:#f87171;display:block;margin-bottom:3px}
-.ok-box{background:var(--ok-bg);border:1px solid #22c55e;color:#bbf7d0;border-radius:7px;padding:10px;font-size:13px;margin:10px 0}
+/* Pin Passport & Inspector */
+.passport{background:linear-gradient(145deg,#172838,#111d29);border:1px solid var(--accent);border-radius:9px;padding:12px;margin-bottom:10px}
+.passport .tag{display:inline-block;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);font-size:11px;font-weight:700;padding:1px 8px;border-radius:99px;margin-bottom:5px}
+.passport h3{margin:0 0 6px;font-size:16px;color:#fff}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12.5px;margin-top:6px}
+.kv b{color:var(--muted)}
+.safety-box{background:var(--bad-bg);border:1px solid #ef4444;color:#fecaca;border-radius:7px;padding:9px 10px;font-size:12.5px;margin-top:8px}
+.safety-box b{color:#f87171;display:block;margin-bottom:2px}
+.ok-box{background:var(--ok-bg);border:1px solid #22c55e;color:#bbf7d0;border-radius:7px;padding:9px 10px;font-size:12.5px;margin-top:8px}
+
+/* Bottom HD 2D Interactive PCB Pinout Explorer */
+.hd-section{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+.hd-header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.hd-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start}
+@media(max-width:1100px){.hd-grid{grid-template-columns:1fr}}
+.svg-card{background:#0d151e;border:1px solid var(--line);border-radius:9px;padding:10px;overflow-x:auto}
+.svg-card svg{display:block;width:100%;height:auto;min-width:520px}
+.pin-hit{cursor:pointer;transition:.15s}
+.pin-hit:hover rect,.pin-hit:hover circle{stroke:#fff!important;stroke-width:2.2px!important}
 
 table{width:100%;border-collapse:collapse;font-size:12.5px}
-th,td{border-bottom:1px solid var(--line);padding:6px 5px;text-align:right;vertical-align:top}
-th{color:var(--muted);background:rgba(0,0,0,.2);font-weight:600}
-
-.reviews{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;margin-top:14px}
-.rev-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
-.rev-card h3{margin:0 0 6px;font-size:15.5px;color:var(--ok)}
-.rev-card ul{margin:6px 0 0;padding-right:18px;font-size:13.5px;color:var(--ink)}
+th,td{border-bottom:1px solid var(--line);padding:6px 6px;text-align:right;vertical-align:top}
+th{color:var(--muted);background:rgba(0,0,0,.25);font-weight:600;position:sticky;top:0}
+tr.clickable{cursor:pointer}
+tr.clickable:hover{background:rgba(56,189,248,.1)}
+tr.clickable.sel{background:rgba(56,189,248,.22)}
 </style>
 </head>
 <body>
@@ -73,282 +87,273 @@ th{color:var(--muted);background:rgba(0,0,0,.2);font-weight:600}
 <header>
   <div class="wrap top">
     <div>
-      <h1>المخطط الثلاثي الأبعاد التفاعلي للتوصيلات — روبوت AMR (3D Wiring Master — E‑04 Rev C)</h1>
-      <div class="sub">اضغط على أي مكون من القائمة لعزل وعرض أسلاكه في الـ 3D بالتفصيل (منين لفين، ولون السلك، وحمايته عشان مفيش حاجة تتحرق)</div>
+      <h1>محاكي البنوز والتوصيلات التفصيلي (3D + مُكبّر البوردات) — روبوت AMR (E‑04 Rev D)</h1>
+      <div class="sub">كل بن (Pin) ومسمار مرسوم بشكله واسمه المطبوع على البوردة الحقيقية + عدّ البنوز من فتحة الـ USB ومن الأنتنا عشان مستحيل تغلط في سلك واحد!</div>
     </div>
     <div class="badges">
-      <span class="pill ok">✔ تم التدقيق 3 مرات (3 مهندسين مستقلين)</span>
-      <span class="pill warn">⚡ قاعدة الأمان: اضبط BK1 و BK2 على 5.00V قبل التوصيل!</span>
+      <span class="pill ok">✔ الـ 30 بن بتوع الـ ESP32 + بنوز كل المكونات مرسومة بالكامل</span>
+      <span class="pill warn">⚡ اضبط BK1 و BK2 بالملتيميتر على 5.00V قبل التوصيل!</span>
     </div>
   </div>
 </header>
 
 <main class="wrap">
-  <div class="layout">
-    <!-- Left Column: Component Selector -->
+  <div class="grid-top">
+    <!-- 1. Component Selector Sidebar -->
     <section class="panel">
       <h2>
-        <span>1. اختر المكون لعرض توصيلاته</span>
-        <button class="btn active" id="btnAll">عرض الكل</button>
+        <span>1. اختر البوردة / المكون</span>
+        <button class="btn active" id="btnAll">الروبوت كامل</button>
       </h2>
       <div class="comp-list" id="compList"></div>
     </section>
 
-    <!-- Center Column: 3D Interactive Canvas -->
+    <!-- 2. Detailed 3D PCB & Pin Viewport -->
     <section class="stage-box">
       <div class="toolbar">
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn" id="viewIso">منظور 3D</button>
-          <button class="btn" id="viewTop">من فوق (Top)</button>
-          <button class="btn" id="viewSide">من الجنب (Side)</button>
-          <button class="btn" id="viewFront">من الأمام (Front)</button>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <button class="btn gold" id="camEsp">🔍 زووم بنوز الـ ESP32 الـ 30</button>
+          <button class="btn" id="camDrv">🎛️ بنوز درايفر L298N</button>
+          <button class="btn" id="camUs">🦇 بنوز الألتراسونيك والمقسمات</button>
+          <button class="btn" id="camIr">👁️ بنوز حساسات الخط IR</button>
+          <button class="btn" id="camPwr">⚡ البطارية والـ BMS والمنظمين</button>
+          <button class="btn" id="camAll">🏠 منظور كامل</button>
         </div>
-        <div style="display:flex;gap:6px;align-items:center">
-          <label style="font-size:12.5px;cursor:pointer"><input type="checkbox" id="chkLabels" checked> أسماء القطع</label>
-          <label style="font-size:12.5px;cursor:pointer"><input type="checkbox" id="chkPins" checked> أرقام الأسلاك</label>
-          <label style="font-size:12.5px;cursor:pointer"><input type="checkbox" id="chkPulse" checked> حركة التيار</label>
+        <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
+          <button class="btn" id="zoomIn" title="تكبير +">➕</button>
+          <button class="btn" id="zoomOut" title="تصغير -">➖</button>
+          <button class="btn" id="btnPan" title="تحريك الكاميرا يمين/شمال">✋ تحريك</button>
+          <label style="font-size:11.5px;cursor:pointer"><input type="checkbox" id="chkPinNames" checked> أسماء البنوز</label>
+          <label style="font-size:11.5px;cursor:pointer"><input type="checkbox" id="chkFlow" checked> سريان التيار</label>
         </div>
       </div>
 
-      <canvas id="cv3d" aria-label="نموذج ثلاثي الأبعاد لتوصيلات روبوت AMR"></canvas>
+      <canvas id="cv3d"></canvas>
+      <div class="hud-tip">💡 اسحب للـدوران 360° · بكرة الماوس أو (➕/➖) للتكبير حتى 10× على البنوز · اضغط زر ✋ لتحريك الشاشة · اضغط على أي بن بالأسفل لتحديده</div>
 
       <div class="legend-bar">
-        <span><i class="sw" style="background:#ef4444"></i>أحمر: بطارية VBAT (7.4V)</span>
-        <span><i class="sw" style="background:#94a3b8"></i>أسود/رمادي: أرضي مشترك GND (0V)</span>
-        <span><i class="sw" style="background:#f97316"></i>برتقالي: 5.0V المخ والحساسات (BK1)</span>
-        <span><i class="sw" style="background:#c084fc"></i>بنفسجي: 5.0V السيرفو المعزول (BK2)</span>
-        <span><i class="sw" style="background:#4ade80"></i>أخضر: 3.3V وإشارات IR والبطارية</span>
-        <span><i class="sw" style="background:#38bdf8"></i>لبني: إشارات Trig/Echo الألتراسونيك</span>
-        <span><i class="sw" style="background:#facc15"></i>أصفر: إشارات PWM المواتير والسيرفو</span>
+        <span><i class="sw" style="background:#ef4444"></i>أحمر: VBAT (7.4V)</span>
+        <span><i class="sw" style="background:#94a3b8"></i>أسود/رمادي: أرضي GND (0V)</span>
+        <span><i class="sw" style="background:#f97316"></i>برتقالي: 5.0V المخ (BK1)</span>
+        <span><i class="sw" style="background:#c084fc"></i>بنفسجي: 5.0V السيرفو (BK2)</span>
+        <span><i class="sw" style="background:#4ade80"></i>أخضر: 3.3V وحساسات IR والبطارية</span>
+        <span><i class="sw" style="background:#38bdf8"></i>لبني: إشارات الألتراسونيك</span>
+        <span><i class="sw" style="background:#facc15"></i>أصفر: PWM المواتير والسيرفو</span>
       </div>
     </section>
 
-    <!-- Right Column: Pin-by-Pin Inspector & Anti-Burn Protection -->
+    <!-- 3. Selected Pin / Component Passport & Wire Table -->
     <section class="panel">
-      <h2><span>2. تفاصيل توصيل المكون المختار</span></h2>
-      <div id="inspector"></div>
+      <h2><span>2. بطاقة تعريف البن والسلك بالتفصيل</span></h2>
+      <div id="pinPassport"></div>
+      <div style="font-weight:700;font-size:13px;margin:10px 0 6px;color:var(--accent)">
+        الأسلاك والبنوز المتصلة (اضغط على أي سطر لإضاءة البن في الـ 3D):
+      </div>
+      <div style="max-height:310px;overflow-y:auto;border:1px solid var(--line);border-radius:7px">
+        <table id="wireTable"></table>
+      </div>
     </section>
   </div>
 
-  <!-- 3 Independent Engineers Audit Section -->
-  <section class="reviews">
-    <div class="rev-card">
-      <h3>👨‍🔬 المراجعة الهندسية (1): مهندس إلكترونيات القوى والباور (Power & Protection Audit)</h3>
-      <ul>
-        <li><b>عزل السيرفو التام:</b> السيرفو بياخد 5.0V من المنظم <span class="mono">BK2</span> مباشرة مع مكثف <span class="mono">1000µF 16V</span> على الفيشة، وممنوع يلمس رجل الـ 5V بتاعة الـ ESP32. ده بيمنع الـ Brownout Reset نهائياً.</li>
-        <li><b>سلسلة الحماية:</b> البطارية ← <span class="mono">BMS 2S 8A</span> ← فيشة <span class="mono">XT30</span> ← فيوز زجاج بطيء <span class="mono">T6.3A</span> ← نقطة الشحن <span class="mono">N1</span> ← سويتش <span class="mono">KCD3 16A</span> ← موزع <span class="mono">X1 (+)</span>. أي شورت في الدائرة هيضرب الفيوز أبو 2 جنيه ويحمي كل المكونات!</li>
-        <li><b>حماية الـ L298N:</b> جمبر <span class="mono">5V-EN</span> اللي على درايفر <span class="mono">L298N</span> <b>لازم يتشال</b> طالما هنغذي منطق الدرايفر بـ 5V من <span class="mono">BK1</span>، عشان منظم الدرايفر الداخلي ميتخانقش مع <span class="mono">BK1</span>.</li>
-      </ul>
+  <!-- 4. High-Definition Interactive 2D Pin-by-Pin Board Explorer -->
+  <section class="hd-section">
+    <div class="hd-header">
+      <div>
+        <h2 style="margin:0;font-size:18px;color:#fff">🔬 مُكبّر البنوز التفاعلي عالي الوضوح (ESP32 30-Pin + بنوز المكونات الكهربية)</h2>
+        <div class="sub">اضغط على أي بن ذهبي في بوردة الـ ESP32 (على اليمين) أو على أي بن/مسمار في المكونات الكهربية (على الشمال) عشان تشوف توصيلته ورقمه بالعدّ ومكانه في الـ 3D فوراً!</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap" id="subViewTabs">
+        <button class="btn active" data-tab="DRV">درايفر L298N / TB6612</button>
+        <button class="btn" data-tab="US">2× ألتراسونيك + المقسمات</button>
+        <button class="btn" data-tab="IR">3× حساسات الخط IR</button>
+        <button class="btn" data-tab="SRV_BK">السيرفو + المنظمين BK1/BK2</button>
+        <button class="btn" data-tab="PWR">البطارية + BMS + السويتش + Wago</button>
+      </div>
     </div>
 
-    <div class="rev-card">
-      <h3>👨‍💻 المراجعة الهندسية (2): مهندس الإمبيديد وحماية الـ ESP32 (Logic & GPIO Safety Audit)</h3>
-      <ul>
-        <li><b>حماية الـ ESP32 من الـ 5V على الألتراسونيك:</b> الـ ESP32 أقصاه <span class="mono">3.6V</span>، وحساسين الـ <span class="mono">HC-SR04</span> (اليمين والشمال) بيطلعوا <span class="mono">5.0V</span> على طرف <span class="mono">Echo</span>. تم تركيب مقسم جهد مستقل (<span class="mono">1kΩ توالي + 2kΩ للأرضي</span>) لكل حساس عشان يوصل للـ ESP32 (<span class="mono">GPIO 22</span> و <span class="mono">GPIO 17</span>) جهد <span class="mono">3.33V</span> آمن 100%.</li>
-        <li><b>حماية حساسات الخط الثلاثة (<span class="mono">TCRT5000</span>):</b> بتتغذى من طرف <span class="mono">3.3V</span> بتاع الـ ESP32 مش من الـ 5V! وبكده إشاراتها على (<span class="mono">GPIO 34, 35, 19</span>) بتكون <span class="mono">3.3V</span> طبيعي ومستحيل تحرق البوردة.</li>
-        <li><b>حماية الإقلاع (<span class="mono">Strapping & Glitch Pins</span>):</b> طرف <span class="mono">GPIO 14</span> (`IN4`) بيطلع نبضة لحظة الفتح، عشان كده حطينا مقاومة <span class="mono">10kΩ Pull-down</span> على <span class="mono">ENB (GPIO 33)</span> و <span class="mono">ENA (GPIO 25)</span> للأرضي عشان المواتير متتحركش لوحدها لحظة التشغيل.</li>
-      </ul>
-    </div>
+    <div class="hd-grid">
+      <!-- ESP32 30-Pin Exact Silkscreen Diagram -->
+      <div class="svg-card">
+        <div style="font-weight:700;color:var(--gold);margin-bottom:6px;font-size:13.5px;display:flex;justify-content:space-between">
+          <span>بوردة ESP32 DevKit V1 (30-Pin) — الرسم الحقيقي للـ 30 بن</span>
+          <span class="mono" style="color:var(--muted);font-size:12px">Antenna UP · USB DOWN</span>
+        </div>
+        <svg id="svgEsp32" viewBox="0 0 600 650" direction="ltr"></svg>
+      </div>
 
-    <div class="rev-card">
-      <h3>🤖 المراجعة الهندسية (3): مهندس البرمجيات والتحكم (Firmware & Pin-Match Audit)</h3>
-      <ul>
-        <li><b>تطابق الكود مع الـ 3D بنسبة 100%:</b> تمت مراجعة كل <span class="mono">const int</span> في كود <span class="mono">AMR_Graduation_Full.ino</span> مع كل سلك في هذا النموذج الثلاثي الأبعاد:
-          <span class="mono">ENA=25, IN1=26, IN2=27, ENB=33, IN3=32, IN4=14, SERVO=18, TRIG_R=23, ECHO_R=22, TRIG_L=21, ECHO_L=17, IR_L=34, IR_C=35, IR_R=19, VBAT=39</span>.</li>
-        <li><b>قفل تزامن السيرفو والمواتير برمجياً:</b> دالة <span class="mono">servoMoveSmooth()</span> بتستدعي <span class="mono">motorsStop()</span> إجبارياً في أول سطر، فمستحيل السيرفو والمواتير يسحبوا تيار البدء في نفس اللحظة.</li>
-        <li><b>حماية البطارية من التفريغ:</b> الكود بيقرا <span class="mono">GPIO 39 (VN)</span> كل ثانية ويفصل المواتير تلقائياً لو البطارية نزلت عن <span class="mono">6.6V</span>.</li>
-      </ul>
+      <!-- Peripheral Component Exact Pin Diagram -->
+      <div class="svg-card">
+        <div style="font-weight:700;color:var(--accent);margin-bottom:6px;font-size:13.5px;display:flex;justify-content:space-between">
+          <span id="periphTitle">التفاصيل الداخلية وبنوز المكون المختار</span>
+          <span class="mono" style="color:var(--ok);font-size:12px">100% Anti-Burn Verified</span>
+        </div>
+        <svg id="svgPeriph" viewBox="0 0 600 650" direction="ltr"></svg>
+      </div>
     </div>
   </section>
 </main>
 
 <script>
-// ======================== 1. تعريف جميع المكونات في الفراغ الثلاثي الأبعاد (سم) ========================
-// الشاسيه: عرض X = 18 سم (-9 إلى +9)، طول Y = 26 سم (-13 خلف إلى +13 أمام)، ارتفاع Z
+// ============================================================================
+// 1. قاعدة بيانات الـ 30 بن الفعلية لبوردة DOIT ESP32 DevKit V1 (30-Pin)
+// الترتيب الحقيقي من فوق (ناحية الأنتنا WROOM) إلى تحت (ناحية فتحة الـ USB)
+// ============================================================================
+const ESP_LEFT = [
+  {idx:1,  usbIdx:15, silk:'EN',  gpio:'RESET',   role:'إعادة تشغيل المعالج', wire:null, status:'empty', warn:'سيبه فاضي! توصيله بالأرضي بيطفي البوردة.'},
+  {idx:2,  usbIdx:14, silk:'VP',  gpio:'GPIO 36', role:'Input Only (متروك عمداً)', wire:null, status:'empty', warn:'متروك فاضي لتجنب مشكلة Errata 3.11 في ESP32.'},
+  {idx:3,  usbIdx:13, silk:'VN',  gpio:'GPIO 39', role:'قراءة جهد البطارية (ADC)', wire:'W20+W53', status:'used', col:'#4ade80', dest:'وسط مقسم البطارية (100kΩ من X1 + 33kΩ للأرضي + مكثف 100nF)', volt:'1.5V – 2.08V (آمن)', warn:'إياك توصل البطارية 7.4V مباشرة من غير مقسم الـ 100k/33k!'},
+  {idx:4,  usbIdx:12, silk:'D34', gpio:'GPIO 34', role:'حساس الخط الشمال (IR_L)', wire:'W50', status:'used', col:'#22c55e', dest:'بن DO في حساس الخط الشمال TCRT5000', volt:'0V / 3.3V (Input Only)', warn:'الحساس بيتغذى من رجل 3V3 عشان يطلع 3.3V آمن.'},
+  {idx:5,  usbIdx:11, silk:'D35', gpio:'GPIO 35', role:'حساس الخط الوسط (IR_C)', wire:'W51', status:'used', col:'#22c55e', dest:'بن DO في حساس الخط الوسط TCRT5000', volt:'0V / 3.3V (Input Only)', warn:'الحساس بيتغذى من رجل 3V3 عشان يطلع 3.3V آمن.'},
+  {idx:6,  usbIdx:10, silk:'D32', gpio:'GPIO 32', role:'اتجاه الموتور اليمين IN3', wire:'W38', status:'used', col:'#facc15', dest:'بن IN3 في درايفر L298N (أو BIN1 في TB6612)', volt:'خرج 3.3V منطقي', warn:'تأكد من وجود أرضي مشترك بين الدرايفر والـ ESP32.'},
+  {idx:7,  usbIdx:9,  silk:'D33', gpio:'GPIO 33', role:'سرعة الموتور اليمين ENB (PWM)', wire:'W37', status:'used', col:'#facc15', dest:'البن الأمامي لـ ENB في L298N + مقاومة 10kΩ للأرضي', volt:'PWM 3.3V (1kHz)', warn:'🚨 في L298N شيل جمبر ENB ووصل السلك في البن الأمامي بس (البن الخلفي عليه 5V خطر!).'},
+  {idx:8,  usbIdx:8,  silk:'D25', gpio:'GPIO 25', role:'سرعة الموتور الشمال ENA (PWM)', wire:'W34', status:'used', col:'#facc15', dest:'البن الأمامي لـ ENA في L298N + مقاومة 10kΩ للأرضي', volt:'PWM 3.3V (1kHz)', warn:'🚨 في L298N شيل جمبر ENA ووصل السلك في البن الأمامي بس (البن الخلفي عليه 5V خطر!).'},
+  {idx:9,  usbIdx:7,  silk:'D26', gpio:'GPIO 26', role:'اتجاه الموتور الشمال IN1', wire:'W35', status:'used', col:'#facc15', dest:'بن IN1 في درايفر L298N (أو AIN1 في TB6612)', volt:'خرج 3.3V منطقي', warn:'خرج آمن مباشرة للدرايفر.'},
+  {idx:10, usbIdx:6,  silk:'D27', gpio:'GPIO 27', role:'اتجاه الموتور الشمال IN2', wire:'W36', status:'used', col:'#facc15', dest:'بن IN2 في درايفر L298N (أو AIN2 في TB6612)', volt:'خرج 3.3V منطقي', warn:'خرج آمن مباشرة للدرايفر.'},
+  {idx:11, usbIdx:5,  silk:'D14', gpio:'GPIO 14', role:'اتجاه الموتور اليمين IN4', wire:'W39', status:'used', col:'#facc15', dest:'بن IN4 في درايفر L298N (أو BIN2 في TB6612)', volt:'خرج 3.3V منطقي', warn:'بيطلع نبضة سريعة وقت الفتح، ومقاومة الـ 10kΩ على ENB (D33) بتمنع الموتور يتحرك.'},
+  {idx:12, usbIdx:4,  silk:'D12', gpio:'GPIO 12', role:'Strapping Pin (ممنوع اللمس!)', wire:null, status:'forbid', warn:'🚨 إياك توصل أي حاجة ترفع D12 لـ HIGH وقت الفتح وإلا الـ ESP32 مش هيقلع! سيبه فاضي.'},
+  {idx:13, usbIdx:3,  silk:'D13', gpio:'GPIO 13', role:'فاضي (احتياطي آمن)', wire:null, status:'empty', warn:'غير مستخدم حالياً.'},
+  {idx:14, usbIdx:2,  silk:'GND', gpio:'0V GND',  role:'أرضي البوردة الأيسر', wire:'W17', status:'used', col:'#94a3b8', dest:'ريل الأرضي الأزرق على البريدبورد ← موزع X2', volt:'0.00V (أرضي نجمي)', warn:'لازم يتوصل بالأرضي المشترك X2 قبل تشغيل أي باور.'},
+  {idx:15, usbIdx:1,  silk:'VIN', gpio:'5V Power In', role:'تغذية الـ ESP32 الرئيسية (5.00V)', wire:'W16', status:'used', col:'#f97316', dest:'ريل +5V على البريدبورد ← خرج المنظم BK1 (OUT+)', volt:'5.00V مضبوط بالملتيميتر!', warn:'🚨 البن رقم 1 جنب الـ USB على الشمال: اضبط BK1 على 5.00V قبل توصيله، واقفل السويتش لو موصل كابل USB!'}
+];
+
+const ESP_RIGHT = [
+  {idx:1,  usbIdx:15, silk:'D23', gpio:'GPIO 23', role:'نبضة إرسال ألتراسونيك يمين (TRIG_R)', wire:'W46', status:'used', col:'#38bdf8', dest:'بن Trig في حساس الألتراسونيك اليمين (HC-SR04)', volt:'خرج نبضة 3.3V', warn:'يتوصل مباشرة ببن Trig (لأنه دخل في الحساس بيقبل 3.3V).'},
+  {idx:2,  usbIdx:14, silk:'D22', gpio:'GPIO 22', role:'استقبال صدى ألتراسونيك يمين (ECHO_R)', wire:'W47+W48', status:'used', col:'#0ea5e9', dest:'وسط مقسم الجهد (1kΩ من Echo اليمين + 2kΩ للأرضي)', volt:'3.33V (بعد المقسم)', warn:'🚨 إياك توصل بن Echo بـ D22 مباشرة! الـ Echo بيطلع 5V هيحرق البن، لازم يعدي على 1kΩ/2kΩ!'},
+  {idx:3,  usbIdx:13, silk:'TX0', gpio:'GPIO 1',  role:'Serial Monitor USB TX (ممنوع)', wire:null, status:'forbid', warn:'مخصص للتواصل مع اللابتوب ورفع الكود — سيبه فاضي!'},
+  {idx:4,  usbIdx:12, silk:'RX0', gpio:'GPIO 3',  role:'Serial Monitor USB RX (ممنوع)', wire:null, status:'forbid', warn:'مخصص للتواصل مع اللابتوب ورفع الكود — سيبه فاضي!'},
+  {idx:5,  usbIdx:11, silk:'D21', gpio:'GPIO 21', role:'نبضة إرسال ألتراسونيك شمال (TRIG_L)', wire:'W60', status:'used', col:'#38bdf8', dest:'بن Trig في حساس الألتراسونيك الشمال (HC-SR04)', volt:'خرج نبضة 3.3V', warn:'يتوصل مباشرة ببن Trig في الحساس الشمال.'},
+  {idx:6,  usbIdx:10, silk:'D19', gpio:'GPIO 19', role:'حساس الخط اليمين (IR_R)', wire:'W52', status:'used', col:'#22c55e', dest:'بن DO في حساس الخط اليمين TCRT5000', volt:'0V / 3.3V', warn:'الحساس متغذي من 3V3 فخرجه 3.3V آمن تماماً.'},
+  {idx:7,  usbIdx:9,  silk:'D18', gpio:'GPIO 18', role:'إشارة سيرفو رفع الشيبسي (PWM)', wire:'W45+W57', status:'used', col:'#facc15', dest:'مقاومة 10kΩ للأرضي + مقاومة 1kΩ توالي ← سلك السيرفو البرتقالي', volt:'PWM 50Hz (3.3V)', warn:'🚨 السلك البرتقالي بس هو اللي يروح لـ D18 (عبر 1kΩ)! أحمر وأسود السيرفو يروحوا لـ BK2 بس!'},
+  {idx:8,  usbIdx:8,  silk:'D5',  gpio:'GPIO 5',  role:'فاضي (احتياطي)', wire:null, status:'empty', warn:'غير مستخدم.'},
+  {idx:9,  usbIdx:7,  silk:'TX2', gpio:'GPIO 17', role:'استقبال صدى ألتراسونيك شمال (ECHO_L)', wire:'W61+W62', status:'used', col:'#0ea5e9', dest:'وسط مقسم الجهد الثاني (1kΩ من Echo الشمال + 2kΩ للأرضي)', volt:'3.33V (بعد المقسم)', warn:'💡 انتبه للاسم على البوردة: مكتوب عليه TX2 (أو G17)، وهو البن السابع من تحت ناحية الـ USB! لازم مقسم 1kΩ/2kΩ!'},
+  {idx:10, usbIdx:6,  silk:'RX2', gpio:'GPIO 16', role:'فاضي (مكتوب RX2 أو G16)', wire:null, status:'empty', warn:'تحت TX2 مباشرة — سيبه فاضي متتلخبطش بينه وبين TX2!'},
+  {idx:11, usbIdx:5,  silk:'D4',  gpio:'GPIO 4',  role:'فاضي (احتياطي)', wire:null, status:'empty', warn:'غير مستخدم.'},
+  {idx:12, usbIdx:4,  silk:'D2',  gpio:'GPIO 2',  role:'اللمبة الزرقاء المدمجة (LED)', wire:null, status:'forbid', warn:'متوصل داخلياً باللمبة الزرقاء على البوردة — متوصلش عليه أي سلك خارجي.'},
+  {idx:13, usbIdx:3,  silk:'D15', gpio:'GPIO 15', role:'Strapping Pin (فاضي)', wire:null, status:'empty', warn:'سيبه فاضي.'},
+  {idx:14, usbIdx:2,  silk:'GND', gpio:'0V GND',  role:'أرضي البوردة الأيمن', wire:'W_GND_R', status:'used', col:'#94a3b8', dest:'ريل الأرضي الأيمن على البريدبورد (أرضي حساسات الخط والمقسمات)', volt:'0.00V', warn:'أرضي مشترك مع ريل الأرضي الأيسر وموزع X2.'},
+  {idx:15, usbIdx:1,  silk:'3V3', gpio:'3.3V Out', role:'تغذية حساسات الخط الثلاثة (3.3V)', wire:'W_3V3', status:'used', col:'#4ade80', dest:'ريل +3.3V لتغذية بن VCC في التلات حساسات TCRT5000 فقط!', volt:'خرج 3.30V منظم', warn:'🚨 البن رقم 1 جنب زرار BOOT على اليمين: بيغذي الـ 3 حساسات IR بس (سحبهم 60mA). إياك توصل عليه سيرفو أو 5V!'}
+];
+
+// Coordinates helper for ESP32 30 pins in 3D space (cm)
+// ESP32 Center at (0.5, 3.6, 1.45), Antenna at Y=+6.2, USB at Y=+1.0
+const espPin3D = (side, idx1to15) => {
+  const x = side === 'L' ? -0.72 : 1.72;
+  const y = 5.52 - (idx1to15 - 1) * 0.275;
+  return [x, y, 1.45];
+};
+
+// ============================================================================
+// 2. قائمة المكونات الكهربية وبيانات كل مكون
+// ============================================================================
 const COMPONENTS = [
-  {
-    id: 'ALL',
-    name: 'الروبوت بالكامل (كل التوصيلات)',
-    sub: '15 مكون · 34 مسار سلكي مدقق',
-    color: '#38bdf8',
-    safety: 'تأكد من مراجعة القواعد الذهبية قبل توصيل البطارية: السويتش OFF، الفيوز متشال، واضبط BK1 و BK2 بالملتيميتر على 5.00V أولاً قبل توصيل أي حمل!',
-    desc: 'هذا المنظر يعرض الشاسيه بالكامل (18×26 سم): عجلتين خلفيتين بموتورين، عجلة حرة (Caster) أمامية، بطارية 2S مع الـ BMS والفيوز والسويتش، موزعات Wago (X1 و X2)، منظمين (BK1 و BK2)، بوردة ESP32 على البريدبورد، 3 حساسات خط في المقدمة السفلية، حساسين ألتراسونيك يمين وشمال، وسيرفو رفع كيس الشيبسي.'
-  },
-  {
-    id: 'BAT',
-    name: '1. بطارية 2S (2×18650) + حامل ريش نحاس',
-    sub: '7.4V Nominal (6.0V - 8.4V)',
-    pos: [0, -8.5, 1.4], size: [7.4, 4.2, 2.0], color: '#1d4ed8',
-    safety: '⚠️ خطر عكس القطبية: ركب الخلايا بحيث الموجب (+) ناحية B+ والسالب (-) ناحية B-. اوعى تلحم سلك والبطاريات راكبة في الحامل! الحامل لازم يكون ريش نحاس مش سوستة رفيعة.',
-    desc: 'خليتين ليثيوم 18650 (مثل Samsung 25R) متوصلين توالي (2S) لإعطاء 7.4V (ومشحونة بالكامل 8.4V).'
-  },
-  {
-    id: 'BMS',
-    name: '2. دائرة الحماية BMS 2S 8A + الشاحن',
-    sub: 'حماية الشورت والتفريغ وموازنة الشحن',
-    pos: [0, -11.6, 0.7], size: [5.0, 1.6, 0.6], color: '#15803d',
-    safety: '⚠️ وصل B- الأول، ثم سلك المنتصف BM (3.7V)، ثم B+ (7.4V). الخرج بيتاخد من P+ و P- فقط!',
-    desc: 'تحمي البطارية لو حصل سحب تيار عالي أو لو الجهد نزل عن 6.0V، ومعاها موديول شحن USB-C 2S (8.4V) بيدخل عند النقطة N1 قبل السويتش.'
-  },
-  {
-    id: 'PROT',
-    name: '3. الفيوز T6.3A + السويتش KCD3 16A',
-    sub: 'خط الدفاع الأول + فصل الأحمال وقت الشحن',
-    pos: [-6.8, -5.0, 1.2], size: [2.0, 5.5, 1.8], color: '#b91c1c',
-    safety: '🚨 تنبيه قاتل للسويتش KCD3 أبو 3 أطراف (بلمبة): السويتش بيكون فيه طرفين نحاس (فضي) وطرف تالت دهبي (بتاع اللمبة الداخلية المتوصلة بالأرضي). اوعى توصل الطرف التالت الدهبي بالأرضي أو الموجب وإلا هيعمل شورت صريح أول ما تفتح السويتش! استخدم الطرفين الفضي بس (اللي في النص واللي جنبه) وسيب الطرف الدهبي فاضي تماماً. والسويتش دايماً OFF وقت الشحن أو توصيل USB.',
-    desc: 'الفيوز T6.3A راكب بعد الـ BMS مباشرة، وبعده نقطة N1 (دخول الشاحن)، وبعده السويتش الرئيسي اللي بيغذي الموزع الموجب X1.'
-  },
-  {
-    id: 'X1X2',
-    name: '4. موزعات النجمة Wago (X1 موجب / X2 أرضي)',
-    sub: 'PCT-215 (5 مخارج لكل موزع)',
-    pos: [-6.5, 0.5, 0.8], size: [2.4, 4.2, 1.1], color: '#ea580c',
-    safety: '⚠️ كل سوالب الدائرة (ESP32، BK1، BK2، الدرايفر، السيرفو) لازم تتجمع في X2 (Common Star Ground). لو نسيت أرضي أي مكون، الإشارات هتخرف أو السيرفو مش هيتحرك.',
-    desc: 'بدل لحام الأسلاك في بعض، بنستخدم مشبكين Wago PCT-215: واحد X1 لتوزيع الموجب VBAT (7.4V)، وواحد X2 لتجميع كل الأرضي GND (0V).'
-  },
-  {
-    id: 'BK1',
-    name: '5. منظم المخ والحساسات BK1 (5.00V)',
-    sub: 'LM2596 / Mini Buck 3A -> ريل 5V',
-    pos: [-6.5, 4.8, 0.8], size: [2.4, 3.6, 1.0], color: '#f97316',
-    safety: '🚨 أخطر خطوة في المشروع: المنظم ده بيجي من المصنع مطلع 7V أو 12V! وصله بالبطارية لوحده الأول من غير ما توصل الخرج بأي حاجة، وقيس الخرج بالملتيميتر ولف المسمار لحد ما يقرا 5.00V بالظبط!',
-    desc: 'يأخذ 7.4V من X1 وينزلها إلى 5.00V ثابتة لتغذية الـ ESP32 (طرف VIN) وحساسين الألتراسونيك ومنطق الدرايفر.'
-  },
-  {
-    id: 'BK2',
-    name: '6. منظم السيرفو المعزول BK2 (5.00V)',
-    sub: 'LM2596 / Mini Buck 3A + مكثف 1000µF',
-    pos: [-6.5, 8.8, 0.8], size: [2.4, 3.6, 1.0], color: '#9333ea',
-    safety: '🚨 اضبط خرجه على 5.00V بالملتيميتر قبل توصيل السيرفو! وممنوع توصل موجب BK2 مع موجب BK1 على البريدبورد (الأرضي بس هو المشترك في X2).',
-    desc: 'منظم 5.0V مخصص حصرياً لموتور سيرفو رفع كيس الشيبسي، وعليه مكثف 1000µF 16V جنب فيشة السيرفو عشان يمتص سحبة التيار المفاجئة.'
-  },
-  {
-    id: 'ESP32',
-    name: '7. بوردة ESP32 DevKit V1 (30-Pin) + البريدبورد',
-    sub: 'العقل الرئيسي + مقسمات الحماية 3.3V',
-    pos: [0.5, 3.8, 1.1], size: [6.2, 8.8, 1.4], color: '#0284c7',
-    safety: '🚨 مداخل الـ ESP32 بتتحرق لو دخلها 5V! عشان كده: (1) طرفين Echo اليمين والشمال لازم يعدوا على مقسم 1kΩ/2kΩ، (2) حساسات الـ IR تتغذى من رجل 3.3V مش 5V، (3) قراءة البطارية على VN تعدي على مقسم 100kΩ/33kΩ.',
-    desc: 'راكبة على البريدبورد، ومعاها مقاومات الحماية ومكثف 100µF على ريل الـ 5V.'
-  },
-  {
-    id: 'DRV',
-    name: '8. درايفر المواتير (L298N أو TB6612FNG)',
-    sub: 'التحكم في سرعة واتجاه العجلتين الخلفيتين',
-    pos: [0.5, -3.2, 1.5], size: [4.4, 4.4, 2.4], color: '#dc2626',
-    safety: '🚨 فرق مهم جداً لمنع الحرق: (أ) لو مستخدم L298N: لازم تشيل جمبر 5V-EN وتوصل سلك 5V من ريل البريدبورد (BK1) لمسمار +5V في الدرايفر (أوعى توصل سلك 5V والجمبر راكب!). (ب) لو مستخدم البديل الأرخص TB6612FNG: وصل رجل VCC ورجل STBY في الدرايفر بطرف 3.3V بتاع الـ ESP32 (مش 5V!)، ووصل VM بـ X1 (7.4V).',
-    desc: 'ياخذ باور المواتير VBAT (7.4V) من X1 وعليه مكثف 1000µF، ويدي الكهرباء للموتور الشمال (M1) والموتور اليمين (M2).'
-  },
-  {
-    id: 'MOT_L',
-    name: '9. الموتور الخلفي الشمال (M1) + عجلة 65مم',
-    sub: 'TT Gear Motor + مكثف 100nF',
-    pos: [-7.6, -8.0, -0.5], size: [2.4, 5.5, 2.2], color: '#eab308',
-    safety: '⚠️ الحم مكثف سيراميك 100nF (مكتوب عليه 104) بين طرفين الموتور النحاس لمنع الشوشرة الكهربية (EMI) على الـ ESP32.',
-    desc: 'متوصل بمسمارين OUT1 و OUT2 في الدرايفر، وبيتحكم فيه الـ ESP32 عن طريق ENA (25) و IN1 (26) و IN2 (27).'
-  },
-  {
-    id: 'MOT_R',
-    name: '10. الموتور الخلفي اليمين (M2) + عجلة 65مم',
-    sub: 'TT Gear Motor + مكثف 100nF',
-    pos: [7.6, -8.0, -0.5], size: [2.4, 5.5, 2.2], color: '#eab308',
-    safety: '⚠️ مقاومة 10kΩ بين ENB (GPIO 33) والأرضي ضرورية جداً لأن GPIO 14 (IN4) بيطلع نبضات لحظة فتح الباور.',
-    desc: 'متوصل بمسمارين OUT3 و OUT4 في الدرايفر، وبيتحكم فيه الـ ESP32 عن طريق ENB (33) و IN3 (32) و IN4 (14).'
-  },
-  {
-    id: 'SERVO',
-    name: '11. سيرفو رفع كيس الشيبسي + ذراع الرفع',
-    sub: 'MG90S Metal / MG996R (180° فقط!)',
-    pos: [4.8, 8.8, 1.6], size: [2.3, 4.2, 2.6], color: '#a855f7',
-    safety: '🚨 السلك الأحمر (موجب السيرفو) والأسود/البني (أرضي السيرفو) يتوصلوا بخرج المنظم BK2 مباشرة ومعاهم مكثف 1000µF. السلك البرتقالي (الإشارة) بس هو اللي يروح لـ GPIO 18 عبر مقاومة 1kΩ.',
-    desc: 'يرفع وينزل كيس الشيبسي بين زاوية 0° (تحت) و 90° (فوق) بنعومة والمواتير واقفة.'
-  },
-  {
-    id: 'US_R',
-    name: '12. حساس الألتراسونيك اليمين (US_R)',
-    sub: 'HC-SR04 يمين · Trig=23 / Echo=22',
-    pos: [6.8, 10.5, 1.4], size: [2.0, 4.2, 1.8], color: '#0284c7',
-    safety: '🚨 اوعى توصل رجل Echo بـ GPIO 22 مباشرة! وصل Echo بمقاومة 1kΩ، ومن الطرف التاني للمقاومة خد سلك لـ GPIO 22 ومقاومة 2kΩ للأرضي (GND).',
-    desc: 'يراقب الجنب اليمين والأمام الأيمن، ويوقف الروبوت فوراً لو فيه عائق على مسافة أقل من 20 سم.'
-  },
-  {
-    id: 'US_L',
-    name: '13. حساس الألتراسونيك الشمال (US_L)',
-    sub: 'HC-SR04 شمال · Trig=21 / Echo=17',
-    pos: [-4.2, 11.2, 1.4], size: [4.2, 2.0, 1.8], color: '#0284c7',
-    safety: '🚨 اوعى توصل رجل Echo بـ GPIO 17 مباشرة! وصل Echo بمقاومة 1kΩ، ومن الطرف التاني للمقاومة خد سلك لـ GPIO 17 ومقاومة 2kΩ للأرضي (GND).',
-    desc: 'يراقب الجنب الشمال والأمام الأيسر، ويوقف الروبوت فوراً لو فيه عائق على مسافة أقل من 20 سم.'
-  },
-  {
-    id: 'IR3',
-    name: '14. حساسات تتبع الخط الثلاثة (3× TCRT5000)',
-    sub: 'L=GPIO34 · C=GPIO35 · R=GPIO19 (تغذية 3.3V)',
-    pos: [0, 11.8, -0.4], size: [6.6, 1.8, 0.8], color: '#16a34a',
-    safety: '✔ غذي الـ VCC بتاع التلات حساسات من رجل 3.3V في الـ ESP32 (مش من الـ 5V!). بكده رجل DO هتطلع 3.3V آمنة مباشرة على GPIO 34 و 35 و 19 بدون أي مقاومات.',
-    desc: 'ثلاث حساسات في مقدمة الشاسيه من أسفل على ارتفاع 3-5 مم من الأرض، المسافة بين كل حساس والآخر 22 مم، وتتبع الخط الأسود وتلقط خط المحطة العرضي (111).'
-  }
+  {id:'ESP32', name:'1. بوردة ESP32 DevKit V1 (الـ 30 بن بالتفصيل)', sub:'15 بن شمال + 15 بن يمين + WROOM-32', color:'#0284c7', tab:'DRV', cam:{yaw:0, pitch:1.38, zoom:3.2, panX:-15, panY:95}},
+  {id:'BREADBOARD', name:'2. البريدبورد ومقاومات الحماية والمقسمات', sub:'مقسمين 1k/2k + مقسم 100k/33k + 10k×3', color:'#e2e8f0', tab:'US', cam:{yaw:-0.25, pitch:1.25, zoom:2.5, panX:-10, panY:80}},
+  {id:'DRV', name:'3. درايفر المواتير L298N (أو TB6612FNG)', sub:'11 مسمار وبن: OUT1..4, +12V, GND, +5V, ENA..ENB', color:'#dc2626', tab:'DRV', cam:{yaw:-0.35, pitch:1.05, zoom:2.8, panX:-10, panY:-65}},
+  {id:'US_R', name:'4. ألتراسونيك يمين HC-SR04 (4 بنوز)', sub:'VCC, TRIG (D23), ECHO (1k/2k->D22), GND', color:'#0ea5e9', tab:'US', cam:{yaw:-0.5, pitch:0.85, zoom:2.6, panX:120, panY:180}},
+  {id:'US_L', name:'5. ألتراسونيك شمال HC-SR04 (4 بنوز)', sub:'VCC, TRIG (D21), ECHO (1k/2k->TX2/17), GND', color:'#0ea5e9', tab:'US', cam:{yaw:0.45, pitch:0.85, zoom:2.6, panX:-80, panY:190}},
+  {id:'IR3', name:'6. حساسات الخط الثلاثة TCRT5000 (4 بنوز × 3)', sub:'VCC(3V3), GND, DO (D34, D35, D19), AO(فاضي)', color:'#16a34a', tab:'IR', cam:{yaw:0, pitch:0.95, zoom:2.7, panX:10, panY:210}},
+  {id:'SERVO', name:'7. سيرفو رفع الشيبسي + مكثف 1000µF', sub:'فيشة 3 بنوز: بني(GND), أحمر(BK2 5V), برتقالي(D18)', color:'#a855f7', tab:'SRV_BK', cam:{yaw:-0.55, pitch:0.95, zoom:2.6, panX:110, panY:95}},
+  {id:'BK1', name:'8. منظم المخ BK1 (LM2596 — 4 أطراف)', sub:'IN+, IN-, OUT+(5.00V), OUT- + مسمار الضبط', color:'#f97316', tab:'SRV_BK', cam:{yaw:0.4, pitch:1.15, zoom:2.8, panX:-140, panY:110}},
+  {id:'BK2', name:'9. منظم السيرفو BK2 (LM2596 — 4 أطراف)', sub:'IN+, IN-, OUT+(5.00V للسيرفو), OUT-', color:'#9333ea', tab:'SRV_BK', cam:{yaw:0.4, pitch:1.15, zoom:2.8, panX:-140, panY:185}},
+  {id:'BAT_BMS', name:'10. البطارية 2S + الـ BMS (5 أطراف) + الشاحن', sub:'B+, BM(3.7V), B-, P+, P- + شاحن USB-C 8.4V', color:'#15803d', tab:'PWR', cam:{yaw:0.15, pitch:1.05, zoom:2.3, panX:30, panY:-185}},
+  {id:'PROT_WAGO', name:'11. الفيوز + السويتش KCD3 (3 رجول) + Wago X1/X2', sub:'رجلتين فضي + رجل ذهبي فاضية + 5 فتحات Wago', color:'#ea580c', tab:'PWR', cam:{yaw:0.55, pitch:1.0, zoom:2.3, panX:-145, panY:-40}},
+  {id:'MOTORS', name:'12. الموتورين الخلفيين (M1 شمال و M2 يمين)', sub:'طرفين نحاس لكل موتور + مكثف سيراميك 100nF (104)', color:'#eab308', tab:'DRV', cam:{yaw:-0.5, pitch:0.85, zoom:2.0, panX:0, panY:-150}}
 ];
 
-// ======================== 2. جدول جميع الأسلاك والمسارات الثلاثية الأبعاد ========================
+// ============================================================================
+// 3. قائمة الأسلاك الفردية الكاملة (كل بن فردي له سلك حقيقي بإحداثيات 3D دقيقة)
+// ============================================================================
 const WIRES = [
-  // Power & Protection Chain
-  {id:'W01', comps:['BAT','BMS'], from:'بطارية B+ (7.4V)', to:'BMS B+', col:'#ef4444', awg:'16AWG', pts:[[3.5,-8.5,1.5],[3.5,-11.6,0.8],[2.2,-11.6,0.8]], note:'لحام على ريشة الحامل الموجبة قبل تركيب الخلايا'},
-  {id:'W02', comps:['BAT','BMS'], from:'منتصف الخليتين (3.7V)', to:'BMS BM', col:'#fb7185', awg:'22AWG', pts:[[0,-8.5,1.5],[0,-11.6,0.8]], note:'سلك موازنة الخليتين (Balance)'},
-  {id:'W03', comps:['BAT','BMS'], from:'بطارية B- (0V)', to:'BMS B-', col:'#94a3b8', awg:'16AWG', pts:[[-3.5,-8.5,1.5],[-3.5,-11.6,0.8],[-2.2,-11.6,0.8]], note:'لحام على ريشة الحامل السالبة'},
-  {id:'W04', comps:['BMS','PROT'], from:'خرج الحارس BMS P+', to:'الفيوز F1 (T6.3A)', col:'#ef4444', awg:'18AWG', pts:[[1.5,-11.6,0.8],[-6.8,-11.6,0.8],[-6.8,-7.5,1.2]], note:'يمر عبر فيشة XT30 (الأنثى ناحية البطارية)'},
-  {id:'W05', comps:['PROT'], from:'خرج الفيوز F1 (عبر نقطة N1)', to:'دخل السويتش KCD3 (الطرف الفضي الأوسط)', col:'#ef4444', awg:'18AWG', pts:[[-6.8,-7.0,1.3],[-6.8,-3.5,1.3]], note:'نقطة N1 في منتصفه لاستقبال موجب الشاحن بعد الفيوز وقبل السويتش'},
-  {id:'W06', comps:['PROT','X1X2'], from:'خرج السويتش KCD3 (الطرف الفضي الجانبي)', to:'موزع الموجب X1 (Wago)', col:'#ef4444', awg:'18AWG', pts:[[-6.8,-2.5,1.2],[-6.5,-1.2,0.8]], note:'⚠️ اترك الطرف الثالث الذهبي في السويتش فاضي تماماً لمنع الشورت!'},
-  {id:'W07', comps:['BMS','X1X2'], from:'خرج الحارس BMS P-', to:'موزع الأرضي X2 (Wago)', col:'#94a3b8', awg:'18AWG', pts:[[-1.5,-11.6,0.8],[-5.5,-11.6,0.6],[-5.5,1.2,0.8],[-6.2,1.2,0.8]], note:'الأرضي الرئيسي للروبوت كله'},
-  {id:'W08-W09', comps:['BMS','PROT'], from:'خرج شاحن USB-C 2S (8.4V+ / GND-)', to:'الموجب في N1 (بعد الفيوز) والسالب في BMS P- (وليس B-!)', col:'#38bdf8', awg:'22AWG', pts:[[3.8,-11.6,0.8],[-6.8,-5.5,1.3]], note:'🚨 سالب الشاحن لازم يروح لـ P- أو X2 عشان الشحن يعدي على حماية الـ BMS'},
+  // Battery & BMS & Charger & Switch & Wago
+  {id:'W01', comps:['BAT_BMS'], from:'بطارية لسان B+ (7.4V)', to:'بوردة BMS طرف B+', col:'#ef4444', awg:'16AWG', pts:[[4.8,-7.9,1.2],[4.8,-11.4,0.7],[3.6,-11.4,0.65]], safety:'الحم السلك على ريشة الحامل النحاس قبل تركيب الخلايا.'},
+  {id:'W02', comps:['BAT_BMS'], from:'منتصف البطارية BM (3.7V)', to:'بوردة BMS طرف BM', col:'#fb7185', awg:'22AWG', pts:[[-1.8,-8.8,1.2],[1.5,-10.6,0.9],[1.5,-11.4,0.65]], safety:'سلك موازنة الشحن بين الخليتين (3.7V).'},
+  {id:'W03', comps:['BAT_BMS'], from:'بطارية لسان B- (0V)', to:'بوردة BMS طرف B-', col:'#94a3b8', awg:'16AWG', pts:[[4.8,-9.7,1.2],[-0.6,-10.5,0.8],[-0.6,-11.4,0.65]], safety:'وصل B- أول طرف في الـ BMS.'},
+  {id:'W04', comps:['BAT_BMS','PROT_WAGO'], from:'خرج BMS طرف P+', to:'دخل الفيوز F1 (عبر فيشة XT30)', col:'#ef4444', awg:'18AWG', pts:[[2.8,-12.7,0.65],[-7.2,-12.7,0.7],[-7.2,-11.0,0.8]], safety:'فيشة XT30 الأنثى تكون ناحية الـ BMS لمنع الشورت.'},
+  {id:'W05a', comps:['PROT_WAGO'], from:'خرج الفيوز F1 (T6.3A)', to:'مشبك N1 فتحة 1', col:'#ef4444', awg:'18AWG', pts:[[-7.2,-8.6,0.8],[-7.5,-7.0,0.9]], safety:'فيوز زجاج بطيء T6.3A لحماية الدائرة كلها.'},
+  {id:'W05b', comps:['PROT_WAGO'], from:'مشبك N1 فتحة 2', to:'سويتش KCD3 البن الأوسط الفضي (Pin 2)', col:'#ef4444', awg:'18AWG', pts:[[-7.2,-7.0,0.9],[-7.2,-4.5,0.55]], safety:'يدخل على الرجل الفضي الوسطى في السويتش.'},
+  {id:'W06', comps:['PROT_WAGO'], from:'سويتش KCD3 البن الجانبي الفضي (Pin 1)', to:'موزع الموجب X1 فتحة 1', col:'#ef4444', awg:'18AWG', pts:[[-7.2,-3.7,0.55],[-7.0,-2.2,0.9]], safety:'🚨 اترك البن الثالث الذهبي في السويتش فاضياً تماماً!'},
+  {id:'W07', comps:['BAT_BMS','PROT_WAGO'], from:'خرج BMS طرف P- (0V)', to:'موزع الأرضي X2 فتحة 1', col:'#94a3b8', awg:'18AWG', pts:[[0.2,-12.7,0.65],[-5.6,-12.7,0.5],[-5.6,1.3,0.6],[-7.0,1.3,0.9]], safety:'الأرضي الرئيسي النجمي لكل الروبوت.'},
+  {id:'W08', comps:['BAT_BMS','PROT_WAGO'], from:'شاحن USB-C طرف OUT+ (8.4V)', to:'مشبك N1 فتحة 3 (قبل السويتش)', col:'#38bdf8', awg:'22AWG', pts:[[5.7,-11.3,0.65],[5.7,-13.1,0.5],[-6.8,-13.1,0.5],[-6.8,-7.0,0.9]], safety:'الشحن يدخل قبل السويتش عشان نشحن والسويتش OFF.'},
+  {id:'W09', comps:['BAT_BMS'], from:'شاحن USB-C طرف OUT- (GND)', to:'بوردة BMS طرف P- (وليس B-!)', col:'#94a3b8', awg:'22AWG', pts:[[5.7,-12.2,0.65],[0.2,-12.7,0.65]], safety:'لازم على P- عشان الـ BMS يفصل الشحن لو الخلية اتمليت.'},
 
-  // Distribution from X1/X2 to Bucks and Driver
-  {id:'W10', comps:['X1X2','DRV'], from:'موزع الموجب X1', to:'درايفر المواتير (+12V / VM)', col:'#ef4444', awg:'20AWG', pts:[[-6.2,-0.5,0.8],[-2.0,-0.5,1.0],[-1.2,-3.2,1.5]], note:'مع مكثف 1000µF 16V على مسمار دخول الدرايفر'},
-  {id:'W11', comps:['X1X2','DRV'], from:'موزع الأرضي X2', to:'أرضي الدرايفر (GND)', col:'#94a3b8', awg:'20AWG', pts:[[-6.2,1.2,0.8],[-2.5,1.2,0.8],[-1.2,-2.2,1.5]], note:'أرضي المواتير والمنطق'},
-  {id:'W12', comps:['X1X2','BK1'], from:'موزع الموجب X1', to:'دخل منظم المخ BK1 (IN+)', col:'#ef4444', awg:'20AWG', pts:[[-6.5,0.2,0.8],[-6.5,3.2,0.8]], note:'دخل 7.4V للمنظم الأول'},
-  {id:'W13', comps:['X1X2','BK1'], from:'موزع الأرضي X2', to:'أرضي منظم المخ BK1 (IN-)', col:'#94a3b8', awg:'20AWG', pts:[[-6.0,1.5,0.8],[-6.0,3.2,0.8]], note:'أرضي المنظم الأول'},
-  {id:'W14', comps:['X1X2','BK2'], from:'موزع الموجب X1', to:'دخل منظم السيرفو BK2 (IN+)', col:'#ef4444', awg:'20AWG', pts:[[-7.1,0.2,0.8],[-7.1,7.2,0.8]], note:'دخل 7.4V لمنظم السيرفو المعزول'},
-  {id:'W15', comps:['X1X2','BK2'], from:'موزع الأرضي X2', to:'أرضي منظم السيرفو BK2 (IN-)', col:'#94a3b8', awg:'20AWG', pts:[[-5.8,1.5,0.8],[-5.8,7.2,0.8]], note:'أرضي منظم السيرفو'},
+  // Star Distribution X1/X2 -> DRV, BK1, BK2 (L298N Heatsink at +Y=-2.4, Screws/Header at -Y=-5.1 matching real PCB 100%)
+  {id:'W10', comps:['PROT_WAGO','DRV'], from:'موزع الموجب X1 فتحة 2', to:'مسمار +12V (VMS) في درايفر L298N', col:'#ef4444', awg:'20AWG', pts:[[-7.0,-1.7,0.9],[-3.2,-5.1,0.9],[-1.1,-5.1,1.15]], safety:'ركب مكثف 1000µF بين مسمار +12V ومسمار GND في الدرايفر.'},
+  {id:'W11', comps:['PROT_WAGO','DRV'], from:'موزع الأرضي X2 فتحة 2', to:'مسمار GND في درايفر L298N', col:'#94a3b8', awg:'20AWG', pts:[[-7.0,1.8,0.9],[-4.2,1.8,0.6],[-4.2,-5.3,0.6],[-0.6,-5.1,1.15]], safety:'أرضي مشترك للمواتير وإشارات التحكم.'},
+  {id:'W12', comps:['PROT_WAGO','BK1'], from:'موزع الموجب X1 فتحة 3', to:'طرف IN+ في منظم المخ BK1', col:'#ef4444', awg:'20AWG', pts:[[-7.0,-1.2,0.9],[-7.7,4.3,0.65]], safety:'دخل 7.4V للمنظم الأول.'},
+  {id:'W13', comps:['PROT_WAGO','BK1'], from:'موزع الأرضي X2 فتحة 3', to:'طرف IN- في منظم المخ BK1', col:'#94a3b8', awg:'20AWG', pts:[[-7.0,2.3,0.9],[-5.9,4.3,0.65]], safety:'أرضي دخل المنظم الأول.'},
+  {id:'W14', comps:['PROT_WAGO','BK2'], from:'موزع الموجب X1 فتحة 4', to:'طرف IN+ في منظم السيرفو BK2', col:'#ef4444', awg:'20AWG', pts:[[-7.0,-0.7,0.9],[-8.3,-0.7,0.6],[-8.3,8.7,0.6],[-7.7,8.7,0.65]], safety:'دخل 7.4V لمنظم السيرفو المعزول.'},
+  {id:'W15', comps:['PROT_WAGO','BK2'], from:'موزع الأرضي X2 فتحة 4', to:'طرف IN- في منظم السيرفو BK2', col:'#94a3b8', awg:'20AWG', pts:[[-7.0,2.8,0.9],[-5.2,2.8,0.5],[-5.2,8.7,0.5],[-5.9,8.7,0.65]], safety:'أرضي دخل منظم السيرفو.'},
 
-  // 5V Rails (BK1 -> Breadboard/ESP32, BK2 -> Servo)
-  {id:'W16', comps:['BK1','ESP32'], from:'خرج BK1 (5.00V مضبوط!)', to:'ريل 5V البريدبورد -> ESP32 VIN', col:'#f97316', awg:'22AWG', pts:[[-5.5,5.2,0.9],[-2.2,5.2,1.1]], note:'اضبط BK1 بالملتيميتر على 5.00V قبل توصيل هذا السلك!'},
-  {id:'W17', comps:['BK1','ESP32'], from:'خرج BK1 (GND)', to:'ريل أرضي البريدبورد -> ESP32 GND', col:'#94a3b8', awg:'22AWG', pts:[[-5.5,4.4,0.9],[-2.2,4.4,1.1]], note:'مع مكثف 100µF بين ريل الـ 5V والأرضي على البريدبورد'},
-  {id:'W18', comps:['BK2','SERVO'], from:'خرج BK2 (5.00V معزول)', to:'فيشة السيرفو (السلك الأحمر V+)', col:'#c084fc', awg:'20AWG', pts:[[-5.5,9.2,0.9],[1.5,9.2,1.3],[3.8,8.8,1.6]], note:'مع مكثف 1000µF 16V ملحوم عند فيشة السيرفو مباشرة'},
-  {id:'W19', comps:['BK2','SERVO'], from:'خرج BK2 (GND)', to:'فيشة السيرفو (السلك البني/الأسود GND)', col:'#94a3b8', awg:'20AWG', pts:[[-5.5,8.4,0.9],[1.5,8.4,1.1],[3.8,8.3,1.6]], note:'راجع تيار السيرفو المعزول عن البريدبورد'},
+  // BK1 -> Breadboard -> ESP32 VIN/GND & L298N +5V
+  {id:'W16', comps:['BK1','BREADBOARD','ESP32'], from:'خرج BK1 طرف OUT+ (5.00V مضبوط)', to:'ريل +5V البريدبورد ← بن VIN في ESP32 (L15)', col:'#f97316', awg:'22AWG', pts:[[-7.7,7.7,0.65],[-3.15,7.7,1.0],[-3.15,1.65,0.95],espPin3D('L',15)], safety:'🚨 اضبط مسمار BK1 بالملتيميتر على 5.00V قبل توصيله بـ VIN!'},
+  {id:'W17', comps:['BK1','BREADBOARD','ESP32'], from:'خرج BK1 طرف OUT- (GND)', to:'ريل GND الأيسر والأيمن على البريدبورد ← بن GND (L14)', col:'#94a3b8', awg:'22AWG', pts:[[-5.9,7.7,0.65],[-2.85,7.4,1.0],[-2.85,1.92,0.95],espPin3D('L',14)], safety:'مع سلك جمبر يربط ريل الأرضي الأيسر بالأيمن على البريدبورد + مكثف 100µF.'},
+  {id:'W30', comps:['BK1','BREADBOARD','DRV'], from:'ريل +5V البريدبورد (BK1)', to:'مسمار +5V في درايفر L298N (جمبر 5V-EN متشال!)', col:'#f97316', awg:'22AWG', pts:[[-3.15,1.2,0.95],[-3.15,-4.8,0.95],[-0.1,-5.1,1.15]], safety:'🚨 لازم تشيل جمبر 5V-EN من على L298N قبل توصيل هذا السلك! (في TB6612 وصّل VCC+STBY بـ 3V3).'},
 
-  // Battery Voltage Divider (VBAT -> GPIO 39 VN)
-  {id:'W20+W53', comps:['X1X2','ESP32'], from:'موزع الموجب X1 (عبر مقسم 100kΩ / 33kΩ)', to:'ESP32 GPIO 39 (طرف VN)', col:'#4ade80', awg:'26AWG', pts:[[-5.5,-0.2,0.8],[-1.5,2.0,1.2]], note:'100kΩ من X1 لطرف VN + مقاومة 33kΩ ومكثف 100nF من VN للأرضي (يحوّل 8.4V إلى 2.08V آمن)'},
+  // BK2 -> Servo Power (Isolated!)
+  {id:'W18', comps:['BK2','SERVO'], from:'خرج BK2 طرف OUT+ (5.00V معزول)', to:'فيشة السيرفو البن الأوسط (الأحمر V+)', col:'#c084fc', awg:'20AWG', pts:[[-7.7,12.1,0.65],[-7.7,12.8,0.8],[5.2,12.8,0.8],[5.2,6.8,0.95]], safety:'🚨 اضبط BK2 على 5.00V أولاً + ركب مكثف 1000µF جنب فيشة السيرفو.'},
+  {id:'W19', comps:['BK2','SERVO'], from:'خرج BK2 طرف OUT- (GND)', to:'فيشة السيرفو البن الجانبي (البني/الأسود GND)', col:'#94a3b8', awg:'20AWG', pts:[[-5.9,12.1,0.65],[-5.9,12.5,0.7],[4.9,12.5,0.7],[4.9,6.8,0.95]], safety:'مع سالب المكثف 1000µF (الخط الأبيض على المكثف).'},
 
-  // ESP32 -> Motor Driver Signals & Logic Supply & Motors
-  {id:'W30 (Logic)', comps:['BK1','ESP32','DRV'], from:'تغذية منطق الدرايفر (5V من BK1 لـ L298N، أو 3.3V لـ TB6612)', to:'مسمار +5V في L298N (والجمبر 5V-EN متشال!) أو VCC+STBY في TB6612', col:'#f97316', awg:'22AWG', pts:[[-1.5,3.5,1.1],[-0.8,-1.5,1.5]], note:'🚨 في L298N: لازم تشيل جمبر 5V-EN قبل توصيل هذا السلك! وفي TB6612: وصله بـ 3.3V مع STBY'},
-  {id:'W34-W36', comps:['ESP32','DRV','MOT_L'], from:'ESP32 (GPIO 25, 26, 27)', to:'الدرايفر (ENA, IN1, IN2) - موتور شمال', col:'#facc15', awg:'26AWG', pts:[[0.5,1.0,1.3],[0.0,-1.5,1.6]], note:'ENA=GPIO25 (مع مقاومة 10kΩ للأرضي)، IN1=GPIO26، IN2=GPIO27'},
-  {id:'W37-W39', comps:['ESP32','DRV','MOT_R'], from:'ESP32 (GPIO 33, 32, 14)', to:'الدرايفر (ENB, IN3, IN4) - موتور يمين', col:'#facc15', awg:'26AWG', pts:[[1.5,1.0,1.3],[1.2,-1.5,1.6]], note:'ENB=GPIO33 (مع مقاومة 10kΩ للأرضي لمنع نبضة GPIO14)، IN3=GPIO32، IN4=GPIO14'},
-  {id:'W41-W42', comps:['DRV','MOT_L'], from:'خرج الدرايفر (OUT1 / OUT2)', to:'طرفي الموتور الشمال M1', col:'#fb923c', awg:'20AWG', pts:[[-1.4,-3.8,1.3],[-6.5,-7.5,0.0]], note:'مع مكثف سيراميك 100nF على أطراف الموتور'},
-  {id:'W43-W44', comps:['DRV','MOT_R'], from:'خرج الدرايفر (OUT3 / OUT4)', to:'طرفي الموتور اليمين M2', col:'#fb923c', awg:'20AWG', pts:[[2.4,-3.8,1.3],[6.5,-7.5,0.0]], note:'مع مكثف سيراميك 100nF على أطراف الموتور'},
+  // Battery Sense Divider -> ESP32 VN (Pin L3)
+  {id:'W20+W53', comps:['PROT_WAGO','BREADBOARD','ESP32'], from:'موزع X1 فتحة 5 ← مقسم (100kΩ / 33kΩ)', to:'بن VN (GPIO 39 — البن 3 شمال من فوق) في ESP32', col:'#4ade80', awg:'26AWG', pts:[[-7.0,-0.2,0.9],[-1.8,4.97,1.05],espPin3D('L',3)], safety:'100kΩ ناحية X1 و 33kΩ ومكثف 100nF ناحية الأرضي — الجهد على VN = 1.84V.'},
 
-  // ESP32 -> Servo Signal
-  {id:'W45+W57', comps:['ESP32','SERVO'], from:'ESP32 GPIO 18 (عبر مقاومة 1kΩ)', to:'سلك إشارة السيرفو (البرتقالي/الأصفر PWM)', col:'#facc15', awg:'26AWG', pts:[[2.5,5.5,1.3],[4.5,7.5,1.6]], note:'مقاومة 1kΩ توالي + 10kΩ للأرضي لحماية GPIO 18'},
+  // ESP32 Individual Pins -> L298N 6 Control Pins (at Y=-5.1, X=+0.55..+2.05)
+  {id:'W34', comps:['ESP32','BREADBOARD','DRV'], from:'ESP32 بن D25 (شمال #8 من فوق / #8 من USB)', to:'L298N بن ENA الأمامي (+ مقاومة 10kΩ للأرضي)', col:'#facc15', awg:'26AWG', pts:[espPin3D('L',8),[-1.5,3.60,1.75],[0.55,-5.1,1.15]], safety:'🚨 شيل جمبر ENA وركب السلك على البن الأمامي فقط!'},
+  {id:'W35', comps:['ESP32','DRV'], from:'ESP32 بن D26 (شمال #9 من فوق / #7 من USB)', to:'L298N بن IN1', col:'#facc15', awg:'26AWG', pts:[espPin3D('L',9),[-1.3,3.32,1.82],[0.85,-5.1,1.15]], safety:'اتجاه الموتور الشمال الأول.'},
+  {id:'W36', comps:['ESP32','DRV'], from:'ESP32 بن D27 (شمال #10 من فوق / #6 من USB)', to:'L298N بن IN2', col:'#facc15', awg:'26AWG', pts:[espPin3D('L',10),[-1.1,3.05,1.88],[1.15,-5.1,1.15]], safety:'اتجاه الموتور الشمال الثاني.'},
+  {id:'W38', comps:['ESP32','DRV'], from:'ESP32 بن D32 (شمال #6 من فوق / #10 من USB)', to:'L298N بن IN3', col:'#fbbf24', awg:'26AWG', pts:[espPin3D('L',6),[-1.7,4.15,1.92],[1.45,-5.1,1.15]], safety:'اتجاه الموتور اليمين الأول.'},
+  {id:'W39', comps:['ESP32','DRV'], from:'ESP32 بن D14 (شمال #11 من فوق / #5 من USB)', to:'L298N بن IN4', col:'#fbbf24', awg:'26AWG', pts:[espPin3D('L',11),[-0.9,2.77,1.95],[1.75,-5.1,1.15]], safety:'اتجاه الموتور اليمين الثاني.'},
+  {id:'W37', comps:['ESP32','BREADBOARD','DRV'], from:'ESP32 بن D33 (شمال #7 من فوق / #9 من USB)', to:'L298N بن ENB الأمامي (+ مقاومة 10kΩ للأرضي)', col:'#fbbf24', awg:'26AWG', pts:[espPin3D('L',7),[-1.6,3.87,2.02],[2.05,-5.1,1.15]], safety:'🚨 شيل جمبر ENB وركب السلك على البن الأمامي فقط + مقاومة 10kΩ للأرضي لمنع نبضة D14!'},
 
-  // ESP32 -> Ultrasonic Right (US_R)
-  {id:'W_USR_PWR', comps:['BK1','ESP32','US_R'], from:'ريل 5V البريدبورد (BK1) + GND', to:'ألتراسونيك يمين (VCC 5V & GND)', col:'#f97316', awg:'26AWG', pts:[[2.8,6.5,1.1],[6.2,9.8,1.3]], note:'تغذية 5V لحساس الألتراسونيك اليمين'},
-  {id:'W46', comps:['ESP32','US_R'], from:'ESP32 GPIO 23', to:'ألتراسونيك يمين (TRIG_R)', col:'#38bdf8', awg:'26AWG', pts:[[2.8,6.0,1.3],[6.5,10.2,1.5]], note:'إشارة نبضة الإرسال 3.3V مباشرة'},
-  {id:'W47-W48', comps:['ESP32','US_R'], from:'ألتراسونيك يمين (ECHO_R) -> مقسم 1kΩ/2kΩ', to:'ESP32 GPIO 22', col:'#0ea5e9', awg:'26AWG', pts:[[6.5,10.8,1.5],[2.8,6.8,1.3]], note:'🚨 إجباري: ECHO_R يدخل على 1kΩ ثم لـ GPIO 22 ومعاه 2kΩ للأرضي (ينزل 5V لـ 3.3V)'},
+  // L298N -> Left & Right Motors
+  {id:'W41', comps:['DRV','MOTORS'], from:'مسمار OUT1 في الدرايفر', to:'اللسان النحاس الموجب للموتور الشمال M1', col:'#fb923c', awg:'20AWG', pts:[[-1.35,-2.9,1.1],[-6.0,-7.8,-0.4]], safety:'مع مكثف سيراميك 100nF (104) بين طرفي الموتور.'},
+  {id:'W42', comps:['DRV','MOTORS'], from:'مسمار OUT2 في الدرايفر', to:'اللسان النحاس السالب للموتور الشمال M1', col:'#94a3b8', awg:'20AWG', pts:[[-1.35,-3.9,1.1],[-6.0,-8.6,-0.4]], safety:'لو العجلة لفت لورا في خطوة 1، بدّل W41 مكان W42.'},
+  {id:'W43', comps:['DRV','MOTORS'], from:'مسمار OUT3 في الدرايفر', to:'اللسان النحاس الموجب للموتور اليمين M2', col:'#fb923c', awg:'20AWG', pts:[[2.35,-2.9,1.1],[6.0,-7.8,-0.4]], safety:'مع مكثف سيراميك 100nF (104) بين طرفي الموتور.'},
+  {id:'W44', comps:['DRV','MOTORS'], from:'مسمار OUT4 في الدرايفر', to:'اللسان النحاس السالب للموتور اليمين M2', col:'#94a3b8', awg:'20AWG', pts:[[2.35,-3.9,1.1],[6.0,-8.6,-0.4]], safety:'لو العجلة لفت لورا في خطوة 2، بدّل W43 مكان W44.'},
 
-  // ESP32 -> Ultrasonic Left (US_L)
-  {id:'W_USL_PWR', comps:['BK1','ESP32','US_L'], from:'ريل 5V البريدبورد (BK1) + GND', to:'ألتراسونيك شمال (VCC 5V & GND)', col:'#f97316', awg:'26AWG', pts:[[-1.5,6.5,1.1],[-3.8,10.5,1.3]], note:'تغذية 5V لحساس الألتراسونيك الشمال'},
-  {id:'W60', comps:['ESP32','US_L'], from:'ESP32 GPIO 21', to:'ألتراسونيك شمال (TRIG_L)', col:'#38bdf8', awg:'26AWG', pts:[[-1.2,6.0,1.3],[-4.0,11.0,1.5]], note:'إشارة نبضة الإرسال 3.3V مباشرة'},
-  {id:'W61-W62', comps:['ESP32','US_L'], from:'ألتراسونيك شمال (ECHO_L) -> مقسم 1kΩ/2kΩ', to:'ESP32 GPIO 17', col:'#0ea5e9', awg:'26AWG', pts:[[-4.4,11.2,1.5],[-1.2,6.8,1.3]], note:'🚨 إجباري: ECHO_L يدخل على 1kΩ ثم لـ GPIO 17 ومعاه 2kΩ للأرضي (ينزل 5V لـ 3.3V)'},
+  // ESP32 D18 -> Servo PWM
+  {id:'W45+W57', comps:['ESP32','BREADBOARD','SERVO'], from:'ESP32 بن D18 (يمين #7 من فوق / #9 من USB)', to:'مقاومة 1kΩ توالي ← سلك السيرفو البرتقالي (Signal)', col:'#facc15', awg:'26AWG', pts:[espPin3D('R',7),[2.7,3.87,1.6],[5.5,6.8,0.95]], safety:'مقاومة 10kΩ للأرضي عند D18 + مقاومة 1kΩ توالي لحماية البن.'},
 
-  // ESP32 -> 3x IR Line Sensors
-  {id:'W_IR_PWR', comps:['ESP32','IR3'], from:'ESP32 طرف 3.3V + GND', to:'حساسات الخط الثلاثة (VCC=3.3V & GND)', col:'#4ade80', awg:'26AWG', pts:[[0.0,7.5,1.1],[0.0,11.5,-0.2]], note:'✔ تغذية من 3.3V (وليس 5V!) لضمان أن الخرج 3.3V آمن تماماً على الـ ESP32'},
-  {id:'W50-W52', comps:['ESP32','IR3'], from:'خرج الحساسات الثلاثة (DO_L, DO_C, DO_R)', to:'ESP32 (GPIO 34 شمال، GPIO 35 وسط، GPIO 19 يمين)', col:'#22c55e', awg:'26AWG', pts:[[0.6,7.5,1.2],[0.6,11.5,-0.2]], note:'طرف GPIO 36 (VP) متروك فاضي تماماً لتجنب مشكلة Errata 3.11'}
+  // Ultrasonic Right (Front eyes facing +Y -> Viewer's Left-to-Right from +Y is +X to -X: VCC=+6.85, TRIG=+6.55, ECHO=+6.25, GND=+5.95!)
+  {id:'W_USR_VCC', comps:['BK1','BREADBOARD','US_R'], from:'ريل +5V البريدبورد (BK1)', to:'ألتراسونيك يمين البن 1 (VCC)', col:'#f97316', awg:'26AWG', pts:[[-3.15,7.2,0.95],[6.85,9.5,1.0],[6.85,11.2,1.1]], safety:'تغذية 5.0V لحساس اليمين.'},
+  {id:'W46', comps:['ESP32','US_R'], from:'ESP32 بن D23 (يمين #1 فوق خالص جنب الأنتنا)', to:'ألتراسونيك يمين البن 2 (Trig)', col:'#38bdf8', awg:'26AWG', pts:[espPin3D('R',1),[6.55,5.52,1.8],[6.55,11.2,1.1]], safety:'نبضة إرسال مباشرة 3.3V.'},
+  {id:'W47+W48', comps:['US_R','BREADBOARD','ESP32'], from:'ألتراسونيك يمين البن 3 (Echo 5V) ← مقسم 1kΩ/2kΩ', to:'ESP32 بن D22 (يمين #2 من فوق جنب D23)', col:'#0ea5e9', awg:'26AWG', pts:[[6.25,11.2,1.1],[2.8,5.25,1.15],espPin3D('R',2)], safety:'🚨 إجباري: Echo يدخل على مقاومة 1kΩ ومنها لبن D22 ومقاومة 2kΩ للأرضي (3.33V آمن).'},
+  {id:'W_USR_GND', comps:['BREADBOARD','US_R'], from:'ألتراسونيك يمين البن 4 (GND)', to:'ريل GND الأيمن على البريدبورد', col:'#94a3b8', awg:'26AWG', pts:[[5.95,11.2,1.1],[4.15,7.2,0.95]], safety:'أرضي الحساس اليمين.'},
+
+  // Ultrasonic Left (Front eyes facing +Y -> Viewer's Left-to-Right from +Y is +X to -X: VCC=-2.75, TRIG=-3.05, ECHO=-3.35, GND=-3.65!)
+  {id:'W_USL_VCC', comps:['BK1','BREADBOARD','US_L'], from:'ريل +5V البريدبورد (BK1)', to:'ألتراسونيك شمال البن 1 (VCC)', col:'#f97316', awg:'26AWG', pts:[[-3.15,7.5,0.95],[-2.75,11.2,1.1]], safety:'تغذية 5.0V لحساس الشمال.'},
+  {id:'W60', comps:['ESP32','US_L'], from:'ESP32 بن D21 (يمين #5 من فوق / #11 من USB)', to:'ألتراسونيك شمال البن 2 (Trig)', col:'#38bdf8', awg:'26AWG', pts:[espPin3D('R',5),[2.4,4.42,1.95],[-3.05,9.5,1.95],[-3.05,11.2,1.1]], safety:'نبضة إرسال مباشرة 3.3V.'},
+  {id:'W61+W62', comps:['US_L','BREADBOARD','ESP32'], from:'ألتراسونيك شمال البن 3 (Echo 5V) ← مقسم 1kΩ/2kΩ', to:'ESP32 بن TX2 / GPIO17 (يمين #9 من فوق / #7 من USB)', col:'#0ea5e9', awg:'26AWG', pts:[[-3.35,11.2,1.1],[2.8,3.32,1.15],espPin3D('R',9)], safety:'🚨 مكتوب على البوردة TX2 (وهو GPIO 17)! لازم مقسم 1kΩ/2kΩ مستقل عشان الـ 5V متلمسش البن!'},
+  {id:'W_USL_GND', comps:['BREADBOARD','US_L'], from:'ألتراسونيك شمال البن 4 (GND)', to:'ريل GND الأيسر على البريدبورد', col:'#94a3b8', awg:'26AWG', pts:[[-3.65,11.2,1.1],[-2.85,7.5,0.95]], safety:'أرضي الحساس الشمال.'},
+
+  // 3x IR Line Sensors (Powered from ESP32 3V3 Pin R15!)
+  {id:'W_3V3', comps:['ESP32','BREADBOARD','IR3'], from:'ESP32 بن 3V3 (يمين #15 تحت خالص جنب زرار BOOT)', to:'ريل +3.3V ← بن VCC في حساسات الخط الثلاثة (L, C, R)', col:'#4ade80', awg:'24AWG', pts:[espPin3D('R',15),[3.85,1.65,0.95],[3.85,10.8,0.8],[-2.5,10.8,0.5]], safety:'✔ تغذية الـ IR من 3V3 تضمن أن خرجهم 3.3V آمن بدون أي مقسمات!'},
+  {id:'W_GND_R', comps:['ESP32','BREADBOARD','IR3'], from:'ESP32 بن GND الأيمن (يمين #14 من فوق / #2 من USB)', to:'ريل GND الأيمن ← بن GND في حساسات الخط الثلاثة', col:'#94a3b8', awg:'24AWG', pts:[espPin3D('R',14),[4.15,1.92,0.95],[4.15,10.5,0.8]], safety:'أرضي مشترك لحساسات الخط والمقسمات.'},
+  {id:'W50', comps:['ESP32','IR3'], from:'حساس الخط الشمال IR_L بن DO (البن الثالث)', to:'ESP32 بن D34 (شمال #4 من فوق / #12 من USB)', col:'#22c55e', awg:'26AWG', pts:[[-1.9,10.9,0.55],[-1.9,4.70,1.7],espPin3D('L',4)], safety:'اترك البن الرابع AO في الحساس فاضياً.'},
+  {id:'W51', comps:['ESP32','IR3'], from:'حساس الخط الوسط IR_C بن DO (البن الثالث)', to:'ESP32 بن D35 (شمال #5 من فوق / #11 من USB)', col:'#22c55e', awg:'26AWG', pts:[[0.6,10.9,0.55],[0.0,4.42,1.85],espPin3D('L',5)], safety:'اترك البن الرابع AO في الحساس فاضياً.'},
+  {id:'W52', comps:['ESP32','IR3'], from:'حساس الخط اليمين IR_R بن DO (البن الثالث)', to:'ESP32 بن D19 (يمين #6 من فوق / #10 من USB)', col:'#22c55e', awg:'26AWG', pts:[[3.1,10.9,0.55],[3.1,4.15,1.7],espPin3D('R',6)], safety:'اترك البن الرابع AO في الحساس فاضياً.'}
 ];
 
-// ======================== 3. بناء واجهة المستخدم والـ Inspector ========================
+// ============================================================================
+// 4. حالة التطبيق (State) وبناء القوائم الجانبية وبطاقة تعريف البن
+// ============================================================================
 let activeComp = 'ALL';
-const $=id=>document.getElementById(id);
+let selectedWireId = 'W16';
+let selectedEspPin = null; // e.g., {side:'L', idx:15}
+let currentPeriphTab = 'DRV';
+const $ = id => document.getElementById(id);
+
+// Camera State
+let cam = {yaw:-0.48, pitch:0.95, zoom:1.18, panX:0, panY:10};
+let targetCam = {...cam};
+let panMode = false;
+let pulsePhase = 0;
+
+function flyTo(preset){
+  Object.assign(targetCam, preset);
+}
 
 function buildSidebar(){
-  const list=$('compList');
-  list.innerHTML = COMPONENTS.slice(1).map(c=>`
+  $('compList').innerHTML = COMPONENTS.map(c => `
     <button class="comp-btn ${activeComp===c.id?'active':''}" data-id="${c.id}">
       <div style="display:flex;align-items:center;gap:8px">
         <span class="dot" style="background:${c.color}"></span>
@@ -357,267 +362,705 @@ function buildSidebar(){
           <span class="pins mono">${c.sub}</span>
         </div>
       </div>
-      <span style="color:var(--accent);font-size:12px">عرض ◄</span>
+      <span style="color:var(--accent);font-size:11.5px">زووم ◄</span>
     </button>
   `).join('');
 
-  list.querySelectorAll('.comp-btn').forEach(b=>{
-    b.onclick=()=>{
-      activeComp = b.dataset.id;
+  $('compList').querySelectorAll('.comp-btn').forEach(b => {
+    b.onclick = () => {
+      const c = COMPONENTS.find(x => x.id === b.dataset.id);
+      activeComp = c.id;
       $('btnAll').classList.remove('active');
+      if(c.cam) flyTo(c.cam);
+      if(c.tab) setPeriphTab(c.tab);
+      const firstW = WIRES.find(w => w.comps.includes(activeComp));
+      if(firstW) selectedWireId = firstW.id;
       buildSidebar();
-      updateInspector();
+      renderInspector();
+      drawEsp2D();
+      drawPeriph2D();
     };
   });
 }
 
-$('btnAll').onclick=()=>{
-  activeComp='ALL';
+$('btnAll').onclick = () => {
+  activeComp = 'ALL';
   $('btnAll').classList.add('active');
+  flyTo({yaw:-0.48, pitch:0.95, zoom:1.18, panX:0, panY:10});
   buildSidebar();
-  updateInspector();
+  renderInspector();
+  drawEsp2D();
 };
 
-function updateInspector(){
-  const comp = COMPONENTS.find(c=>c.id===activeComp) || COMPONENTS[0];
-  const relWires = activeComp==='ALL' ? WIRES : WIRES.filter(w=>w.comps.includes(activeComp));
-
-  let h = `
-    <div class="insp-card">
-      <div class="insp-title">${comp.name}</div>
-      <div class="mono" style="font-size:12px;color:var(--accent);margin-bottom:6px">${comp.sub}</div>
-      <div style="font-size:13.5px;color:var(--ink)">${comp.desc}</div>
-      <div class="safety-box">
-        <b>🛡️ قاعدة الحماية من الاحتراق لهذا المكون:</b>
-        ${comp.safety}
-      </div>
-    </div>
-    <div style="font-weight:700;font-size:13.5px;margin:8px 0 6px;color:var(--accent)">
-      جدول الأسلاك المتصلة (${relWires.length} مسار):
-    </div>
-    <div style="max-height:330px;overflow-y:auto;border:1px solid var(--line);border-radius:7px">
-      <table>
-        <tr><th>سلك</th><th>من ← إلى</th><th>ملاحظة التوصيل الآمن</th></tr>
-        ${relWires.map(w=>`
-          <tr>
-            <td class="mono" style="font-weight:700;color:${w.col}">
-              <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${w.col};margin-left:4px"></span>${w.id}<br>
-              <span style="font-size:11px;color:var(--muted)">${w.awg}</span>
-            </td>
-            <td><b>من:</b> ${w.from}<br><b>إلى:</b> ${w.to}</td>
-            <td style="color:var(--muted)">${w.note}</td>
-          </tr>
-        `).join('')}
-      </table>
-    </div>
-  `;
-  $('inspector').innerHTML = h;
+function selectPinOrWire(wireId, espPinObj){
+  selectedWireId = wireId || null;
+  selectedEspPin = espPinObj || null;
+  renderInspector();
+  drawEsp2D();
+  drawPeriph2D();
 }
 
-// ======================== 4. محرك الرسم الثلاثي الأبعاد التفاعلي (3D Canvas Engine) ========================
+function renderInspector(){
+  const w = WIRES.find(x => x.id === selectedWireId) || WIRES[0];
+  let pHtml = '';
+
+  if(selectedEspPin){
+    const p = (selectedEspPin.side === 'L' ? ESP_LEFT : ESP_RIGHT)[selectedEspPin.idx - 1];
+    const sideAr = selectedEspPin.side === 'L' ? 'الصف الأيسر (ناحية EN و VIN)' : 'الصف الأيمن (ناحية BOOT و 3V3)';
+    pHtml = `
+      <div class="passport">
+        <span class="tag">📌 بن محدد على بوردة ESP32</span>
+        <h3>المطبوع على البوردة: <span class="mono" style="color:var(--gold)">${p.silk}</span> (${p.gpio})</h3>
+        <div class="kv">
+          <b>مكانه على البوردة:</b><span>${sideAr}</span>
+          <b>العدّ من فتحة USB:</b><span style="color:#fde68a;font-weight:700">البن رقم ${p.usbIdx} من تحت (ناحية الـ USB)</span>
+          <b>العدّ من الأنتنا:</b><span>البن رقم ${p.idx} من فوق (ناحية الأنتنا)</span>
+          <b>الوظيفة:</b><span>${p.role}</span>
+          <b>يتوصل بـ:</b><span>${p.dest || 'غير متصل (يُترك فاضياً)'}</span>
+          <b>الجهد:</b><span class="mono" style="color:var(--ok)">${p.volt || '—'}</span>
+        </div>
+        <div class="${p.status==='forbid'?'safety-box':'ok-box'}">
+          <b>🛡️ تنبيه الأمان لهذا البن:</b> ${p.warn}
+        </div>
+      </div>
+    `;
+  } else if(w){
+    pHtml = `
+      <div class="passport">
+        <span class="tag">🔌 المسار السلكي المحدد: <span class="mono">${w.id}</span> (${w.awg})</span>
+        <h3 style="font-size:14.5px">${w.from} ⬅ ${w.to}</h3>
+        <div class="safety-box">
+          <b>🛡️ قاعدة الأمان ضد الاحتراق:</b> ${w.safety}
+        </div>
+      </div>
+    `;
+  }
+  $('pinPassport').innerHTML = pHtml;
+
+  const relWires = activeComp === 'ALL' ? WIRES : WIRES.filter(x => x.comps.includes(activeComp));
+  $('wireTable').innerHTML = `
+    <tr><th>السلك</th><th>من (الطرف الأول) ← إلى (الطرف الثاني)</th></tr>
+    ${relWires.map(rw => `
+      <tr class="clickable ${rw.id===selectedWireId?'sel':''}" data-wid="${rw.id}">
+        <td class="mono" style="font-weight:700;color:${rw.col};white-space:nowrap">
+          <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${rw.col};margin-left:4px"></span>${rw.id}
+        </td>
+        <td><b>من:</b> ${rw.from}<br><b>إلى:</b> ${rw.to}</td>
+      </tr>
+    `).join('')}
+  `;
+
+  $('wireTable').querySelectorAll('tr.clickable').forEach(tr => {
+    tr.onclick = () => selectPinOrWire(tr.dataset.wid, null);
+  });
+}
+
+// ============================================================================
+// 5. بناء المشهد الثلاثي الأبعاد التفصيلي (بوردات حقيقية + الـ 30 بن + كل المسامير)
+// ============================================================================
+function buildDetailed3DMeshes(){
+  const boxes = [];
+  const pins3d = []; // {pos:[x,y,z], h, col, label, comp, wire}
+  const addB = (comp, x, y, z, w, d, h, col, label) => boxes.push({comp, x, y, z, w, d, h, col, label});
+  const addP = (comp, x, y, z, h, col, label, wire, isGold=true) => pins3d.push({comp, x, y, z, h, col: col||(isGold?'#fbbf24':'#cbd5e1'), label, wire});
+
+  // Base Chassis + Track + Caster
+  addB('FIXED', 0, 1.0, -2.0, 3.0, 31.0, 0.08, '#111827'); // Black track
+  addB('FIXED', 0, 0, -0.22, 18.6, 26.8, 0.36, '#6b4f31'); // Wood/Acrylic deck
+  addB('FIXED', 0, 10.2, -1.0, 2.0, 2.0, 1.3, '#94a3b8');  // Front caster
+
+  // --- 1. Dual 400-Point Breadboard + Real Resistors & Capacitors ---
+  addB('BREADBOARD', 0.5, 3.6, 0.42, 7.6, 8.4, 0.82, '#f1f5f9', '2× Breadboard 400');
+  // Red/Blue power stripes on Breadboard
+  addB('BREADBOARD', -3.15, 3.6, 0.85, 0.12, 7.8, 0.04, '#ef4444'); // +5V stripe
+  addB('BREADBOARD', -2.85, 3.6, 0.85, 0.12, 7.8, 0.04, '#2563eb'); // GND stripe L
+  addB('BREADBOARD',  3.85, 3.6, 0.85, 0.12, 7.8, 0.04, '#16a34a'); // +3.3V stripe
+  addB('BREADBOARD',  4.15, 3.6, 0.85, 0.12, 7.8, 0.04, '#2563eb'); // GND stripe R
+  // Discrete resistors & caps on breadboard
+  addB('BREADBOARD', -1.9, 4.97, 0.96, 0.7, 0.24, 0.22, '#d97706', '100k/33k'); // VBAT divider
+  addB('BREADBOARD', -1.9, 3.87, 0.96, 0.65, 0.22, 0.2, '#ca8a04', '10k ENB');
+  addB('BREADBOARD', -1.9, 3.60, 0.96, 0.65, 0.22, 0.2, '#ca8a04', '10k ENA');
+  addB('BREADBOARD',  2.75, 5.25, 0.96, 0.75, 0.24, 0.22, '#0284c7', '1k/2k US_R');
+  addB('BREADBOARD',  2.75, 3.32, 0.96, 0.75, 0.24, 0.22, '#0284c7', '1k/2k US_L');
+  addB('BREADBOARD',  2.65, 3.87, 0.96, 0.65, 0.22, 0.2, '#a855f7', '1k/10k SRV');
+  addB('BREADBOARD', -3.0,  6.8,  1.25, 0.55, 0.55, 0.8, '#1e293b', '100µF');
+
+  // --- 2. Realistic ESP32 DevKit V1 (30-Pin) ---
+  addB('ESP32', 0.5, 3.7, 1.42, 2.85, 5.35, 0.16, '#111827', 'ESP32 DevKit V1'); // Matte Black PCB
+  addB('ESP32', 0.5, 4.65, 1.64, 1.80, 1.95, 0.28, '#cbd5e1', 'ESP-WROOM-32');   // Silver RF Shield
+  addB('ESP32', 0.5, 6.00, 1.44, 1.75, 0.72, 0.14, '#1f2937', 'WiFi Antenna');   // Antenna PCB
+  addB('ESP32', 0.5, 2.65, 1.56, 0.65, 0.65, 0.14, '#0f172a', 'CP2102');         // UART IC
+  addB('ESP32', -0.1,2.65, 1.57, 0.55, 0.38, 0.16, '#1e293b', 'AMS1117');        // 3.3V Reg
+  addB('ESP32', 0.5, 1.05, 1.58, 0.85, 0.62, 0.28, '#94a3b8', 'USB Port');       // USB Connector
+  addB('ESP32', -0.25,1.35,1.58, 0.38, 0.38, 0.22, '#e2e8f0', 'EN');             // EN Button
+  addB('ESP32', 1.25, 1.35,1.58, 0.38, 0.38, 0.22, '#e2e8f0', 'BOOT');           // BOOT Button
+  addB('ESP32', 1.05, 1.85,1.53, 0.16, 0.16, 0.10, '#38bdf8');                   // Blue LED D2
+  addB('ESP32', -0.05,1.85,1.53, 0.16, 0.16, 0.10, '#ef4444');                   // Red PWR LED
+  // Black plastic header strips on Left & Right
+  addB('ESP32', -0.72, 3.58, 1.15, 0.26, 4.25, 0.42, '#0f172a');
+  addB('ESP32',  1.72, 3.58, 1.15, 0.26, 4.25, 0.42, '#0f172a');
+
+  // ALL 30 INDIVIDUAL GOLD PINS OF ESP32!
+  ESP_LEFT.forEach(p => {
+    const [px, py] = espPin3D('L', p.idx);
+    const col = p.status === 'used' ? p.col : (p.status === 'forbid' ? '#ef4444' : '#fbbf24');
+    addP('ESP32', px, py, 1.55, 0.24, col, p.silk, p.wire);
+  });
+  ESP_RIGHT.forEach(p => {
+    const [px, py] = espPin3D('R', p.idx);
+    const col = p.status === 'used' ? p.col : (p.status === 'forbid' ? '#ef4444' : '#fbbf24');
+    addP('ESP32', px, py, 1.55, 0.24, col, p.silk, p.wire);
+  });
+
+  // --- 3. Detailed L298N Dual H-Bridge Module (Heatsink at +Y=-2.3, Power/Header at -Y=-5.1 matching real physical PCB 100%) ---
+  addB('DRV', 0.5, -3.4, 0.45, 4.3, 4.3, 0.18, '#b91c1c', 'L298N Driver'); // Red PCB
+  addB('DRV', 0.5, -2.3, 1.55, 2.0, 1.5, 2.0, '#1e293b', 'Heatsink');      // Tall Black Heatsink at +Y
+  addB('DRV', -1.35,-3.4, 0.90, 0.8, 1.5, 0.8, '#1d4ed8');                 // Left Blue Screw Block (OUT1/2)
+  addB('DRV',  2.35,-3.4, 0.90, 0.8, 1.5, 0.8, '#1d4ed8');                 // Right Blue Screw Block (OUT3/4)
+  addB('DRV', -0.60,-5.10,0.90, 1.6, 0.75, 0.8, '#1d4ed8');                // Power Screw Block at -Y
+  addB('DRV', -1.2, -4.2, 1.15, 0.6, 0.6, 0.95, '#111827', '1000µF');      // 1000uF Cap on VMS
+  // L298N Individual Pins & Screws (exact real-world spatial order!)
+  addP('DRV', -1.35, -2.9, 1.32, 0.15, '#e2e8f0', 'OUT1', 'W41', false);
+  addP('DRV', -1.35, -3.9, 1.32, 0.15, '#e2e8f0', 'OUT2', 'W42', false);
+  addP('DRV',  2.35, -2.9, 1.32, 0.15, '#e2e8f0', 'OUT3', 'W43', false);
+  addP('DRV',  2.35, -3.9, 1.32, 0.15, '#e2e8f0', 'OUT4', 'W44', false);
+  addP('DRV', -1.10, -5.10,1.32, 0.15, '#ef4444', '+12V(VMS)', 'W10', false);
+  addP('DRV', -0.60, -5.10,1.32, 0.15, '#94a3b8', 'GND', 'W11', false);
+  addP('DRV', -0.10, -5.10,1.32, 0.15, '#f97316', '+5V', 'W30', false);
+  addP('DRV', -0.40, -4.35,0.75, 0.22, '#ef4444', '5V-EN(شيل!)', null);
+  // 6 Control Header Pins (left-to-right at -Y=-5.10: ENA, IN1, IN2, IN3, IN4, ENB)
+  [['ENA',0.55,'W34'],['IN1',0.85,'W35'],['IN2',1.15,'W36'],['IN3',1.45,'W38'],['IN4',1.75,'W39'],['ENB',2.05,'W37']].forEach(([lbl,x,w])=>{
+    addP('DRV', x, -5.10, 0.85, 0.35, '#facc15', lbl, w);
+  });
+
+  // --- 4. Ultrasonic Sensors Right & Left (Eyes facing +Y -> Viewer's Left-to-Right from front is +X to -X: T at +X, R at -X; VCC, TRIG, ECHO, GND from +X to -X!) ---
+  addB('US_R', 6.4, 11.4, 1.5, 1.9, 0.2, 1.7, '#0284c7', 'HC-SR04 Right');
+  addB('US_R', 6.8, 11.8, 1.6, 0.75, 0.75, 0.75, '#cbd5e1', 'T');
+  addB('US_R', 6.0, 11.8, 1.6, 0.75, 0.75, 0.75, '#cbd5e1', 'R');
+  [['VCC',6.85,'#f97316','W_USR_VCC'],['TRIG',6.55,'#38bdf8','W46'],['ECHO',6.25,'#0ea5e9','W47+W48'],['GND',5.95,'#94a3b8','W_USR_GND']].forEach(([l,x,c,w])=>{
+    addP('US_R', x, 11.2, 0.85, 0.35, c, l, w);
+  });
+
+  addB('US_L', -3.2, 11.4, 1.5, 1.9, 0.2, 1.7, '#0284c7', 'HC-SR04 Left');
+  addB('US_L', -2.8, 11.8, 1.6, 0.75, 0.75, 0.75, '#cbd5e1', 'T');
+  addB('US_L', -3.6, 11.8, 1.6, 0.75, 0.75, 0.75, '#cbd5e1', 'R');
+  [['VCC',-2.75,'#f97316','W_USL_VCC'],['TRIG',-3.05,'#38bdf8','W60'],['ECHO',-3.35,'#0ea5e9','W61+W62'],['GND',-3.65,'#94a3b8','W_USL_GND']].forEach(([l,x,c,w])=>{
+    addP('US_L', x, 11.2, 0.85, 0.35, c, l, w);
+  });
+
+  // --- 5. 3× IR Line Sensors (TCRT5000 — 4 Pins Each: VCC, GND, DO, AO) ---
+  [[-2.2,'IR_L','W50'],[0.3,'IR_C','W51'],[2.8,'IR_R','W52']].forEach(([cx,name,w])=>{
+    addB('IR3', cx, 11.6, 0.35, 1.4, 2.1, 0.16, '#1d4ed8', name);
+    addB('IR3', cx, 11.6, 0.55, 0.45, 0.45, 0.3, '#2563eb'); // Blue trimmer pot
+    addB('IR3', cx, 12.6, 0.20, 0.7, 0.4, 0.35, '#0f172a');  // IR emitter/detector head
+    addP('IR3', cx-0.45, 10.9, 0.55, 0.28, '#4ade80', 'VCC(3V3)', 'W_3V3');
+    addP('IR3', cx-0.15, 10.9, 0.55, 0.28, '#94a3b8', 'GND', 'W_GND_R');
+    addP('IR3', cx+0.15, 10.9, 0.55, 0.28, '#22c55e', 'DO', w);
+    addP('IR3', cx+0.45, 10.9, 0.55, 0.28, '#64748b', 'AO(فاضي)', null);
+  });
+
+  // --- 6. Buck Regulators BK1 & BK2 (4 Corner Pads + Potentiometer) ---
+  [['BK1',6.0,'#ea580c','W12','W13','W16','W17'],['BK2',10.4,'#7e22ce','W14','W15','W18','W19']].forEach(([id,cy,col,wi1,wi2,wo1,wo2])=>{
+    addB(id, -6.8, cy, 0.35, 2.2, 3.6, 0.18, '#1e40af', id);
+    addB(id, -6.8, cy, 0.72, 0.9, 0.9, 0.55, '#334155'); // Inductor
+    addB(id, -7.4, cy+0.2, 0.75, 0.45, 0.85, 0.55, '#2563eb', '5.00V Adj'); // Blue Trimpot
+    addP(id, -7.7, cy-1.7, 0.55, 0.22, '#ef4444', 'IN+', wi1);
+    addP(id, -5.9, cy-1.7, 0.55, 0.22, '#94a3b8', 'IN-', wi2);
+    addP(id, -7.7, cy+1.7, 0.55, 0.22, id==='BK1'?'#f97316':'#c084fc', 'OUT+5V', wo1);
+    addP(id, -5.9, cy+1.7, 0.55, 0.22, '#94a3b8', 'OUT-', wo2);
+  });
+
+  // --- 7. Servo Motor + 3-Pin Plug + 1000µF Cap ---
+  addB('SERVO', 6.4, 4.4, 1.15, 2.0, 4.0, 2.1, '#1e293b', 'Servo 180°');
+  addB('SERVO', 6.4, 5.6, 2.35, 0.8, 2.6, 0.22, '#f8fafc', 'Arm'); // White Servo Horn
+  addB('SERVO', 5.2, 6.8, 0.55, 0.95, 0.7, 0.4, '#0f172a');        // 3-pin plug housing
+  addB('SERVO', 5.9, 7.3, 1.05, 0.6, 0.6, 0.95, '#581c87', '1000µF');
+  addP('SERVO', 4.9, 6.8, 0.85, 0.26, '#94a3b8', 'GND(بني)', 'W19');
+  addP('SERVO', 5.2, 6.8, 0.85, 0.26, '#c084fc', 'V+(أحمر)', 'W18');
+  addP('SERVO', 5.5, 6.8, 0.85, 0.26, '#facc15', 'PWM(برتقالي)', 'W45+W57');
+
+  // --- 8. 2S Battery + BMS 2S (5 Pads) + USB-C Charger ---
+  addB('BAT_BMS', 1.5, -8.8, 0.85, 7.2, 4.0, 1.6, '#0f172a', '2S Holder');
+  addB('BAT_BMS', 1.5, -7.9, 1.15, 6.5, 1.65, 1.4, '#1d4ed8', '18650 #1');
+  addB('BAT_BMS', 1.5, -9.7, 1.15, 6.5, 1.65, 1.4, '#1d4ed8', '18650 #2');
+  addP('BAT_BMS', 4.8, -7.9, 1.2, 0.22, '#ef4444', 'BAT B+', 'W01');
+  addP('BAT_BMS', -1.8,-8.8, 1.2, 0.22, '#fb7185', 'BM(3.7V)', 'W02');
+  addP('BAT_BMS', 4.8, -9.7, 1.2, 0.22, '#94a3b8', 'BAT B-', 'W03');
+
+  addB('BAT_BMS', 1.5, -12.0, 0.35, 5.0, 1.6, 0.22, '#15803d', 'BMS 2S 8A');
+  [['B+',3.6,-11.4,'#ef4444','W01'],['BM',1.5,-11.4,'#fb7185','W02'],['B-',-0.6,-11.4,'#94a3b8','W03'],['P+',2.8,-12.7,'#ef4444','W04'],['P-',0.2,-12.7,'#94a3b8','W07']].forEach(([l,x,y,c,w])=>{
+    addP('BAT_BMS', x, y, 0.55, 0.20, c, l, w);
+  });
+
+  addB('BAT_BMS', 6.8, -11.8, 0.35, 2.4, 1.8, 0.25, '#1e3a8a', 'USB-C 2S');
+  addP('BAT_BMS', 5.7, -11.3, 0.55, 0.20, '#38bdf8', 'OUT+8.4V', 'W08');
+  addP('BAT_BMS', 5.7, -12.2, 0.55, 0.20, '#94a3b8', 'OUT-', 'W09');
+
+  // --- 9. Fuse + N1 + KCD3 (3 Spade Pins) + Wago X1 & X2 (5 Orange Levers Each) ---
+  addB('PROT_WAGO', -7.2, -9.8, 0.65, 1.1, 2.4, 0.9, '#334155', 'Fuse T6.3A');
+  addP('PROT_WAGO', -7.2, -11.0, 0.8, 0.2, '#f59e0b', 'XT30/IN', 'W04');
+  addP('PROT_WAGO', -7.2, -8.6,  0.8, 0.2, '#ef4444', 'F1 OUT', 'W05a');
+
+  addB('PROT_WAGO', -7.2, -7.0, 0.5, 1.5, 1.1, 0.75, '#cbd5e1', 'N1 Wago');
+  [-7.5,-7.2,-6.8].forEach((x,i)=> addP('PROT_WAGO', x, -7.0, 0.9, 0.18, '#f97316', 'N1.'+(i+1), i===0?'W05a':i===1?'W05b':'W08'));
+
+  addB('PROT_WAGO', -7.2, -4.5, 1.05, 1.5, 2.2, 1.1, '#111827', 'KCD3 SW');
+  addB('PROT_WAGO', -7.2, -4.5, 1.72, 1.1, 1.6, 0.35, '#dc2626'); // Red Rocker
+  addP('PROT_WAGO', -7.2, -5.3, 0.45, 0.28, '#fbbf24', 'Pin3 ذهبي(فاضي✖)', null);
+  addP('PROT_WAGO', -7.2, -4.5, 0.45, 0.28, '#e2e8f0', 'Pin2 فضي(IN)', 'W05b', false);
+  addP('PROT_WAGO', -7.2, -3.7, 0.45, 0.28, '#e2e8f0', 'Pin1 فضي(OUT)', 'W06', false);
+
+  addB('PROT_WAGO', -7.0, -1.2, 0.5, 1.8, 2.8, 0.8, '#cbd5e1', 'X1 (+) Wago');
+  [-2.2,-1.7,-1.2,-0.7,-0.2].forEach((y,i)=> addP('PROT_WAGO', -7.0, y, 0.92, 0.18, '#ea580c', 'X1.'+(i+1), ['W06','W10','W12','W14','W20+W53'][i]));
+
+  addB('PROT_WAGO', -7.0, 2.3, 0.5, 1.8, 2.8, 0.8, '#94a3b8', 'X2 (GND) Wago');
+  [1.3,1.8,2.3,2.8,3.3].forEach((y,i)=> addP('PROT_WAGO', -7.0, y, 0.92, 0.18, '#475569', 'X2.'+(i+1), ['W07','W11','W13','W15',null][i]));
+
+  // --- 10. Left & Right TT Motors + Wheels + 100nF Caps ---
+  addB('MOTORS', -7.2, -8.2, -0.8, 2.1, 5.2, 1.8, '#eab308', 'Motor L (M1)');
+  addB('MOTORS', -8.9, -8.2, -0.8, 1.1, 6.2, 6.2, '#1e293b'); // Left Wheel
+  addP('MOTORS', -6.0, -7.8, -0.4, 0.22, '#fb923c', 'M1+', 'W41');
+  addP('MOTORS', -6.0, -8.6, -0.4, 0.22, '#94a3b8', 'M1-', 'W42');
+
+  addB('MOTORS',  7.2, -8.2, -0.8, 2.1, 5.2, 1.8, '#eab308', 'Motor R (M2)');
+  addB('MOTORS',  8.9, -8.2, -0.8, 1.1, 6.2, 6.2, '#1e293b'); // Right Wheel
+  addP('MOTORS',  6.0, -7.8, -0.4, 0.22, '#fb923c', 'M2+', 'W43');
+  addP('MOTORS',  6.0, -8.6, -0.4, 0.22, '#94a3b8', 'M2-', 'W44');
+
+  return {boxes, pins3d};
+}
+
+const SCENE = buildDetailed3DMeshes();
+
+// ============================================================================
+// 6. محرك العرض الثلاثي الأبعاد التفاعلي (Orbit + Pan + 10x Pin Zoom)
+// ============================================================================
 const cv = $('cv3d');
 const ctx = cv.getContext('2d');
-let yaw = -0.65, pitch = 0.58, zoom = 1.05;
-let pulsePhase = 0;
 
-$('viewIso').onclick   = ()=>{ yaw=-0.65; pitch=0.58; zoom=1.05; };
-$('viewTop').onclick   = ()=>{ yaw=0;     pitch=1.48; zoom=1.08; };
-$('viewSide').onclick  = ()=>{ yaw=-1.57; pitch=0.18; zoom=1.05; };
-$('viewFront').onclick = ()=>{ yaw=0;     pitch=0.22; zoom=1.10; };
+function activateCompPreset(compId, tab, customCam){
+  activeComp = compId;
+  $('btnAll').classList.remove('active');
+  const firstW = WIRES.find(w => w.comps.includes(compId));
+  if(firstW) selectedWireId = firstW.id;
+  selectedEspPin = null;
+  buildSidebar();
+  renderInspector();
+  drawEsp2D();
+  if(tab) setPeriphTab(tab);
+  if(customCam) flyTo(customCam);
+}
+$('camEsp').onclick = () => activateCompPreset('ESP32', 'DRV', COMPONENTS[0].cam);
+$('camDrv').onclick = () => activateCompPreset('DRV',   'DRV', COMPONENTS[2].cam);
+$('camUs').onclick  = () => activateCompPreset('US_R',  'US',  {yaw:0, pitch:1.05, zoom:2.15, panX:10, panY:155});
+$('camIr').onclick  = () => activateCompPreset('IR3',   'IR',  COMPONENTS[5].cam);
+$('camPwr').onclick = () => activateCompPreset('BAT_BMS','PWR',{yaw:0.35, pitch:1.02, zoom:1.75, panX:-40, panY:-60});
+$('camAll').onclick = () => $('btnAll').click();
+
+$('zoomIn').onclick  = () => { targetCam.zoom = Math.min(8.0, targetCam.zoom * 1.28); };
+$('zoomOut').onclick = () => { targetCam.zoom = Math.max(0.7, targetCam.zoom / 1.28); };
+$('btnPan').onclick  = () => { panMode = !panMode; $('btnPan').classList.toggle('active', panMode); };
 
 let drag = null;
-cv.addEventListener('pointerdown', e=>{
-  drag = {x:e.clientX, y:e.clientY, yaw, pitch};
+cv.addEventListener('pointerdown', e => {
+  drag = {x:e.clientX, y:e.clientY, yaw:targetCam.yaw, pitch:targetCam.pitch, panX:targetCam.panX, panY:targetCam.panY, isPan: panMode || e.button===2 || e.shiftKey};
   cv.setPointerCapture(e.pointerId);
 });
-cv.addEventListener('pointermove', e=>{
+cv.addEventListener('contextmenu', e => e.preventDefault());
+cv.addEventListener('pointermove', e => {
   if(!drag) return;
-  yaw = drag.yaw + (e.clientX - drag.x)*0.009;
-  pitch = Math.max(0.08, Math.min(1.52, drag.pitch + (e.clientY - drag.y)*0.009));
+  const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+  if(drag.isPan){
+    targetCam.panX = drag.panX + dx;
+    targetCam.panY = drag.panY + dy;
+  } else {
+    targetCam.yaw = drag.yaw + dx * 0.008;
+    targetCam.pitch = Math.max(0.12, Math.min(1.53, drag.pitch + dy * 0.008));
+  }
 });
-cv.addEventListener('pointerup', ()=>{ drag=null; });
-cv.addEventListener('wheel', e=>{
+cv.addEventListener('pointerup', () => { drag = null; });
+cv.addEventListener('wheel', e => {
   e.preventDefault();
-  zoom = Math.max(0.65, Math.min(1.85, zoom * (e.deltaY < 0 ? 1.08 : 0.92)));
+  targetCam.zoom = Math.max(0.7, Math.min(8.5, targetCam.zoom * (e.deltaY < 0 ? 1.12 : 0.89)));
 }, {passive:false});
 
-function shadeColor(hex, factor){
+function shade(hex, k){
   const n = parseInt(hex.replace('#',''), 16);
-  const r = Math.min(255, ((n>>16)&255)*factor)|0;
-  const g = Math.min(255, ((n>>8)&255)*factor)|0;
-  const b = Math.min(255, (n&255)*factor)|0;
-  return `rgb(${r},${g},${b})`;
+  return `rgb(${Math.min(255,((n>>16)&255)*k)|0},${Math.min(255,((n>>8)&255)*k)|0},${Math.min(255,(n&255)*k)|0})`;
 }
 
-function render3D(){
+function renderLoop(){
+  // Smooth camera interpolation
+  ['yaw','pitch','zoom','panX','panY'].forEach(k => { cam[k] += (targetCam[k] - cam[k]) * 0.18; });
+
   const dpr = window.devicePixelRatio || 1;
   const W = cv.clientWidth, H = cv.clientHeight;
-  if(cv.width !== W*dpr || cv.height !== H*dpr){
-    cv.width = W*dpr; cv.height = H*dpr;
-  }
+  if(cv.width !== W*dpr || cv.height !== H*dpr){ cv.width = W*dpr; cv.height = H*dpr; }
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, W, H);
 
-  const sc = (Math.min(W, H) / 28) * zoom;
-  const ox = W / 2, oy = H / 2 + 18;
-  const cy = Math.cos(yaw), sy = Math.sin(yaw);
-  const cp = Math.cos(pitch), sp = Math.sin(pitch);
+  const sc = (Math.min(W, H) / 26) * cam.zoom;
+  const ox = W/2 + cam.panX, oy = H/2 + cam.panY;
+  const cy = Math.cos(cam.yaw), sy = Math.sin(cam.yaw);
+  const cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
 
   const proj = (x, y, z) => {
     const X = x * cy - y * sy;
     const Y = x * sy + y * cy;
-    const Z2 = Y * sp + z * cp;
-    const D = Y * cp - z * sp;
-    return [ox + X * sc, oy - Z2 * sc, D];
+    return [ox + X * sc, oy - (Y * sp + z * cp) * sc, Y * cp - z * sp];
   };
 
-  // Boxes to render: Chassis base + front caster + black line track + all components
-  const sceneBoxes = [
-    {id:'TRACK', name:'الخط الأسود (مسار التتبع)', pos:[0, 2, -2.1], size:[3.2, 32, 0.1], color:'#111827', fixed:true},
-    {id:'BASE',  name:'شاسيه الروبوت (18×26 سم)', pos:[0, 0, -0.3], size:[17.6, 25.0, 0.4], color:'#785c38', fixed:true},
-    {id:'CASTER',name:'عجلة حرة أمامية (Caster Wheel)', pos:[0, 9.5, -1.2], size:[2.2, 2.2, 1.5], color:'#94a3b8', fixed:true},
-    ...COMPONENTS.slice(1)
-  ];
-
   const faces = [];
-  sceneBoxes.forEach(b => {
-    const isSelected = (activeComp === 'ALL') || (b.id === activeComp) || b.fixed;
-    const isRelated = !isSelected && WIRES.some(w => w.comps.includes(activeComp) && w.comps.includes(b.id));
-    const alpha = isSelected ? 0.95 : (isRelated ? 0.65 : 0.16);
-
-    const [x, y, z] = b.pos;
-    const [w, d, h] = b.size;
-    const x0 = x - w/2, x1 = x + w/2;
-    const y0 = y - d/2, y1 = y + d/2;
-    const z0 = z - h/2, z1 = z + h/2;
-
-    const v = [
-      [x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],
-      [x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]
-    ].map(p => proj(...p));
-
-    const cubeFaces = [
-      [4,5,6,7, 1.05], // Top
-      [0,1,5,4, 0.80], // Back
-      [1,2,6,5, 0.68], // Right
-      [2,3,7,6, 0.82], // Front
-      [3,0,4,7, 0.68]  // Left
-    ];
-
-    cubeFaces.forEach(fc => {
-      const pts = fc.slice(0,4).map(i => v[i]);
-      const dep = pts.reduce((acc, p) => acc + p[2], 0) / 4;
-      faces.push({
-        pts, dep, col: b.color, sh: fc[4], alpha,
-        highlight: b.id === activeComp
-      });
+  const pushCube = (x, y, z, w, d, h, col, alpha, strokeCol, lw) => {
+    const x0=x-w/2, x1=x+w/2, y0=y-d/2, y1=y+d/2, z0=z-h/2, z1=z+h/2;
+    const v = [[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]].map(p=>proj(...p));
+    [[4,5,6,7,1.08],[0,1,5,4,0.78],[1,2,6,5,0.66],[2,3,7,6,0.84],[3,0,4,7,0.66]].forEach(f=>{
+      const pts = [v[f[0]],v[f[1]],v[f[2]],v[f[3]]];
+      const dep = (pts[0][2]+pts[1][2]+pts[2][2]+pts[3][2])*0.25;
+      faces.push({pts, dep, col:shade(col, f[4]), alpha, strokeCol, lw});
     });
+  };
+
+  // Add Component Boxes
+  SCENE.boxes.forEach(b => {
+    const isAct = activeComp==='ALL' || b.comp==='FIXED' || b.comp===activeComp || WIRES.some(w=>w.comps.includes(activeComp)&&w.comps.includes(b.comp));
+    pushCube(b.x, b.y, b.z, b.w, b.d, b.h, b.col, isAct ? 0.96 : 0.15, b.comp===activeComp?'#38bdf8':'rgba(0,0,0,0.55)', b.comp===activeComp?1.5:0.7);
   });
 
-  // Painters algorithm depth sort
-  faces.sort((a, b) => b.dep - a.dep);
+  // Add Individual 3D Metallic Pins!
+  SCENE.pins3d.forEach(p => {
+    const isSel = p.wire && p.wire === selectedWireId;
+    const isAct = activeComp==='ALL' || p.comp===activeComp || isSel || (p.wire && WIRES.some(w=>w.id===p.wire && w.comps.includes(activeComp)));
+    pushCube(p.x, p.y, p.z, isSel?0.20:0.13, isSel?0.20:0.13, p.h, isSel?'#ffffff':p.col, isAct?1.0:0.15, isSel?'#38bdf8':'#000', isSel?1.8:0.6);
+  });
 
+  faces.sort((a,b) => b.dep - a.dep);
   faces.forEach(f => {
     ctx.save();
     ctx.globalAlpha = f.alpha;
     ctx.beginPath();
-    f.pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+    f.pts.forEach((p,i) => i ? ctx.lineTo(p[0],p[1]) : ctx.moveTo(p[0],p[1]));
     ctx.closePath();
-    ctx.fillStyle = shadeColor(f.col, f.sh);
+    ctx.fillStyle = f.col;
     ctx.fill();
-    ctx.strokeStyle = f.highlight ? '#38bdf8' : 'rgba(0,0,0,0.55)';
-    ctx.lineWidth = f.highlight ? 2.0 : 0.9;
+    ctx.strokeStyle = f.strokeCol;
+    ctx.lineWidth = f.lw;
     ctx.stroke();
     ctx.restore();
   });
 
-  // Draw 3D Wires
-  const showPins = $('chkPins').checked;
-  const showPulse = $('chkPulse').checked;
-
+  // Draw Individual 3D Wires
+  const showFlow = $('chkFlow').checked;
   WIRES.forEach(w => {
-    const active = (activeComp === 'ALL') || w.comps.includes(activeComp);
+    const isSel = w.id === selectedWireId;
+    const isAct = activeComp==='ALL' || w.comps.includes(activeComp) || isSel;
     ctx.save();
-    ctx.globalAlpha = active ? 1.0 : 0.10;
-    const pts2d = w.pts.map(p => proj(...p));
+    ctx.globalAlpha = isSel ? 1.0 : (isAct ? 0.85 : 0.08);
+    const pts = w.pts.map(p => proj(...p));
 
-    // Base wire curve
     ctx.beginPath();
-    pts2d.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+    pts.forEach((p,i) => i ? ctx.lineTo(p[0],p[1]) : ctx.moveTo(p[0],p[1]));
     ctx.strokeStyle = w.col;
-    ctx.lineWidth = active && activeComp !== 'ALL' ? 4.0 : 2.6;
+    ctx.lineWidth = isSel ? 4.4 : (cam.zoom > 2 ? 2.8 : 2.1);
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.stroke();
 
-    // Animated current pulse
-    if(active && showPulse){
+    if((isAct && showFlow) || isSel){
       ctx.beginPath();
-      pts2d.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+      pts.forEach((p,i) => i ? ctx.lineTo(p[0],p[1]) : ctx.moveTo(p[0],p[1]));
       ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 1.6;
-      ctx.setLineDash([5, 14]);
+      ctx.lineWidth = isSel ? 2.0 : 1.2;
+      ctx.setLineDash([4, 14]);
       ctx.lineDashOffset = -pulsePhase;
       ctx.stroke();
-    }
-
-    // End terminals & wire ID badge
-    if(active){
-      pts2d.forEach((p, idx) => {
-        if(idx === 0 || idx === pts2d.length - 1){
-          ctx.beginPath();
-          ctx.arc(p[0], p[1], 3.8, 0, Math.PI*2);
-          ctx.fillStyle = w.col;
-          ctx.fill();
-          ctx.strokeStyle = '#0f171e';
-          ctx.lineWidth = 1.2;
-          ctx.stroke();
-        }
-      });
-
-      if(showPins){
-        const mid = pts2d[Math.floor(pts2d.length / 2)];
-        ctx.font = 'bold 10.5px Consolas, monospace';
-        const tw = ctx.measureText(w.id).width + 8;
-        ctx.fillStyle = 'rgba(15,23,30,0.88)';
-        ctx.strokeStyle = w.col;
-        ctx.lineWidth = 1;
-        ctx.fillRect(mid[0] - tw/2, mid[1] - 9, tw, 15);
-        ctx.strokeRect(mid[0] - tw/2, mid[1] - 9, tw, 15);
-        ctx.fillStyle = '#fff';
-        ctx.textAlign = 'center';
-        ctx.fillText(w.id, mid[0], mid[1] + 2);
-      }
     }
     ctx.restore();
   });
 
-  // Draw Component Labels
-  if($('chkLabels').checked){
-    ctx.font = 'bold 11.5px Tahoma, sans-serif';
-    ctx.textAlign = 'center';
-    COMPONENTS.slice(1).forEach(b => {
-      const isSelected = (activeComp === 'ALL') || (b.id === activeComp) || WIRES.some(w => w.comps.includes(activeComp) && w.comps.includes(b.id));
-      if(!isSelected) return;
-      const topPt = proj(b.pos[0], b.pos[1], b.pos[2] + b.size[2]/2 + 0.7);
-      const shortName = b.name.replace(/^[0-9]+\.\s*/, '').split('(')[0].trim();
-      const tw = ctx.measureText(shortName).width + 12;
-      ctx.fillStyle = b.id === activeComp ? '#0284c7' : 'rgba(15,23,30,0.82)';
-      ctx.fillRect(topPt[0] - tw/2, topPt[1] - 11, tw, 17);
-      ctx.strokeStyle = b.id === activeComp ? '#38bdf8' : 'rgba(255,255,255,0.25)';
-      ctx.strokeRect(topPt[0] - tw/2, topPt[1] - 11, tw, 17);
+  // Draw Crisp Pin Silkscreen Labels in 3D!
+  if($('chkPinNames').checked){
+    const showAllPins = cam.zoom >= 1.85 || activeComp !== 'ALL';
+    SCENE.pins3d.forEach(p => {
+      const isSel = p.wire && p.wire === selectedWireId;
+      const showThis = isSel || (showAllPins && (activeComp==='ALL' ? p.comp==='ESP32' : p.comp===activeComp));
+      if(!showThis || !p.label) return;
+
+      // Offset ESP32 left labels slightly left, right labels slightly right so they never overlap!
+      let lx = p.x, ly = p.y, lz = p.z + p.h/2 + 0.08;
+      if(p.comp === 'ESP32') lx += (p.x < 0.5 ? -0.42 : 0.42);
+      const q = proj(lx, ly, lz);
+
+      ctx.font = `${isSel?'bold 11.5px':'bold 9.5px'} Consolas, monospace`;
+      const tw = ctx.measureText(p.label).width + 6;
+      ctx.fillStyle = isSel ? '#0284c7' : 'rgba(9,14,20,0.88)';
+      ctx.fillRect(q[0] - tw/2, q[1] - 7, tw, 13);
+      ctx.strokeStyle = isSel ? '#ffffff' : p.col;
+      ctx.lineWidth = isSel ? 1.5 : 0.8;
+      ctx.strokeRect(q[0] - tw/2, q[1] - 7, tw, 13);
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(shortName, topPt[0], topPt[1] + 1);
+      ctx.textAlign = 'center';
+      ctx.fillText(p.label, q[0], q[1] + 2.5);
     });
   }
 
-  pulsePhase = (pulsePhase + 0.45) % 38;
-  requestAnimationFrame(render3D);
+  pulsePhase = (pulsePhase + 0.45) % 36;
+  requestAnimationFrame(renderLoop);
 }
 
+// ============================================================================
+// 7. رسم مُكبّر بوردة الـ ESP32 عالي الوضوح (الـ 30 بن بالمللي)
+// ============================================================================
+function drawEsp2D(){
+  let s = `<rect x="0" y="0" width="600" height="650" rx="8" fill="#0b131c"/>`;
+
+  // PCB Body
+  s += `<rect x="185" y="38" width="230" height="565" rx="12" fill="#141e28" stroke="#334155" stroke-width="2.5"/>`;
+  // PCB Antenna at TOP
+  s += `<rect x="230" y="16" width="140" height="34" rx="4" fill="#0f172a" stroke="#475569" stroke-width="1.5"/>`;
+  s += `<path d="M245 42 V24 H265 V38 H285 V24 H305 V38 H325 V24 H350" fill="none" stroke="#fbbf24" stroke-width="2.5"/>`;
+  s += `<text x="300" y="12" text-anchor="middle" fill="#94abc0" font-size="11" font-family="sans-serif">▲ ناحية الأنتنا (فوق — Pin #1)</text>`;
+
+  // Silver ESP-WROOM-32 Shield
+  s += `<rect x="225" y="60" width="150" height="145" rx="6" fill="#cbd5e1" stroke="#64748b" stroke-width="2"/>`;
+  s += `<text x="300" y="125" text-anchor="middle" fill="#0f172a" font-weight="700" font-size="14" font-family="monospace">ESP-WROOM-32</text>`;
+  s += `<text x="300" y="145" text-anchor="middle" fill="#334155" font-size="11" font-family="sans-serif">30-Pin DevKit V1</text>`;
+  s += `<text x="300" y="165" text-anchor="middle" fill="#b91c1c" font-weight="700" font-size="10.5" font-family="sans-serif">أقصى جهد للبنوز = 3.3V!</text>`;
+
+  // CP2102 & AMS1117 & LEDs & USB & Buttons at BOTTOM
+  s += `<rect x="275" y="455" width="50" height="50" rx="4" fill="#090d12" stroke="#475569"/><text x="300" y="484" text-anchor="middle" fill="#94a3b8" font-size="9.5" font-family="monospace">CP2102</text>`;
+  s += `<rect x="230" y="395" width="52" height="32" rx="3" fill="#090d12" stroke="#475569"/><text x="256" y="415" text-anchor="middle" fill="#94a3b8" font-size="8.5" font-family="monospace">AMS1117</text>`;
+  // LEDs
+  s += `<circle cx="242" cy="525" r="5" fill="#ef4444"/><text x="242" y="542" text-anchor="middle" fill="#fca5a5" font-size="9">PWR</text>`;
+  s += `<circle cx="358" cy="525" r="5" fill="#38bdf8"/><text x="358" y="542" text-anchor="middle" fill="#7dd3fc" font-size="9">LED D2</text>`;
+  // EN & BOOT Buttons
+  s += `<rect x="216" y="555" width="38" height="28" rx="4" fill="#cbd5e1" stroke="#475569"/><circle cx="235" cy="569" r="7" fill="#1e293b"/><text x="235" y="596" text-anchor="middle" fill="#e2e8f0" font-weight="700" font-size="10" font-family="monospace">EN</text>`;
+  s += `<rect x="346" y="555" width="38" height="28" rx="4" fill="#cbd5e1" stroke="#475569"/><circle cx="365" cy="569" r="7" fill="#1e293b"/><text x="365" y="596" text-anchor="middle" fill="#fbbf24" font-weight="700" font-size="10" font-family="monospace">BOOT</text>`;
+  // USB Port
+  s += `<rect x="268" y="568" width="64" height="46" rx="5" fill="#94a3b8" stroke="#475569" stroke-width="2"/><text x="300" y="595" text-anchor="middle" fill="#0f172a" font-weight="700" font-size="11" font-family="monospace">USB</text>`;
+  s += `<text x="300" y="634" text-anchor="middle" fill="#fde68a" font-weight="700" font-size="11.5" font-family="sans-serif">▼ ناحية الـ USB (تحت — عدّ من هنا VIN=#1 شمال و 3V3=#1 يمين)</text>`;
+
+  // Render 15 LEFT Pins & 15 RIGHT Pins
+  const drawSide = (arr, side) => {
+    arr.forEach((p, i) => {
+      const y = 76 + i * 31.5;
+      const isL = side === 'L';
+      const pinX = isL ? 196 : 404;
+      const isSel = (selectedEspPin && selectedEspPin.side===side && selectedEspPin.idx===p.idx) || (p.wire && p.wire===selectedWireId);
+      const fill = p.status==='used' ? p.col : (p.status==='forbid' ? '#7f1d1d' : '#334155');
+
+      s += `<g class="pin-hit" data-side="${side}" data-idx="${p.idx}" data-wire="${p.wire||''}">`;
+      // Wire stub outside PCB
+      if(p.status === 'used'){
+        const xOut = isL ? 12 : 458;
+        const wOut = 130;
+        s += `<line x1="${pinX}" y1="${y}" x2="${isL?142:458}" y2="${y}" stroke="${p.col}" stroke-width="${isSel?4:2.5}"/>`;
+        s += `<rect x="${xOut}" y="${y-11}" width="${wOut}" height="22" rx="4" fill="${isSel?'#13354b':'#131f2c'}" stroke="${isSel?'#fff':p.col}" stroke-width="${isSel?1.8:1}"/>`;
+        s += `<text x="${xOut+wOut/2}" y="${y+4}" text-anchor="middle" fill="#fff" font-size="10" font-family="Tahoma,sans-serif">${p.wire}: ${p.role.split('(')[0].trim()}</text>`;
+      } else {
+        const xTxt = isL ? 135 : 465;
+        s += `<text x="${xTxt}" y="${y+4}" text-anchor="${isL?'end':'start'}" fill="${p.status==='forbid'?'#f87171':'#64748b'}" font-size="9.5" font-family="Tahoma,sans-serif">${p.status==='forbid'?'✖ ممنوع':'فاضي'}</text>`;
+      }
+
+      // Gold Pin Square & USB Count Number
+      s += `<rect x="${pinX-9}" y="${y-9}" width="18" height="18" rx="3" fill="${fill}" stroke="${isSel?'#fff':'#fbbf24'}" stroke-width="${isSel?2.5:1.3}"/>`;
+      s += `<circle cx="${pinX}" cy="${y}" r="3.2" fill="#0f172a"/>`;
+      // Silkscreen text inside PCB
+      s += `<text x="${isL?212:388}" y="${y+4}" text-anchor="${isL?'start':'end'}" fill="${isSel?'#fde68a':'#ffffff'}" font-weight="700" font-size="11.5" font-family="Consolas,monospace">${p.silk}</text>`;
+      // Small index from USB badge
+      s += `<text x="${isL?176:424}" y="${y+3.5}" text-anchor="middle" fill="#94a3b8" font-size="9" font-family="monospace">#${p.usbIdx}</text>`;
+      s += `</g>`;
+    });
+  };
+
+  drawSide(ESP_LEFT, 'L');
+  drawSide(ESP_RIGHT, 'R');
+
+  $('svgEsp32').innerHTML = s;
+  $('svgEsp32').querySelectorAll('.pin-hit').forEach(g => {
+    g.onclick = () => {
+      const side = g.dataset.side, idx = +g.dataset.idx, w = g.dataset.wire;
+      selectPinOrWire(w || null, {side, idx});
+      flyTo(COMPONENTS[0].cam);
+    };
+  });
+}
+
+// ============================================================================
+// 8. رسم البنوز الداخلية لباقي المكونات الكهربية (L298N, TB6612, HC-SR04, IR, BK, BMS, Wago)
+// ============================================================================
+function setPeriphTab(tab){
+  currentPeriphTab = tab;
+  document.querySelectorAll('#subViewTabs .btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  drawPeriph2D();
+}
+document.querySelectorAll('#subViewTabs .btn').forEach(b => { b.onclick = () => setPeriphTab(b.dataset.tab); });
+
+function drawPeriph2D(){
+  let s = `<rect x="0" y="0" width="600" height="650" rx="8" fill="#0b131c"/>`;
+  const pinBox = (x,y,w,h,col,title,dest,wid) => {
+    const sel = wid && wid === selectedWireId;
+    return `<g class="pin-hit" data-wid="${wid||''}">
+      <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="#13202e" stroke="${sel?'#fff':col}" stroke-width="${sel?2.5:1.5}"/>
+      <circle cx="${x+14}" cy="${y+h/2}" r="6" fill="${col}" stroke="#fbbf24" stroke-width="1.2"/>
+      <text x="${x+28}" y="${y+16}" fill="#fff" font-weight="700" font-size="11.5" font-family="Consolas,Tahoma,sans-serif">${title}</text>
+      <text x="${x+28}" y="${y+32}" fill="#94abc0" font-size="10.5" font-family="Tahoma,sans-serif">${dest}</text>
+    </g>`;
+  };
+
+  if(currentPeriphTab === 'DRV'){
+    $('periphTitle').textContent = 'بنوز ومسامير درايفر L298N + البديل TB6612FNG + الموتورين';
+    // L298N Board Graphic
+    s += `<rect x="25" y="20" width="550" height="365" rx="10" fill="#451215" stroke="#ef4444" stroke-width="2"/>`;
+    s += `<text x="300" y="45" text-anchor="middle" fill="#fff" font-weight="700" font-size="15">بوردة درايفر L298N الحمراء (منظر علوي تفصيلي لكل مسمار وبن)</text>`;
+    s += `<rect x="215" y="60" width="170" height="90" rx="5" fill="#1e293b" stroke="#64748b"/><text x="300" y="105" text-anchor="middle" fill="#cbd5e1" font-weight="700" font-size="13">المشتت الحراري الأسود</text><text x="300" y="125" text-anchor="middle" fill="#f87171" font-size="11">جمبر 5V-EN تحته: لازم يتشال! ✖</text>`;
+
+    // Left & Right Motor Screw Terminals
+    s += pinBox(40, 62, 160, 42, '#fb923c', 'مسمار OUT1', 'موجب الموتور الشمال M1 (W41)', 'W41');
+    s += pinBox(40, 110,160, 42, '#94a3b8', 'مسمار OUT2', 'سالب الموتور الشمال M1 (W42)', 'W42');
+    s += pinBox(400,62, 160, 42, '#fb923c', 'مسمار OUT3', 'موجب الموتور اليمين M2 (W43)', 'W43');
+    s += pinBox(400,110,160, 42, '#94a3b8', 'مسمار OUT4', 'سالب الموتور اليمين M2 (W44)', 'W44');
+
+    // Power 3 Screws
+    s += `<text x="300" y="174" text-anchor="middle" fill="#fde68a" font-weight="700" font-size="12">الثلاث مسامير الزرقاء الأمامية للباور (مع مكثف 1000µF بين +12V و GND):</text>`;
+    s += pinBox(40, 184, 168, 44, '#ef4444', '1) مسمار +12V (VMS)', 'من X1 موجب البطارية 7.4V (W10)', 'W10');
+    s += pinBox(216,184, 168, 44, '#94a3b8', '2) مسمار GND (الأوسط)', 'من X2 الأرضي المشترك (W11)', 'W11');
+    s += pinBox(392,184, 168, 44, '#f97316', '3) مسمار +5V (اليمين)', 'من BK1 (5V) بعد إزالة 5V-EN! (W30)', 'W30');
+
+    // 6 Control Pins
+    s += `<text x="300" y="250" text-anchor="middle" fill="#7dd3fc" font-weight="700" font-size="12">صف الـ 6 بنوز الأمامية للتحكم (انتبه: في ENA و ENB شيل الجمبر ووصّل في البن الأمامي بس!):</text>`;
+    s += pinBox(40, 260, 252, 36, '#facc15', 'بن 1: ENA (الأمامي)', 'ESP32 D25 (#8 شمال) + 10kΩ أرضي', 'W34');
+    s += pinBox(308,260, 252, 36, '#facc15', 'بن 2: IN1', 'ESP32 D26 (#7 من USB شمال)', 'W35');
+    s += pinBox(40, 300, 252, 36, '#facc15', 'بن 3: IN2', 'ESP32 D27 (#6 من USB شمال)', 'W36');
+    s += pinBox(308,300, 252, 36, '#fbbf24', 'بن 4: IN3', 'ESP32 D32 (#10 من USB شمال)', 'W38');
+    s += pinBox(40, 340, 252, 36, '#fbbf24', 'بن 5: IN4', 'ESP32 D14 (#5 من USB شمال)', 'W39');
+    s += pinBox(308,340, 252, 36, '#fbbf24', 'بن 6: ENB (الأمامي)', 'ESP32 D33 (#9 من USB شمال) + 10kΩ', 'W37');
+
+    // TB6612FNG Alternative Box
+    s += `<rect x="25" y="400" width="550" height="230" rx="10" fill="#10263b" stroke="#38bdf8" stroke-width="1.8"/>`;
+    s += `<text x="300" y="425" text-anchor="middle" fill="#38bdf8" font-weight="700" font-size="14">بديل التوفير: بنوز درايفر TB6612FNG (لو اشتريته بدل L298N)</text>`;
+    s += `<text x="300" y="446" text-anchor="middle" fill="#bbf7d0" font-size="11.5">نفس بنوز الـ ESP32 بالظبط! الفرق الوحيد إن VCC و STBY في TB6612 بيتوصلوا بـ 3V3 مش 5V:</text>`;
+    const tb = [
+      ['VM', 'موزع البطارية X1 (7.4V)', '#ef4444', 'W10'],
+      ['VCC + STBY', 'رجل 3V3 في ESP32 (ممنوع 5V!)', '#4ade80', 'W_3V3'],
+      ['GND (×2)', 'موزع الأرضي X2 (0V)', '#94a3b8', 'W11'],
+      ['PWMA / AIN1 / AIN2', 'ESP32: D25 / D26 / D27', '#facc15', 'W34'],
+      ['PWMB / BIN1 / BIN2', 'ESP32: D33 / D32 / D14', '#fbbf24', 'W37'],
+      ['AO1,AO2 / BO1,BO2', 'الموتور الشمال M1 / الموتور اليمين M2', '#fb923c', 'W41']
+    ];
+    tb.forEach((t,i) => { s += pinBox(i%2===0?40:305, 458 + Math.floor(i/2)*54, 255, 46, t[2], t[0], t[1], t[3]); });
+  }
+  else if(currentPeriphTab === 'US'){
+    $('periphTitle').textContent = 'بنوز حساسي الألتراسونيك (يمين وشمال) + توصيل مقسم الجهد 1kΩ / 2kΩ على البريدبورد';
+    // Right US
+    s += `<rect x="25" y="20" width="550" height="285" rx="10" fill="#0f2942" stroke="#0ea5e9" stroke-width="2"/>`;
+    s += `<circle cx="95" cy="70" r="24" fill="#cbd5e1" stroke="#475569" stroke-width="3"/><text x="95" y="75" text-anchor="middle" fill="#0f172a" font-weight="700">T</text>`;
+    s += `<circle cx="165" cy="70" r="24" fill="#cbd5e1" stroke="#475569" stroke-width="3"/><text x="165" y="75" text-anchor="middle" fill="#0f172a" font-weight="700">R</text>`;
+    s += `<text x="390" y="55" text-anchor="middle" fill="#fff" font-weight="700" font-size="15">1) حساس الألتراسونيك اليمين (HC-SR04 Right)</text>`;
+    s += `<text x="390" y="78" text-anchor="middle" fill="#bae6fd" font-size="11.5">لما العيون الفضية تكون باصة ليك، الـ 4 بنوز من الشمال لليمين:</text>`;
+    s += pinBox(40, 108, 252, 44, '#f97316', 'بن 1: VCC (أقصى الشمال)', 'ريل +5V البريدبورد (BK1)', 'W_USR_VCC');
+    s += pinBox(308,108, 252, 44, '#38bdf8', 'بن 2: Trig', 'مباشرة إلى ESP32 بن D23 (#1 يمين فوق)', 'W46');
+    s += pinBox(40, 160, 252, 44, '#0ea5e9', 'بن 3: Echo (بيطلع 5V خطر!)', 'يدخل على مقاومة 1kΩ ← ثم لـ D22 (#2 يمين)', 'W47+W48');
+    s += pinBox(308,160, 252, 44, '#94a3b8', 'بن 4: GND (أقصى اليمين)', 'ريل GND الأرضي على البريدبورد', 'W_USR_GND');
+    s += `<rect x="40" y="216" width="520" height="72" rx="7" fill="#1e1b4b" stroke="#facc15" stroke-width="1.5"/>`;
+    s += `<text x="300" y="238" text-anchor="middle" fill="#fde68a" font-weight="700" font-size="12.5">⚡ رسمة مقسم الجهد لـ Echo اليمين على البريدبورد (عشان D22 ميتحرقش):</text>`;
+    s += `<text x="300" y="260" text-anchor="middle" fill="#fff" font-size="12" font-family="Tahoma,monospace">[بن Echo] ──( مقاومة 1kΩ )──●──► يروح لبن D22 (كده بقى 3.33V آمن)</text>`;
+    s += `<text x="300" y="279" text-anchor="middle" fill="#94a3b8" font-size="11.5" font-family="Tahoma,monospace">ومن نفس النقطة (●) ركب ( مقاومة 2kΩ ) ──► لريل الأرضي GND</text>`;
+
+    // Left US
+    s += `<rect x="25" y="325" width="550" height="300" rx="10" fill="#0f2942" stroke="#38bdf8" stroke-width="2"/>`;
+    s += `<circle cx="95" cy="375" r="24" fill="#cbd5e1" stroke="#475569" stroke-width="3"/><text x="95" y="380" text-anchor="middle" fill="#0f172a" font-weight="700">T</text>`;
+    s += `<circle cx="165" cy="375" r="24" fill="#cbd5e1" stroke="#475569" stroke-width="3"/><text x="165" y="380" text-anchor="middle" fill="#0f172a" font-weight="700">R</text>`;
+    s += `<text x="390" y="360" text-anchor="middle" fill="#fff" font-weight="700" font-size="15">2) حساس الألتراسونيك الشمال (HC-SR04 Left)</text>`;
+    s += `<text x="390" y="383" text-anchor="middle" fill="#fde68a" font-size="11.5">انتبه: Echo الشمال بيروح لبن GPIO 17 اللي مكتوب عليه (TX2) على الـ ESP32!</text>`;
+    s += pinBox(40, 412, 252, 44, '#f97316', 'بن 1: VCC', 'ريل +5V البريدبورد (BK1)', 'W_USL_VCC');
+    s += pinBox(308,412, 252, 44, '#38bdf8', 'بن 2: Trig', 'مباشرة إلى ESP32 بن D21 (#5 يمين من فوق)', 'W60');
+    s += pinBox(40, 464, 252, 44, '#0ea5e9', 'بن 3: Echo (5V خطر!)', 'مقسم مستقل 1kΩ/2kΩ ← لبن TX2 (GPIO 17)', 'W61+W62');
+    s += pinBox(308,464, 252, 44, '#94a3b8', 'بن 4: GND', 'ريل GND الأرضي على البريدبورد', 'W_USL_GND');
+    s += `<rect x="40" y="520" width="520" height="88" rx="7" fill="#1e1b4b" stroke="#facc15" stroke-width="1.5"/>`;
+    s += `<text x="300" y="544" text-anchor="middle" fill="#fde68a" font-weight="700" font-size="12.5">⚡ رسمة مقسم الجهد الثاني لـ Echo الشمال على البريدبورد:</text>`;
+    s += `<text x="300" y="568" text-anchor="middle" fill="#fff" font-size="12" font-family="Tahoma,monospace">[بن Echo الشمال] ──( مقاومة 1kΩ تانية )──●──► يروح لبن TX2 / G17 (#7 من الـ USB يمين)</text>`;
+    s += `<text x="300" y="590" text-anchor="middle" fill="#94a3b8" font-size="11.5" font-family="Tahoma,monospace">ومن نفس النقطة (●) ركب ( مقاومة 2kΩ تانية ) ──► لريل الأرضي GND</text>`;
+  }
+  else if(currentPeriphTab === 'IR'){
+    $('periphTitle').textContent = 'بنوز حساسات تتبع الخط الثلاثة (TCRT5000 / HW-511 — كل حساس 4 بنوز)';
+    const irs = [
+      ['1) حساس الخط الشمال (IR_L)', 'D34 (البن #4 شمال من فوق / #12 من USB)', 'W50', 25],
+      ['2) حساس الخط الوسط (IR_C)',  'D35 (البن #5 شمال من فوق / #11 من USB)', 'W51', 225],
+      ['3) حساس الخط اليمين (IR_R)',  'D19 (البن #6 يمين من فوق / #10 من USB)', 'W52', 425]
+    ];
+    irs.forEach(([title, destPin, wid, y0]) => {
+      s += `<rect x="25" y="${y0}" width="550" height="185" rx="10" fill="#0d2818" stroke="#22c55e" stroke-width="1.8"/>`;
+      s += `<text x="300" y="${y0+26}" text-anchor="middle" fill="#fff" font-weight="700" font-size="14.5">${title}</text>`;
+      s += `<text x="300" y="${y0+46}" text-anchor="middle" fill="#86efac" font-size="11.5">فيه مسمار أزرق لضبط الحساسية + عدستين (زرقاء وسوداء) على ارتفاع 3–5 مم من الأرض</text>`;
+      s += pinBox(40,  y0+60, 252, 44, '#4ade80', 'بن 1: VCC (3.3V فقط!)', 'من رجل 3V3 في ESP32 (#1 يمين جنب BOOT)', 'W_3V3');
+      s += pinBox(308, y0+60, 252, 44, '#94a3b8', 'بن 2: GND', 'ريل الأرضي GND المشترك', 'W_GND_R');
+      s += pinBox(40,  y0+114,252, 48, '#22c55e', 'بن 3: DO (الخرج الرقمي)', 'إلى ESP32 بن ' + destPin, wid);
+      s += pinBox(308, y0+114,252, 48, '#475569', 'بن 4: AO (التناظري)', '✖ سيبه فاضي تماماً (غير مستخدم)', '');
+    });
+  }
+  else if(currentPeriphTab === 'SRV_BK'){
+    $('periphTitle').textContent = 'بنوز السيرفو (MG996R / MG90S) + المنظمين BK1 و BK2 (LM2596)';
+    // Servo
+    s += `<rect x="25" y="20" width="550" height="215" rx="10" fill="#2b123f" stroke="#c084fc" stroke-width="2"/>`;
+    s += `<text x="300" y="46" text-anchor="middle" fill="#fff" font-weight="700" font-size="15">فيشة موتور السيرفو لرفع الشيبسي (3 أسلاك ملونة) + مكثف 1000µF</text>`;
+    s += pinBox(40, 62, 520, 44, '#94a3b8', '1) السلك البني أو الأسود (GND)', 'يروح لطرف OUT- في المنظم BK2 + الرجل السالبة للمكثف 1000µF', 'W19');
+    s += pinBox(40, 114,520, 44, '#c084fc', '2) السلك الأحمر اللي في النص (V+ 5.0V)', 'يروح لطرف OUT+ في المنظم BK2 فقط! + الرجل الموجبة للمكثف 1000µF', 'W18');
+    s += pinBox(40, 166,520, 48, '#facc15', '3) السلك البرتقالي أو الأصفر (PWM Signal)', 'يمر على مقاومة 1kΩ توالي ← إلى ESP32 بن D18 (#7 يمين من فوق)', 'W45+W57');
+
+    // BK1 & BK2
+    [['منظم المخ والحساسات BK1 (LM2596 #1)', 255, '#f97316', 'W12','W13','W16','W17', 'يروح لريل +5V البريدبورد (ESP32 VIN + الألتراسونيك + L298N +5V)'],
+     ['منظم السيرفو المعزول BK2 (LM2596 #2)', 450, '#a855f7', 'W14','W15','W18','W19', 'يروح للسلك الأحمر بتاع السيرفو لوحده (معزول عن الـ ESP32!)']
+    ].forEach(([t, y0, col, wi1, wi2, wo1, wo2, outDesc]) => {
+      s += `<rect x="25" y="${y0}" width="550" height="178" rx="10" fill="#172336" stroke="${col}" stroke-width="2"/>`;
+      s += `<text x="300" y="${y0+25}" text-anchor="middle" fill="#fff" font-weight="700" font-size="14.5">${t}</text>`;
+      s += `<text x="300" y="${y0+46}" text-anchor="middle" fill="#fde68a" font-size="11.5">🚨 قبل توصيل OUT+ بأي حاجة: قيس بين OUT+ و OUT- بالملتيميتر ولف المسمار النحاس لحد 5.00V بالظبط!</text>`;
+      s += pinBox(40,  y0+60, 252, 46, '#ef4444', 'طرف IN+ (فوق شمال)', 'من موزع الموجب X1 (7.4V)', wi1);
+      s += pinBox(308, y0+60, 252, 46, col,       'طرف OUT+ (فوق يمين)', outDesc, wo1);
+      s += pinBox(40,  y0+114,252, 46, '#94a3b8', 'طرف IN- (تحت شمال)', 'من موزع الأرضي X2 (0V)', wi2);
+      s += pinBox(308, y0+114,252, 46, '#94a3b8', 'طرف OUT- (تحت يمين)', 'أرضي الخرج (0V)', wo2);
+    });
+  }
+  else if(currentPeriphTab === 'PWR'){
+    $('periphTitle').textContent = 'أطراف الـ BMS الخمسة + رجول السويتش KCD3 الثلاثة + فتحات موزعات Wago';
+    // BMS 2S 8A
+    s += `<rect x="25" y="18" width="550" height="205" rx="10" fill="#0f291e" stroke="#22c55e" stroke-width="2"/>`;
+    s += `<text x="300" y="42" text-anchor="middle" fill="#fff" font-weight="700" font-size="14.5">1) بوردة الحماية BMS 2S 8A (الخمس أطراف المطبوعة على البوردة الخضراء)</text>`;
+    s += pinBox(40,  54, 252, 44, '#94a3b8', 'طرف B- (أول طرف يتوصل)', 'سالب البطارية الكلي 0V (W03)', 'W03');
+    s += pinBox(308, 54, 252, 44, '#fb7185', 'طرف BM (المنتصف 3.7V)', 'النقطة المشتركة بين الخليتين (W02)', 'W02');
+    s += pinBox(40,  106,252, 44, '#ef4444', 'طرف B+ (موجب البطارية)', 'موجب البطارية الكلي 7.4V (W01)', 'W01');
+    s += pinBox(308, 106,252, 44, '#ef4444', 'طرف P+ (موجب الخرج المحمي)', 'يخرج للفيوز T6.3A عبر XT30 (W04)', 'W04');
+    s += pinBox(40,  158,520, 48, '#94a3b8', 'طرف P- (سالب الخرج المحمي والشحن)', 'يروح لموزع الأرضي X2 (W07) + سالب شاحن الـ USB-C (W09)', 'W07');
+
+    // KCD3 3-Pin Switch Warning!
+    s += `<rect x="25" y="238" width="550" height="175" rx="10" fill="#3b1418" stroke="#f87171" stroke-width="2"/>`;
+    s += `<text x="300" y="262" text-anchor="middle" fill="#fde68a" font-weight="700" font-size="14.5">2) رجول السويتش KCD3 16A الثلاثة من تحت (انتبه من الرجل الذهبي!)</text>`;
+    s += pinBox(40, 276, 252, 48, '#e2e8f0', 'الرجل 2 (الفضي اللي في النص)', 'دخل الكهرباء من الفيوز ومشبك N1 (W05b)', 'W05b');
+    s += pinBox(308,276, 252, 48, '#ef4444', 'الرجل 1 (الفضي الجانبية)', 'خرج الكهرباء لموزع الموجب X1 (W06)', 'W06');
+    s += pinBox(40, 334, 520, 62, '#fbbf24', '🚨 الرجل 3 (الذهبي / النحاس الأصفر بتاعة اللمبة)', '✖ ممنوع توصل عليها أي سلك نهائياً! سيبها عريانة/فاضية عشان متعملش شورت مع الأرضي!', '');
+
+    // Wago X1 & X2 + VBAT Divider
+    s += `<rect x="25" y="428" width="550" height="202" rx="10" fill="#1c2733" stroke="#f97316" stroke-width="1.8"/>`;
+    s += `<text x="300" y="452" text-anchor="middle" fill="#fff" font-weight="700" font-size="14">3) فتحات مشبك الموجب X1 ومشبك الأرضي X2 (PCT-215 ذو 5 روافع برتقالية)</text>`;
+    s += pinBox(40,  466, 252, 72, '#ef4444', 'X1 موجب (5 فتحات)', '1:من السويتش · 2:درايفر +12V · 3:BK1 IN+ · 4:BK2 IN+ · 5:مقاومة 100kΩ', 'W06');
+    s += pinBox(308, 466, 252, 72, '#94a3b8', 'X2 أرضي (5 فتحات)', '1:من BMS P- · 2:درايفر GND · 3:BK1 IN- · 4:BK2 IN- · 5:للقياس بالملتيميتر', 'W07');
+    s += pinBox(40,  548, 520, 66, '#4ade80', 'مقسم قراءة البطارية على البريدبورد (يروح لبن VN — #3 شمال من فوق)', '[فتحة 5 في X1] ──( مقاومة 100kΩ )──●──► لبن VN (GPIO39) ، ومن (●) ركب (33kΩ + 100nF) للأرضي', 'W20+W53');
+  }
+
+  $('svgPeriph').innerHTML = s;
+  $('svgPeriph').querySelectorAll('.pin-hit').forEach(g => {
+    g.onclick = () => {
+      if(g.dataset.wid) selectPinOrWire(g.dataset.wid, null);
+    };
+  });
+}
+
+// Initialize Everything
 buildSidebar();
-updateInspector();
-requestAnimationFrame(render3D);
+renderInspector();
+drawEsp2D();
+drawPeriph2D();
+requestAnimationFrame(renderLoop);
 </script>
 </body>
 </html>
